@@ -1,0 +1,3 @@
+requires: libc 
+provides: rtems_wrapper
+maintainer: philipp.eppelt@mailbox.tu-dresden.de
