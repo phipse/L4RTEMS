@@ -17,7 +17,6 @@
 #include <l4/sys/utcb.h>
 #include <l4/sys/types.h>
 
-static l4_vcpu_state_t *vcpuh;
 
 static void handler();
 
@@ -52,31 +51,37 @@ extern void
 l4rtems_port_irq_out( l4_umword_t _port, l4_umword_t _value)
 __attribute__((weak));
 
+
+
+static l4_vcpu_state_t *vcpuh;
+static l4vcpu_irq_state_t saved_irq_state;
+
+
+  
 static void
 l4rtems_irq_disable( void )
 {
-l4vcpu_irq_disable( vcpuh );
+  l4vcpu_irq_disable( vcpuh );
 }
 
-static l4vcpu_irq_state_t saved_irq_state;
 
 static void
 l4rtems_irq_disable_save( void )
 {
-saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
+  saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
 }
 
 static void
 l4rtems_irq_enable( void )
 {
-l4vcpu_irq_enable( vcpuh, l4_utcb(), (l4vcpu_event_hndl_t) handler, 
+  l4vcpu_irq_enable( vcpuh, l4_utcb(), (l4vcpu_event_hndl_t) handler, 
     (l4vcpu_setup_ipc_t) irq_start );
 }
 
 static void
 l4rtems_irq_restore( void )
 {
-l4vcpu_irq_restore( vcpuh, saved_irq_state, l4_utcb(), 
+  l4vcpu_irq_restore( vcpuh, saved_irq_state, l4_utcb(), 
     (l4vcpu_event_hndl_t) handler, (l4vcpu_setup_ipc_t) irq_start );
 }
 
