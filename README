@@ -1,0 +1,27 @@
+Maintainer:   Philipp Eppelt
+Contact:      philipp.eppelt@mailbox.tu-dresden.de
+
+
+= This is all just a rough outline, under construction and will be expanded in
+the future. = 
+
+
+
+
+== Abstract == 
+
+This is a student project I do at the Chair for operating systems at the
+Dresden University of Technology. The goal of the project is to test the L4vcpu
+implementation by running RTEMS on top of it. 
+
+
+== Structure ==
+
+On the L4Re side, I have a wrapper, loading the ELF-File compiled by RTEMS,
+starting the VCPU Task and handling VM exits. This wrapper also includes an
+interface acting as joint between L4Re and RTEMS. 
+
+The RTEMS side get a new BSP and CPU called l4vcpu, which provides the
+necessary adaptions from i386 to L4vcpu, like IRQ handling.
+
+
