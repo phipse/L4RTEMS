@@ -25,3 +25,19 @@ The RTEMS side get a new BSP and CPU called l4vcpu, which provides the
 necessary adaptions from i386 to L4vcpu, like IRQ handling.
 
 
+
+== Build instructions ==
+
+Just follow the normal RTEMS build instructions with some minor changes:
+
+After you bootstrapped you need to add the l4vcpu in ${RTEMS_SRC_FOLDER}/config.sub around line 354:
+  Just preceed the definition of "i*86 | x86_64)" with "l4vcpu |" 
+
+Then you should configure your build with the following parameters:
+  --target=l4vcpu-rtems4.11
+  --enable-rtemsbsp=pc386
+everything else goes untouched.
+
+
+
+
