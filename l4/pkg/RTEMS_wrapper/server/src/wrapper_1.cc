@@ -27,6 +27,7 @@
 #include <l4/sys/ipc.h>
 #include <l4/sys/thread>
 #include <l4/sys/utcb.h>
+#include <l4/sys/types.h>
 #include <l4/sys/factory>
 #include <l4/sys/kdebug.h>
 #include <l4/vcpu/vcpu>
@@ -50,6 +51,7 @@ static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
 static L4::Cap<L4::Irq> irq;
 static L4::Cap<L4::Thread> vcpu_cap;
+static l4_vcpu_state_t *vcpuh;
 
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
@@ -63,9 +65,6 @@ typedef struct multiboot
   long mem_lower;
   long mem_upper;
 } multiboot_structure;
-
-/* function predefinitions */
-static void handler();
 
 /* setup_user_state:
  * save the current fs, ds and set the vcpu ss */
@@ -412,4 +411,34 @@ main( int argc, char **argv )
   
   l4_sleep_forever(); 
   return 0;
+}
+
+
+static l4vcpu_irq_state_t saved_irq_state;
+
+static void
+l4rtems_irq_disable( void )
+{
+  l4vcpu_irq_disable( vcpuh );
+}
+
+
+static void
+l4rtems_irq_disable_save( void )
+{
+  saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
+}
+
+static void
+l4rtems_irq_enable( void )
+{
+  l4vcpu_irq_enable( vcpuh, l4_utcb(), (l4vcpu_event_hndl_t) handler, 
+    (l4vcpu_setup_ipc_t) irq_start );
+}
+
+static void
+l4rtems_irq_restore( void )
+{
+  l4vcpu_irq_restore( vcpuh, saved_irq_state, l4_utcb(), 
+    (l4vcpu_event_hndl_t) handler, (l4vcpu_setup_ipc_t) irq_start );
 }

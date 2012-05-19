@@ -34,8 +34,8 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
  *  Interrupt Level Macros
  */
 
-// RTEMSVCPU: 09/05/2012
-#include  "wrapper_1.h"
+// RTEMSVCPU: 19/05/2012
+#include  <rtems/l4/wrapper.h>
 
 #define i386_disable_interrupts( _level ) \
   { l4rtems_irq_disable_save(); \
