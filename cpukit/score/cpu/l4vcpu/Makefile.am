@@ -12,7 +12,7 @@ include_rtems_score_HEADERS = rtems/score/cpu.h rtems/score/i386.h \
     rtems/score/types.h rtems/score/interrupts.h rtems/score/registers.h \
     rtems/score/idtr.h 
 # RTEMSVCPU: Added rtems/score/wrapper.h
-include_rtems_score_HEADERS += rtems/l4/wrapper_1.h
+include_rtems_score_HEADERS += rtems/score/wrapper.h
 
 noinst_LIBRARIES = libscorecpu.a
 libscorecpu_a_SOURCES = cpu.c cpu_asm.S

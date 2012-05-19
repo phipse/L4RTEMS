@@ -39,5 +39,8 @@ Then you should configure your build with the following parameters:
 everything else goes untouched.
 
 
+The first try with make will fail, due to a missing directory. So you need to
+add it with:
+/${builddir}: mkdir l4vcpu-rtems4.11/pc386/lib/include/rtems/l4
 
 

@@ -104,20 +104,20 @@ pc386_delay1:
 SYM (_load_segments):
 
 # no need for this in a virtual environment
-#	lgdt SYM(gdtdesc)
-#       lidt SYM(idtdesc)
+	lgdt SYM(gdtdesc)
+       lidt SYM(idtdesc)
 
 	/* Load CS, flush prefetched queue */
-	#ljmp $0x8, $next_step
+	ljmp $0x8, $next_step
 
-#next_step:
+next_step:
         /* Load segment registers */
-#	movw $0x10, ax
-#	movw ax, ss
-#	movw ax, ds
-#	movw ax, es
-#	movw ax, fs
-#	movw ax, gs
+	movw $0x10, ax
+	movw ax, ss
+	movw ax, ds
+	movw ax, es
+	movw ax, fs
+	movw ax, gs
 
 /*---------------------------------------------------------------------+
 | Now we have to reprogram the interrupts :-(. We put them right after
@@ -129,38 +129,38 @@ SYM (_load_segments):
 | it isn't fun.
 +---------------------------------------------------------------------*/
 
-#	movb	$0x11, al		/* initialization sequence          */
-#	outb	al, $0x20		/* send it to 8259A-1               */
-#	call	SYM(pc386_delay)
-#	outb	al, $0xA0		/* and to 8259A-2                   */
-#	call	SYM(pc386_delay)
+	movb	$0x11, al		/* initialization sequence          */
+	outb	al, $0x20		/* send it to 8259A-1               */
+	call	SYM(pc386_delay)
+	outb	al, $0xA0		/* and to 8259A-2                   */
+	call	SYM(pc386_delay)
 
-#	movb	$0x20, al		/* start of hardware int's (0x20)   */
-#	outb	al, $0x21
-#	call	SYM(pc386_delay)
-#	movb	$0x28, al		/* start of hardware int's 2 (0x28) */
-#	outb	al, $0xA1
-#	call	SYM(pc386_delay)
+	movb	$0x20, al		/* start of hardware int's (0x20)   */
+	outb	al, $0x21
+	call	SYM(pc386_delay)
+	movb	$0x28, al		/* start of hardware int's 2 (0x28) */
+	outb	al, $0xA1
+	call	SYM(pc386_delay)
 
-#	movb	$0x04, al		/* 8259-1 is master                 */
-#	outb	al, $0x21
-#	call	SYM(pc386_delay)
-#	movb	$0x02, al		/* 8259-2 is slave                  */
-#	outb	al, $0xA1
-#	call	SYM(pc386_delay)
+	movb	$0x04, al		/* 8259-1 is master                 */
+	outb	al, $0x21
+	call	SYM(pc386_delay)
+	movb	$0x02, al		/* 8259-2 is slave                  */
+	outb	al, $0xA1
+	call	SYM(pc386_delay)
 
-#	movb	$0x01, al		/* 8086 mode for both               */
-#	outb	al, $0x21
-#	call	SYM(pc386_delay)
-#	outb	al, $0xA1
-#	call	SYM(pc386_delay)
+	movb	$0x01, al		/* 8086 mode for both               */
+	outb	al, $0x21
+	call	SYM(pc386_delay)
+	outb	al, $0xA1
+	call	SYM(pc386_delay)
 
-#	movb	$0xFF, al		/* mask off all interrupts for now  */
-#	outb	al, $0xA1
-#	call	SYM(pc386_delay)
-#	movb	$0xFB, al		/* mask all irq's but irq2 which    */
-#	outb	al, $0x21		/* is cascaded                      */
-#	call	SYM(pc386_delay)
+	movb	$0xFF, al		/* mask off all interrupts for now  */
+	outb	al, $0xA1
+	call	SYM(pc386_delay)
+	movb	$0xFB, al		/* mask all irq's but irq2 which    */
+	outb	al, $0x21		/* is cascaded                      */
+  	call	SYM(pc386_delay)
 
 	movw	$0xFFFB, SYM(i8259s_cache) /* set up same values in cache */
 
@@ -180,9 +180,9 @@ SYM (_load_segments):
 +--------------------------------------------------------------------------*/
  
 # GDT and IDT are not needed in the virtual environment
-#BEGIN_DATA
-#	.p2align 4
-#
+BEGIN_DATA
+	.p2align 4
+
 	PUBLIC (_Global_descriptor_table)
 SYM (_Global_descriptor_table):
 
@@ -197,35 +197,35 @@ SYM (_Global_descriptor_table):
 	/* data segment */
 	.word 0xffff, 0
 	.byte 0, 0x92, 0xcf, 0
-#
+
 #/*---------------------------------------------------------------------------+
 #| Descriptor of GDT
 #+--------------------------------------------------------------------------*/
-#SYM (gdtdesc):
-#	.word (3*8 - 1)
-#	.long SYM (_Global_descriptor_table)
-#
+SYM (gdtdesc):
+	.word (3*8 - 1)
+	.long SYM (_Global_descriptor_table)
+
 #/*---------------------------------------------------------------------------+
 #| IDT itself
 #+---------------------------------------------------------------------------*/
-#	.p2align 4
-#
-#	PUBLIC(Interrupt_descriptor_table)
-#SYM(Interrupt_descriptor_table):
-#	.rept 256
-#	.word 0,0,0,0
-#	.endr
-#
+	.p2align 4
+
+	PUBLIC(Interrupt_descriptor_table)
+SYM(Interrupt_descriptor_table):
+	.rept 256
+	.word 0,0,0,0
+	.endr
+
 #/*---------------------------------------------------------------------------+
 #| Descriptor of IDT
 #+--------------------------------------------------------------------------*/
-#
-#	.p2align 4
-#SYM(idtdesc):
-#	.word  (256*8 - 1)
-#	.long  SYM (Interrupt_descriptor_table)
-#
-#END_DATA
+
+	.p2align 4
+SYM(idtdesc):
+	.word  (256*8 - 1)
+	.long  SYM (Interrupt_descriptor_table)
+
+END_DATA
 
     .section .m_hdr
 	.long 0x1BADB002

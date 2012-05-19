@@ -97,7 +97,7 @@ static __inline__ unsigned short i386_get_gs(void)
  */
 
 /* RTEMSVCPU: trigger irq  */
-#include <l4/RTEMS_wrapper/wrapper_1.h>
+#include <rtems/score/wrapper.h>
 /* MAGIC NUMBERS: 0 -> byte, 1 -> word, 2 -> long */
 
 #define i386_outport_byte( _port, _value ) \

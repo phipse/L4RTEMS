@@ -13,7 +13,7 @@ include_libcpudir = $(includedir)/libcpu
 include_libcpu_HEADERS = cpu.h cpuModel.h
 include_libcpu_HEADERS += ../shared/include/cache.h
 include_libcpu_HEADERS += byteorder.h
-include_libcpu_HEADERS += include/l4/RTEMS_wrapper/wrapper_1.c
+#include_libcpu_HEADERS += include/l4/RTEMS_wrapper/wrapper_1.c
 
 noinst_PROGRAMS += cache.rel
 cache_rel_SOURCES = cache.c cache_.h ../shared/src/cache_aligned_malloc.c \

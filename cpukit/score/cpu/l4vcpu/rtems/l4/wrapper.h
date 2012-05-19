@@ -10,13 +10,13 @@
 #ifndef L4RTEMS_WRAPPER
 #define L4RTEMS_WRAPPER
 
-static void
+void
 irq_start();
 
-static void
+void
 irq_pending();
 
-static void
+void
 starter();
 
 unsigned long
@@ -36,19 +36,19 @@ __attribute__((weak));
 /* IRQ Handling */
 
   
-static void
+void
 l4rtems_irq_disable( void );
 
 
-static void
+void
 l4rtems_irq_disable_save( void );
 
 
-static void
+void
 l4rtems_irq_enable( void );
 
 
-static void
+void
 l4rtems_irq_restore( void );
 
 
