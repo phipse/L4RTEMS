@@ -2,9 +2,8 @@
 /*
  * This is my first attempt to create a wrapper for RTEMS to get it on L4 via 
  * the vCPU interface.
- * !Header file!
  *
- * Contact: philipp.eppelt@mailbox.tu-dresden.de
+ * Maintainer: philipp.eppelt@mailbox.tu-dresden.de
  * 
  */
 
