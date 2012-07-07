@@ -21,7 +21,7 @@ On the L4Re side, I have a wrapper, loading the ELF-File compiled by RTEMS,
 starting the VCPU Task and handling VM exits. This wrapper also includes an
 interface acting as joint between L4Re and RTEMS. 
 
-The RTEMS side get a new BSP and CPU called l4vcpu, which provides the
+The RTEMS side gets a new BSP and CPU called l4vcpu, which provides the
 necessary adaptions from i386 to L4vcpu, like IRQ handling.
 
 
