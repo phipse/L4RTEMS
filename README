@@ -44,3 +44,7 @@ add it with:
 /${builddir}: mkdir l4vcpu-rtems4.11/pc386/lib/include/rtems/l4
 
 
+== Further documentation ==
+
+Please check the doc file, it is no real documentation, just a bunch of notes I
+wrote down to keep track of the workflow.
