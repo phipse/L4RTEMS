@@ -1,0 +1,47 @@
+Testing the cross compiler with the test mentioned in getting started pdf works
+
+Added symbolic links from l4vcpu-rtems4.11-* to i386-rtems4.11-* in
+/opt/rtems-4.11/bin
+
+Added l4vcpu in c/src/aclocal/rtems-cpu-subdirs.m4
+
+Added l4vcpu in config.sub
+
+--- above is critical -- 
+
+
+
+Added symbolic link to wrapper_1.h in back_rtems/cpukit/score/cpu/l4vcpu/rtems/score/ and added the include in 'interrupts.h' in the same folder
+
+Added wrapper_1.h file mentioned above in cpukit/score/cpu/l4vcpu/Makefile.am
+
+--enable-maintainer-mode :
+  Makefile.am changes will be written out to Makefile.in
+
+add libl4rtems.a.o to l4vcpu-rtems4.11/pc386/lib/
+results in more specific `undefined reference` errors
+
++++ TODO +++
+
+  add in the l4 header files to complete the compile process!
+    The cpukit/score/cpu/l4vcpu/rtems/l4 folder has to be created with an extra
+      command. Or the make process will fail with 'no file or directory'.
+      Or, the wrapper needs to be moved to ../l4vcpu/rtems/score/
+    The include paths for the wrapper need to be fixed, so it can be cleanly
+      included.
+
+
+08/07/2012
+The libl4rtems.o.a library needs to be linked completly in the l4 environment,
+so there are no Undefined symbols left in the symbol table. 
+There are various ways I to achieve this, but I don't know which one will work,
+so I just list them:
+* -z defs  //if shared_library undef symbols still allowed
+// if shared:
+* -Bstatic ++ -shared ++ --unresolved-symbols=report-all
+* -Bsymbolic
+
+
+WTF Moment of the hour!
+src/l4/mk/lib.mk:78  :: LDSCRIPT_INCR ?= /dev/null
+  so actually we do NOT have a incremental linker script? 
