@@ -45,3 +45,17 @@ so I just list them:
 WTF Moment of the hour!
 src/l4/mk/lib.mk:78  :: LDSCRIPT_INCR ?= /dev/null
   so actually we do NOT have a incremental linker script? 
+
+
+09/07/2012
+l4rtems_outport / _inport / _out / _in
+  * needs implementation
+  * hooks in /c/src/lib/libcpu/l4vcpu/cpu.h
+  => put impl in the library file or in the wrapper?
+
+l4rtems_irq_restore / ++
+  * implemented in wrapper_1.h but 'undefined reference' error
+  => put impl in the library file? 
+    * But functionality of the wrapper needed
+    * How can I add the wrapper to the libl4rtems library?
+
