@@ -59,3 +59,10 @@ l4rtems_irq_restore / ++
     * But functionality of the wrapper needed
     * How can I add the wrapper to the libl4rtems library?
 
+10/07/2012
+
+moving l4rtems_irq_disable_save as a dummy function to libl4rtems/l4rtems_io.c
+and adding the function name to global.syms solves the undefined references,
+but I can't use it there, because the l4_vcpu_state_t needs to be in the
+wrapper_1.c file. I need to structure the code, so I can provide a library to
+rtems and run it on l4re --> THinK!
