@@ -70,6 +70,7 @@ BEGIN_CODE
 	EXTERN (checkCPUtypeSetCr0)
 	EXTERN (BSP_console_select)
 	EXTERN (printk)
+	EXTERN (sharedVariableStruct)
 #ifdef __SSE__
 	EXTERN (x86_capability)
 #ifdef __SSE3__
@@ -112,7 +113,7 @@ speakl:	jmp	speakl             # and SPIN!!!
 	 *	  Do I have a global variable yet? How do I do this?
 	 */
 
-	/* movl ecx,  */
+	movl edx, (sharedVariableStruct)
 
 	/* Save multiboot info if we detect a multiboot loader */
 	cmp 	$0x2badb002,eax
