@@ -45,7 +45,7 @@
 #include <rtems/keyboard.h>
 
 // RTEMSVCPU: what is the final path of the bsp includes?
-#include "../include/l4rtems_io.h"
+//#include "../include/l4rtems_io.h"
 
 /*
  * Possible value for console input/output :
@@ -76,9 +76,9 @@ int BSPCmdBaud     = 9600;
 /* printk support */
 // RTEMSVPCU: adjusted the IO functions
 BSP_output_char_function_type BSP_output_char =
-                       (BSP_output_char_function_type) l4rtems_outch;
+                       (BSP_output_char_function_type) _IBMPC_outch;
 
-BSP_polling_getchar_function_type BSP_poll_char = l4rtems_inch;
+BSP_polling_getchar_function_type BSP_poll_char = BSP_wait_polled_input;
 
 /*-------------------------------------------------------------------------+
 | External Prototypes
