@@ -108,6 +108,12 @@ speakl:	jmp	speakl             # and SPIN!!!
 #       cli			# DISABLE INTERRUPTS!!!
 	cld
 
+	/* L4RTEMS: save the shared variables struct stored in ecx!
+	 *	  Do I have a global variable yet? How do I do this?
+	 */
+
+	/* movl ecx,  */
+
 	/* Save multiboot info if we detect a multiboot loader */
 	cmp 	$0x2badb002,eax
 	jne	2f
