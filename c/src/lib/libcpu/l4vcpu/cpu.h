@@ -93,10 +93,62 @@ static __inline__ unsigned short i386_get_gs(void)
 
 /*
  *  IO Port Access Routines
- *  RTEMSVCPU: adapted to work with the l4 vcpu interface
  */
 
-/* RTEMSVCPU: trigger irq  */
+#define i386_outport_byte( _port, _value ) \
+do { register unsigned short __port  = _port; \
+     register unsigned char  __value = _value; \
+     \
+     __asm__ volatile ( "outb %0,%1" : : "a" (__value), "d" (__port) ); \
+   } while (0)
+
+#define i386_outport_word( _port, _value ) \
+do { register unsigned short __port  = _port; \
+     register unsigned short __value = _value; \
+     \
+     __asm__ volatile ( "outw %0,%1" : : "a" (__value), "d" (__port) ); \
+   } while (0)
+
+#define i386_outport_long( _port, _value ) \
+do { register unsigned short __port  = _port; \
+     register unsigned int  __value = _value; \
+     \
+     __asm__ volatile ( "outl %0,%1" : : "a" (__value), "d" (__port) ); \
+   } while (0)
+
+#define i386_inport_byte( _port, _value ) \
+do { register unsigned short __port  = _port; \
+     register unsigned char  __value = 0; \
+     \
+     __asm__ volatile ( "inb %1,%0" : "=a" (__value) \
+                                : "d"  (__port) \
+                  ); \
+     _value = __value; \
+   } while (0)
+
+#define i386_inport_word( _port, _value ) \
+do { register unsigned short __port  = _port; \
+     register unsigned short __value = 0; \
+     \
+     __asm__ volatile ( "inw %1,%0" : "=a" (__value) \
+                                : "d"  (__port) \
+                  ); \
+     _value = __value; \
+   } while (0)
+
+#define i386_inport_long( _port, _value ) \
+do { register unsigned short __port  = _port; \
+     register unsigned int  __value = 0; \
+     \
+     __asm__ volatile ( "inl %1,%0" : "=a" (__value) \
+                                : "d"  (__port) \
+                  ); \
+     _value = __value; \
+   } while (0)
+/* RTEMSVCPU: trigger irq  
+ *  RTEMSVCPU: adapted to work with the l4 vcpu interface
+ */
+#if 0
 #include <rtems/score/wrapper.h>
 /* MAGIC NUMBERS: 0 -> byte, 1 -> word, 2 -> long */
 
@@ -123,7 +175,7 @@ do { _value = l4rtems_inport( _port, 1 ); \
 #define i386_inport_long( _port, _value ) \
 do { _value = l4rtems_inport( _port, 2 ); \
    } while (0)
-
+#endif
 /*
  * Type definition for raw interrupts.
  */
