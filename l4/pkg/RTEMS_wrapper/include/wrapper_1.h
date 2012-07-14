@@ -13,7 +13,7 @@
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu; 
-} sharedvars;
+} sharedvars_t;
 
 
 void

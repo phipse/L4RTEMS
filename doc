@@ -93,5 +93,25 @@ to include more headers. But we will see that when the time is right.
 I added a shared variable structure to the RTEMS_wrapper and stored it in edx
 of the vCPU. I isn't used in start.S directly and I hope I can extract the
 pointer to this shared structure in bootcard with a litte bit of inline asm. 
-I need to share the layout of the structure too, otherwise the access is just
-messy. So I just include the wrapper_1.h file.
+But bootcard is shared over all BSPs so specific changes for one bsp should
+NOT go in there.
+It would be best practice to declare the sharedVar variable somewhere inside
+the l4vcpuBsp and save the pointer at the beginning of the start.S file, as
+this is BSP specific. How do I declare extern variables in ASM? Just with
+"EXTERN _varname" or does this only work for functions?
+And the second question is, where to store the variable in the first place.
+Maybe it would be best to write a special file.
+
+I already added custome functions for inport/outport in 
+c/src/lib/libcpu/l4vcpu/cpu.h. I copied the old i386 methods back, so I can
+focus on a more specific set of problems without side effects from linker
+errors.
+Result: Only a few 'undefined reference' errors remain
+
+I removed the previously added libl4rtems.o.a from the build dir.
+I also removed l4rtems_inch/_ouch from libbsp/l4vcpu/pc386/console/console.c
+Now onyle the 'undefined reference to irq_disable/endable' errors remain.
+
+I placed the sharedVariableStruct together with the wrapper_1.h include in the
+pc386/startup/bspgeworkarea.c file and defined it extern in start/start.S.
+==> I have a include problem, so the sharedvars_t is not recognised. 
