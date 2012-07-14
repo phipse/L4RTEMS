@@ -59,6 +59,7 @@ l4rtems_irq_restore / ++
     * But functionality of the wrapper needed
     * How can I add the wrapper to the libl4rtems library?
 
+
 10/07/2012
 
 moving l4rtems_irq_disable_save as a dummy function to libl4rtems/l4rtems_io.c
@@ -66,3 +67,31 @@ and adding the function name to global.syms solves the undefined references,
 but I can't use it there, because the l4_vcpu_state_t needs to be in the
 wrapper_1.c file. I need to structure the code, so I can provide a library to
 rtems and run it on l4re --> THinK!
+
+
+12/07/2012
+
+Through which interface does the vCPU-Guest (RTEMS) and the vCPU-Host (L4Re)
+communicate?
+When I link staticaly the l4rtems.o.a into RTEMS, I don't get the address of
+my L4Re code. I get the address of the code linked into RTEMS and this code
+doesn't have a connection to L4Re anymore. So how do I implement the vcpu-exit,
+which is caught by the vCPU-handler on the host system?
+Where do I place the exit reason? --> is_irq_entry() ->i()->label
+
+
+What I should do:
+Define a structure in L4Re to share with RTEMS during startup. To do this,
+store the pointer to the structure in a vCPU register. As we are in the same
+address space this works fine. I just have to include the libvcpu-header file,
+so RTEMS knows the structure of the vCPU. As the shared structure grows, I have
+to include more headers. But we will see that when the time is right.
+
+
+14/12/2012
+
+I added a shared variable structure to the RTEMS_wrapper and stored it in edx
+of the vCPU. I isn't used in start.S directly and I hope I can extract the
+pointer to this shared structure in bootcard with a litte bit of inline asm. 
+I need to share the layout of the structure too, otherwise the access is just
+messy. So I just include the wrapper_1.h file.

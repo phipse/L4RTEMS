@@ -66,6 +66,11 @@ typedef struct multiboot
   long mem_upper;
 } multiboot_structure;
 
+typedef struct guestHostShare
+{
+  l4_vcpu_state_t *vcpu; 
+} sharedvars;
+
 /* setup_user_state:
  * save the current fs, ds and set the vcpu ss */
 static void
@@ -88,12 +93,12 @@ handler_prolog()
       : : "r"(ds)/*,"r"(fs) */);
 }
 
-static void
+void
 irq_start()
 {
 }
 
-static void
+ void
 irq_pending()
 {
 }
@@ -202,7 +207,7 @@ SLEEP:
 
 
 
-static void
+void
 starter( void )
 { /* This is the starting point for hte vcpu task. It sets its task and 
      resumes immediatly. */
@@ -370,6 +375,10 @@ main( int argc, char **argv )
   
   /* create multiboot structure */
   multiboot_structure multi = { 1, 0, 1024 };
+  
+  // create and fill shared variables structure
+  sharedvars *sharedstruct = new sharedvars();
+  sharedstruct->vcpu = vcpuh;
 
   /*set the start register */
   vcpu->r()->ip = entry;
@@ -380,6 +389,8 @@ main( int argc, char **argv )
   vcpu->r()->sp = initial_sp; //(l4_umword_t)hdl_stack + sizeof(hdl_stack); 
   vcpu->r()->ax = 0x2badb002;
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
+  vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
+  // touched by the RTEMS start.S code
 
   printf("ip: %lx, sp: %lx, bx: %lx\n",vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
 
@@ -416,27 +427,27 @@ main( int argc, char **argv )
 
 static l4vcpu_irq_state_t saved_irq_state;
 
-static void
+void
 l4rtems_irq_disable( void )
 {
   l4vcpu_irq_disable( vcpuh );
 }
 
 
-static void
+void
 l4rtems_irq_disable_save( void )
 {
   saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
 }
 
-static void
+void
 l4rtems_irq_enable( void )
 {
   l4vcpu_irq_enable( vcpuh, l4_utcb(), (l4vcpu_event_hndl_t) handler, 
     (l4vcpu_setup_ipc_t) irq_start );
 }
 
-static void
+void
 l4rtems_irq_restore( void )
 {
   l4vcpu_irq_restore( vcpuh, saved_irq_state, l4_utcb(), 
