@@ -117,19 +117,6 @@ int boot_card(
     ppc_interrupt_set_disable_mask( PPC_INTERRUPT_DISABLE_MASK_DEFAULT );
   #endif /* PPC_INTERRUPT_DISABLE_MASK_DEFAULT */
 
-  /* L4RTEMS: save the shared variable structure stored in edx! Hopefully it is
-   * still there.
-   */
-  void* sharedVariableStructure = NULL;
-  asm( "movl %%edx, %0;"
-       : "=r" (sharedVariableStructure)
-       :
-       : "%edx"
-     );
-  if( sharedVariableStructure == NULL )
-  {
-    printk( "PANIC: L4RTEMS no shared variables recieved!" );
-  }
   /*
    *  Make sure interrupts are disabled.
    */
