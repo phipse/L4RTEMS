@@ -66,10 +66,6 @@ typedef struct multiboot
   long mem_upper;
 } multiboot_structure;
 
-typedef struct guestHostShare
-{
-  l4_vcpu_state_t *vcpu; 
-} sharedvars;
 
 /* setup_user_state:
  * save the current fs, ds and set the vcpu ss */
