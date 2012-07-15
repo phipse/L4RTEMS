@@ -145,3 +145,6 @@ the wrapper.h.
 I don't know how to handle the last two parameters of l4vcpu_irq_restore() -
 do_event_work_cb and setup_ipc. I just work with NULL for both of them, to keep
 going.
+
+Moved the 'l4rtems_vcpu_irq_state' to 'getbspworkarea.c' and declared it as
+'extern' in interrupts.h, as it throws multiple definition errors.

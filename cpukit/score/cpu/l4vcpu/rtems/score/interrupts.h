@@ -40,7 +40,7 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
 #include  <rtems/score/wrapper.h>
 #include <rtems/l4vcpu/l4vcpu.h>
 
-l4vcpu_irq_state_t l4rtems_vcpu_irq_state;
+extern l4vcpu_irq_state_t l4rtems_vcpu_irq_state;
 extern sharedvars_t *sharedVariableStruct;
 
 #define i386_disable_interrupts( _level ) \
