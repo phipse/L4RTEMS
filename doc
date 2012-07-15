@@ -115,3 +115,27 @@ Now onyle the 'undefined reference to irq_disable/endable' errors remain.
 I placed the sharedVariableStruct together with the wrapper_1.h include in the
 pc386/startup/bspgeworkarea.c file and defined it extern in start/start.S.
 ==> I have a include problem, so the sharedvars_t is not recognised. 
+
+
+15/07/2012
+
+First thing on a sunday morning: 'typedef' seems to be a C++ construct and is
+not recognized by RTEMS. I exchanged it with 'struct guestHostShare. Now it
+compiles fine.
+
+Now I move libvcpu/include/vcpu.h into the cpukit/score/rtems/l4vcpu tree and
+include it in interrupts.h, as I need it for the enable/disable interrupt
+functionality.
+Due to this change I need all l4 dependencies in the RTEMS tree, which I
+modified to only search for local headers and prefixed all with l4, so they
+don't collide with RTEMS includes.
+So now I got a complete set of necessary l4 includes, mostly from l4sys and
+l4sys/ARCH_x86. I added and modified the includes of all files; l4utcb.h and
+l4utcb_x86.h have been a bit tricky, as they depend on each other and the compiler
+doesn't overwrite weak declarations. Additionally the l4_utcb_t is not found in
+l4utcb_x86.h, so I copied it over.
+
+Some errors bound to the change in interrupts.h still remain. 
+>> error: dereferencing pointer to incomplete type
+I think the declaration: 'extern struct guestHostShare *sharedVariableStruct'
+is not working correctly. 

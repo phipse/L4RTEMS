@@ -51,3 +51,76 @@ $(PROJECT_INCLUDE)/rtems/score/idtr.h: rtems/score/idtr.h $(PROJECT_INCLUDE)/rte
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/score/idtr.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/score/idtr.h
 
+$(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp):
+	@$(MKDIR_P) $(PROJECT_INCLUDE)/rtems/l4vcpu
+	@: > $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+PREINSTALL_DIRS += $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4compiler.h: rtems/l4vcpu/l4compiler.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4compiler.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4compiler.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4consts.h: rtems/l4vcpu/l4consts.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4consts.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4consts.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4const_x86.h: rtems/l4vcpu/l4const_x86.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4const_x86.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4const_x86.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4int.h: rtems/l4vcpu/l4int.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4int.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4int.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc.h: rtems/l4vcpu/l4ipc.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4linkage.h: rtems/l4vcpu/l4linkage.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4linkage.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4linkage.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4sys-vcpu.h: rtems/l4vcpu/l4sys-vcpu.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4sys-vcpu.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4sys-vcpu.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4types.h: rtems/l4vcpu/l4types.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4types.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4types.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb.h: rtems/l4vcpu/l4utcb.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4__vcpu-arch.h: rtems/l4vcpu/l4__vcpu-arch.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__vcpu-arch.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__vcpu-arch.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcpu_arch.h: rtems/l4vcpu/l4vcpu_arch.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcpu_arch.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcpu_arch.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcpu.h: rtems/l4vcpu/l4vcpu.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcpu.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcpu.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4err.h: rtems/l4vcpu/l4err.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4err.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4err.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/int_x86.h: rtems/l4vcpu/int_x86.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/int_x86.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/int_x86.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4__l4_fpage.h: rtems/l4vcpu/l4__l4_fpage.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__l4_fpage.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__l4_fpage.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4__timeout.h: rtems/l4vcpu/l4__timeout.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__timeout.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__timeout.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb_x86.h: rtems/l4vcpu/l4utcb_x86.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb_x86.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb_x86.h
+

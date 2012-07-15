@@ -37,14 +37,20 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
 // RTEMSVCPU: 19/05/2012
 // lots of unused variable errors in other files, caused by unused _level
 // variable in the following
-#include  <rtems/score/wrapper.h>
+//#include  <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4vcpu.h>
+
+l4vcpu_irq_state_t l4rtems_vcpu_irq_state;
+extern struct guestHostShare *sharedVariableStruct;
 
 #define i386_disable_interrupts( _level ) \
-  { l4rtems_irq_disable_save(); \
+  { l4rtems_vcpu_irq_state = \
+      l4vcpu_irq_disable_save( sharedVariableStruct->vcpu ); \
   }
 
 #define i386_enable_interrupts( _level )  \
-  { l4rtems_irq_restore(); \
+  { l4vcpu_irq_restore( \
+      sharedVariableStruct->vcpu, l4rtems_vcpu_irq_state ); \
   }
 
 #define i386_flash_interrupts( _level ) \
