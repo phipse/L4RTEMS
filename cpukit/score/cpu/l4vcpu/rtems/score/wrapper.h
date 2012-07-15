@@ -10,6 +10,14 @@
 #ifndef L4RTEMS_WRAPPER
 #define L4RTEMS_WRAPPER
 
+#include <rtems/l4vcpu/l4vcpu.h>
+
+typedef struct guestHostShare
+{
+  l4_vcpu_state_t *vcpu; 
+} sharedvars_t;
+
+
 void
 irq_start( void );
 

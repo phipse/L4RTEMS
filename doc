@@ -139,3 +139,9 @@ Some errors bound to the change in interrupts.h still remain.
 >> error: dereferencing pointer to incomplete type
 I think the declaration: 'extern struct guestHostShare *sharedVariableStruct'
 is not working correctly. 
+
+I needed to add the wrapper.h to the interrupts.h file and to include vcpu.h in
+the wrapper.h.
+I don't know how to handle the last two parameters of l4vcpu_irq_restore() -
+do_event_work_cb and setup_ipc. I just work with NULL for both of them, to keep
+going.
