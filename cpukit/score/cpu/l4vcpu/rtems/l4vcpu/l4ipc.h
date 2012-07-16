@@ -243,9 +243,9 @@ l4_ipc_send(l4_cap_idx_t dest, l4_utcb_t *utcb, l4_msgtag_t tag,
  * server loop in a user-level server that implements user-level objects,
  * see also #l4_ipc_reply_and_wait().
  */
-L4_INLINE l4_msgtag_t
-l4_ipc_wait(l4_utcb_t *utcb, l4_umword_t *label,
-            l4_timeout_t timeout) L4_NOTHROW;
+//L4_INLINE l4_msgtag_t
+//l4_ipc_wait(l4_utcb_t *utcb, l4_umword_t *label,
+//            l4_timeout_t timeout) L4_NOTHROW;
 
 
 /**
@@ -426,6 +426,9 @@ l4_sndfpage_add_u(l4_fpage_t const snd_fpage, unsigned long snd_base,
 /************************************************************************
  * Implementations
  **********************/
+
+#include "l4ipc-invoke-x86.h"
+#include "l4ipc-l42-gcc3-nopic.h"
 
 L4_INLINE l4_umword_t
 l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW

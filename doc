@@ -151,3 +151,21 @@ Moved the 'l4rtems_vcpu_irq_state' to 'getbspworkarea.c' and declared it as
 
 And the added NULL value for 'setup_ipc' and 'do_event_work_cb' is already
 falling on my feet...
+
+
+16/07/2012
+
+No it wasn't. Ihe undefined reference to l4_ipc_wait was due to the missing
+implementation file, as it's an architecture specific file. Additionally I need
+to remove the header of l4_ipc_wait in l4ipc.h and add the include of
+l4ipc-invoke-x86.h and l4ipc-l42-gcc3-nopic.h(order matters). 
+This leads to an undefined reference of __l4sys_invoke_direct, which should be
+provided by the linker itself in the linkerscript. 
+L4Re provides it in ldscripts/main_stat.ld as __l4sys_invoke_direct =
+__L4_KIP_ADDR__ + 0x800. The __L4_KIP_ADDR__ is provided by the buildsystem in
+l4/mk/prog.mk, which grabs the variable from l4/mk/Makeconf.
+>> The question is: How do I get this address into RTEMS?
+
+
+I need to implement the 'do_event_work_cb' and it should point to the RTEMS irq
+handler, as the check for a pending irq is already done.

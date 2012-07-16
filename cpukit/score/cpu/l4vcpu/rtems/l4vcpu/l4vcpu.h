@@ -219,6 +219,7 @@ l4vcpu_ext_alloc(l4_vcpu_state_t **vcpu, l4_addr_t *ext_state,
 
 #include "l4ipc.h"
 #include "l4vcpu_arch.h"
+#include "l4ipc-invoke-x86.h"
 
 L4_CV L4_INLINE
 l4vcpu_state_t
