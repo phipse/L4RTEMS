@@ -178,3 +178,16 @@ I had a look into the 'do_event_work_cb' issue. The best way to handle this
 seems to be the 'bsp_interrupt_handler_dispatch', as this routine looks up the
 vector number in the IDT and returns the right handler. 
 Now I just need to find out, where the IRQ number is stored by l4vcpu.
+The number is still where it belongs. The pending irq flag just tells, there is
+a IRQ to read, please read it. The handler should read it and pass the right
+number on to the dispatch function in RTEMS. Further on the interrupt controler
+will be customised. Which provides us with access to the IDT seen by RTEMS.
+
+The __l4sys_invoke_direct address has to be written into the linker as a
+definition. As the number is fixed in x86 it can be a hard coded magic number.
+
+So far I added a PROVIDE in the linkcmds in libbsp/l4vcpu/pc386/startup/ for
+the __l4sys_invoke_direct and hardcoded the magic number for the x86 platform.
+Additionaly I fixed the wrapper_1.cc/.h files.
+It compiles all the samples, but when I load the hello-sample into the l4vcpu
+environment, it traps when starting _load_segemnts in pc386/startup/ldsegs.S.

@@ -10,7 +10,11 @@
 #ifndef L4RTEMS_WRAPPER
 #define L4RTEMS_WRAPPER
 
-#include <rtems/l4vcpu/l4vcpu.h>
+#if L4RTEMS
+  #include <rtems/l4vcpu/l4vcpu.h>
+#else
+  #include <l4/sys/vcpu.h>
+#endif
 
 typedef struct guestHostShare
 {

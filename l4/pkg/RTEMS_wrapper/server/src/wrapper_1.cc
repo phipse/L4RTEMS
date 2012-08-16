@@ -141,7 +141,6 @@ handler()
   printf("Hello Handler\n");
   enter_kdebug("handler entry");
   handler_prolog();
-  static int cnt = 0;
 //  vcpu->print_state("State:");
   vcpu->state()->clear( L4_VCPU_F_EXCEPTIONS );
   printf("vcpu->ip: %lx\n", vcpu->r()->ip);
@@ -188,15 +187,12 @@ handler()
   else
   {
     vcpu->print_state("Handler Unknown Entry:");
-    cnt++;
   }
 
   L4::Cap<L4::Thread> self;
-  if( cnt > 2 ) goto SLEEP;
   vcpu->task( vcpu_task );
   self->vcpu_resume_commit( self->vcpu_resume_start() );
 
-SLEEP:
   printf("hier gehts nicht weiter\n");
   l4_sleep_forever();
 }
@@ -373,7 +369,7 @@ main( int argc, char **argv )
   multiboot_structure multi = { 1, 0, 1024 };
   
   // create and fill shared variables structure
-  sharedvars *sharedstruct = new sharedvars();
+  sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
 
   /*set the start register */
@@ -408,13 +404,14 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
-  
+#if 0  
   /* create timer thread */
   L4::Cap<L4::Thread> timer;
   timer->ex_regs( (l4_umword_t) l4rtems_timer,
 		  (l4_umword_t) timer_stack + sizeof(timer_stack),
 		  0 );
   L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(2) ); 
+#endif
   
   l4_sleep_forever(); 
   return 0;
@@ -442,6 +439,7 @@ l4rtems_irq_enable( void )
   l4vcpu_irq_enable( vcpuh, l4_utcb(), (l4vcpu_event_hndl_t) handler, 
     (l4vcpu_setup_ipc_t) irq_start );
 }
+
 
 void
 l4rtems_irq_restore( void )

@@ -29,6 +29,9 @@ SECTIONS
  * XXX commented out --joel
   PROVIDE (__executable_start = 0x08048000); . = 0x08048000 + SIZEOF_HEADERS;
 */
+/* This addition is for the l4vcpu */
+  PROVIDE (__l4sys_invoke_direct = 0xaffff000 + 0x800 );
+
   .interp         : { *(.interp) }
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .hash           : { *(.hash) }
