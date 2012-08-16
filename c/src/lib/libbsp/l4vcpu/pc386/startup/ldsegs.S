@@ -103,16 +103,16 @@ pc386_delay1:
         PUBLIC (_load_segments)
 SYM (_load_segments):
 
-# no need for this in a virtual environment
+/* what to do with these? I can't load 'em, cause I'm in protected mode */
 	lgdt SYM(gdtdesc)
-       lidt SYM(idtdesc)
+	lidt SYM(idtdesc) 
 
 	/* Load CS, flush prefetched queue */
-	ljmp $0x8, $next_step
+	ljmp $0x8, $next_step /* 0x8 is the start of the code segment */
 
 next_step:
         /* Load segment registers */
-	movw $0x10, ax
+	movw $0x10, ax  /* 0x10 is the start of the data segment */
 	movw ax, ss
 	movw ax, ds
 	movw ax, es
@@ -179,7 +179,6 @@ next_step:
 | GDT itself
 +--------------------------------------------------------------------------*/
  
-# GDT and IDT are not needed in the virtual environment
 BEGIN_DATA
 	.p2align 4
 
