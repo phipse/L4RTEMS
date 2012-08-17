@@ -103,16 +103,20 @@ pc386_delay1:
         PUBLIC (_load_segments)
 SYM (_load_segments):
 
-/* what to do with these? I can't load 'em, cause I'm in protected mode */
+/* Priviledged instructions, not usable and not necessary in a virtualised
+ * environment, so jump back without doing anything. */
+	jmp	SYM (_establish_stack)	# return to the bsp entry code
+
 	lgdt SYM(gdtdesc)
-	lidt SYM(idtdesc) 
+	lidt SYM(idtdesc)  
 
 	/* Load CS, flush prefetched queue */
-	ljmp $0x8, $next_step /* 0x8 is the start of the code segment */
+	ljmp $0x8, $next_step  /* 0x8 is the start of the code segment */
 
 next_step:
         /* Load segment registers */
-	movw $0x10, ax  /* 0x10 is the start of the data segment */
+	movw $0x23, ax  /* 0x10 is the start of the data segment and a
+	privilidged value, so it can't be movw'ed to segment registers */
 	movw ax, ss
 	movw ax, ds
 	movw ax, es
@@ -128,7 +132,7 @@ next_step:
 | hardware interrupts as well. We just have to reprogram the 8259's, and
 | it isn't fun.
 +---------------------------------------------------------------------*/
-
+/* No need for this right now */
 	movb	$0x11, al		/* initialization sequence          */
 	outb	al, $0x20		/* send it to 8259A-1               */
 	call	SYM(pc386_delay)
