@@ -206,6 +206,8 @@ starter( void )
 
   printf("Hello starter\n");
 
+  enter_kdebug( "VCPU starter" );
+
   L4::Cap<L4::Thread> self; 
   vcpu->task(vcpu_task);
   self->vcpu_resume_commit( self->vcpu_resume_start() );
@@ -383,6 +385,8 @@ main( int argc, char **argv )
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
   vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
   // touched by the RTEMS start.S code
+  vcpu->r()->fs = l4_utcb_exc()->fs;
+  vcpu->r()->gs = l4_utcb_exc()->gs;
 
   printf("ip: %lx, sp: %lx, bx: %lx\n",vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
 
