@@ -82,11 +82,12 @@ setup_user_state( l4_vcpu_state_t *vcpu)
 static void
 handler_prolog()
 {
+  enter_kdebug( "handler prolog" );
   asm volatile( 
       " mov %0, %%es \t\n"
       " mov %0, %%ds \t\n"
-//      " mov %1, %%fs \t\n"
-      : : "r"(ds)/*,"r"(fs) */);
+      " mov %1, %%fs \t\n"
+      : : "r"(ds),"r"(fs) );
 }
 
 void
@@ -387,6 +388,8 @@ main( int argc, char **argv )
   // touched by the RTEMS start.S code
   vcpu->r()->fs = l4_utcb_exc()->fs;
   vcpu->r()->gs = l4_utcb_exc()->gs;
+  printf( "vcpuFs = %x, fs = %x \n", vcpu->r()->fs, l4_utcb_exc()->fs );
+  printf( "*fs = %x \n", (unsigned char) (l4_utcb_exc()->fs) );
 
   printf("ip: %lx, sp: %lx, bx: %lx\n",vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
 
