@@ -67,6 +67,8 @@ typedef struct multiboot
 } multiboot_structure;
 
 
+
+
 /* setup_user_state:
  * save the current fs, ds and set the vcpu ss */
 static void
@@ -74,8 +76,16 @@ setup_user_state( l4_vcpu_state_t *vcpu)
 {
   asm volatile( "mov %%fs, %0" : "=r"(fs) );
   asm volatile( "mov %%ds, %0" : "=r"(ds) );
+  vcpu->r.gs = ds;
+  vcpu->r.fs = ds;
+  vcpu->r.es = ds;
+  vcpu->r.ds = ds;
   vcpu->r.ss = ds;
+
+  enter_kdebug( "setup user state" );
 }
+
+
 
 /* handler_prolog:
  * recover the saved host fs & ds */
@@ -389,8 +399,8 @@ main( int argc, char **argv )
   // touched by the RTEMS start.S code
 
   // read fs and gs and store in the vcpu registers
-  asm volatile ( "mov %%fs, %0" : "=r" (vcpu->r()->fs));
-  asm volatile ( "mov %%gs, %0" : "=r" (vcpu->r()->gs));
+  //asm volatile ( "mov %%fs, %0" : "=r" (vcpu->r()->fs));
+  //asm volatile ( "mov %%gs, %0" : "=r" (vcpu->r()->gs));
 
   printf("ip: %lx, sp: %lx, bx: %lx\n",vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
 

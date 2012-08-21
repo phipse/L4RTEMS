@@ -208,3 +208,10 @@ to the next step.
 Next: UTCB access crashes and I need to setup a BIOS like environment, so RTEMS
 can read VIDEO_MODE_ADDR and possibly some other values too.
 Well, ignore the VIDEO_MODE_ADDR stuff in IBMPC_initVideo and use uart or serial.
+
+
+
+21/08/2012
+The UTCB access might not be the problem. I discovered a mov operation moving a
+value to eax, which moves a zero or nothing. So this might be the real problem.
+
