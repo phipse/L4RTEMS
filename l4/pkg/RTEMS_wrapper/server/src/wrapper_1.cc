@@ -207,6 +207,7 @@ starter( void )
 
   printf("Hello starter\n");
 
+  printf( "VCPU fs: %x, gs: %x \n", vcpu->r()->fs, vcpu->r()->gs);
   enter_kdebug( "VCPU starter" );
 
   L4::Cap<L4::Thread> self; 
@@ -386,10 +387,10 @@ main( int argc, char **argv )
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
   vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
   // touched by the RTEMS start.S code
-  vcpu->r()->fs = l4_utcb_exc()->fs;
-  vcpu->r()->gs = l4_utcb_exc()->gs;
-  printf( "vcpuFs = %x, fs = %x \n", vcpu->r()->fs, l4_utcb_exc()->fs );
-  printf( "*fs = %x \n", (unsigned char) (l4_utcb_exc()->fs) );
+
+  // read fs and gs and store in the vcpu registers
+  asm volatile ( "mov %%fs, %0" : "=r" (vcpu->r()->fs));
+  asm volatile ( "mov %%gs, %0" : "=r" (vcpu->r()->gs));
 
   printf("ip: %lx, sp: %lx, bx: %lx\n",vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
 
