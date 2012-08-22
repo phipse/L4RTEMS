@@ -190,18 +190,13 @@ handler()
 	   printf("irq: %lx \n", vcpu->i()->tag.label() );
     }
   }
-/*  else if( vcpu->r()->ip == 0x102864)
-  {
-    vcpu->print_state("ELSE:");
-    vcpu->r()->ip = 0x102866;
-  }*/
   else
   {
     vcpu->print_state("Handler Unknown Entry:");
   }
 
   L4::Cap<L4::Thread> self;
-  vcpu->task( vcpu_task );
+  //vcpu->task( vcpu_task );
   self->vcpu_resume_commit( self->vcpu_resume_start() );
 
   printf("hier gehts nicht weiter\n");
@@ -217,7 +212,8 @@ starter( void )
 
   printf("Hello starter\n");
 
-  printf( "VCPU fs: %x, gs: %x \n", vcpu->r()->fs, vcpu->r()->gs);
+  printf( "VCPU fs: %x, gs: %x \n", (unsigned int) vcpu->r()->fs, 
+      (unsigned int) vcpu->r()->gs);
   enter_kdebug( "VCPU starter" );
 
   L4::Cap<L4::Thread> self; 
@@ -240,7 +236,7 @@ l4rtems_timer( void )
   while(1)
   {
     irq->trigger();
-    sleep(10);
+    l4_sleep(10);
   }
 }
 
@@ -382,10 +378,6 @@ main( int argc, char **argv )
   /* create multiboot structure */
   multiboot_structure multi = { 1, 0, 1024 };
   
-  // create and fill shared variables structure
-  sharedvars_t *sharedstruct = new sharedvars_t();
-  sharedstruct->vcpu = vcpuh;
-
   /*set the start register */
   vcpu->r()->ip = entry;
   if( initial_sp == 0 )
@@ -395,7 +387,6 @@ main( int argc, char **argv )
   vcpu->r()->sp = initial_sp; //(l4_umword_t)hdl_stack + sizeof(hdl_stack); 
   vcpu->r()->ax = 0x2badb002;
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
-  vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
   // touched by the RTEMS start.S code
 
   // read fs and gs and store in the vcpu registers
@@ -406,6 +397,15 @@ main( int argc, char **argv )
 
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
   printf("vcpuh: %p vcpu %p\n", vcpuh, vcpu);
+
+  // create and fill shared variables structure
+  sharedvars_t *sharedstruct = new sharedvars_t();
+  sharedstruct->vcpu = vcpuh;
+  vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
+
+  printf( "vcpuh addr: %x \n", (unsigned int) vcpuh );
+  printf( "sharedVarStruct: %x \n", (unsigned int) &sharedstruct );
+  printf( "sharedVarStruct: %x \n", (unsigned int) sharedstruct->vcpu );
 
   /* IRQ setup */
   irq = L4Re::Util::cap_alloc.alloc<L4::Irq>();
@@ -422,7 +422,7 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
-#if 0  
+#if 1  
   /* create timer thread */
   L4::Cap<L4::Thread> timer;
   timer->ex_regs( (l4_umword_t) l4rtems_timer,

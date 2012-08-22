@@ -113,7 +113,7 @@ speakl:	jmp	speakl             # and SPIN!!!
 	 *	  Do I have a global variable yet? How do I do this?
 	 */
 
-	movl edx, (sharedVariableStruct)
+	mov edx, sharedVariableStruct
 
 	/* Save multiboot info if we detect a multiboot loader */
 	cmp 	$0x2badb002,eax

@@ -203,6 +203,7 @@ As fiasco already dealt with this, we have no need for this, and can jump right
 to the next step. 
 
 
+
 20/08/2012
 
 Next: UTCB access crashes and I need to setup a BIOS like environment, so RTEMS
@@ -214,4 +215,17 @@ Well, ignore the VIDEO_MODE_ADDR stuff in IBMPC_initVideo and use uart or serial
 21/08/2012
 The UTCB access might not be the problem. I discovered a mov operation moving a
 value to eax, which moves a zero or nothing. So this might be the real problem.
+
+
+
+22/08/2012
+The missing value is my sharedVariableStruct, which contains the pointer to the
+vcpu for interrupt handling. This value is stored in %edx by the wrapper and
+should be read by the bootcode of RTEMS. But it's still ZERO after the
+operation. 
+After initializing the sharedVariableStruct in RTEMS with 1 instead of 0 the
+addres changed and it magically worked. If you initialize with 0 it is moved to
+the .bss segment, if initalized with 1 somewhere else. This is really hacky
+stuff, but it works.
+
 

@@ -57,9 +57,8 @@ uint32_t bsp_mem_size = 0;
 extern uint32_t _stack_size;
 
 /* global variable to store the pointer to the structure shared with L4Re. */
-/* typedef seems to be a c++ construct */
-struct guestHostShare *sharedVariableStruct = 0;
-l4vcpu_irq_state_t l4rtems_vcpu_irq_state = 0;
+struct guestHostShare *sharedVariableStruct = 1;
+l4vcpu_irq_state_t l4rtems_vcpu_irq_state = 1;
 
 void bsp_size_memory(void)
 {
