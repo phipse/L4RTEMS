@@ -229,3 +229,12 @@ the .bss segment, if initalized with 1 somewhere else. This is really hacky
 stuff, but it works.
 
 
+++++ TODO +++++ The wrapper code of the main function needs to be structured.
+It's all messy.
+
+
+The execution of the RTEMS_Guest stopps, when RTEMS tries to initialize the
+timer, because the 'inport' and 'outport' routines aren't handled yet. I added
+l4rtems_inport/outport to the wrapper and modified
+i386_inport_byte/word/long and i386_outport_byte/word/long with a call to
+l4rtems_{in/out}port.

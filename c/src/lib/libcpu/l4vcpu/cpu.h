@@ -94,7 +94,7 @@ static __inline__ unsigned short i386_get_gs(void)
 /*
  *  IO Port Access Routines
  */
-
+#if 0
 #define i386_outport_byte( _port, _value ) \
 do { register unsigned short __port  = _port; \
      register unsigned char  __value = _value; \
@@ -145,10 +145,12 @@ do { register unsigned short __port  = _port; \
                   ); \
      _value = __value; \
    } while (0)
+#endif
+
 /* RTEMSVCPU: trigger irq  
  *  RTEMSVCPU: adapted to work with the l4 vcpu interface
  */
-#if 0
+#if 1 
 #include <rtems/score/wrapper.h>
 /* MAGIC NUMBERS: 0 -> byte, 1 -> word, 2 -> long */
 

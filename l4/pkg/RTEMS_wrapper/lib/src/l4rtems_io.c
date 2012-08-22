@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <l4/util/util.h>
 #include <l4/RTEMS_wrapper/l4rtems_io.h> 
+#include <l4/RTEMS_wrapper/wrapper_1.h>
 
 static char buf_out[256];
 static int i = 0;
@@ -17,7 +18,8 @@ l4rtems_outch( char c )
 {
   if( c == '\n' )
   {
-    fprintf( stdout, "%s\n", buf_out); 
+    printf( "%s\n", buf_out);
+//    fprintf( stdout, "%s\n", buf_out); 
     i = 0;
   }
   else
@@ -36,7 +38,8 @@ l4rtems_inch( void )
 {
   if( o == -1 )
   {
-    o = fscanf( stdin, "%s", buf_in);
+    o = scanf( "%s", buf_in );
+//    o = fscanf( stdin, "%s", buf_in);
     if( o == 0 )
       return 0;
     // here should be some check, to assure the validity of the input
@@ -52,3 +55,13 @@ l4rtems_inch( void )
   printf("PANIC: l4rtems_inch: should never be reached\n");
   l4_sleep_forever();
 }
+
+
+#if 0
+void
+l4rtems_irq_disable_save( void )
+{
+ void* dummy; 
+ //  saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
+}
+#endif

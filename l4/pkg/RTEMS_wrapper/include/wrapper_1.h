@@ -44,6 +44,14 @@ l4rtems_port_irq_out( unsigned long _port, unsigned long _value)
 __attribute__((weak));
 
 
+// magic size numbers: 0 -> byte, 1 -> word, 2 -> long
+unsigned int
+l4rtems_inport( unsigned int port, unsigned int size );
+
+
+// magic size numbers: 0 -> byte, 1 -> word, 2 -> long
+void
+l4rtems_outport( unsigned int port, unsigned int value, unsigned int size );
 
 /* IRQ Handling */
 

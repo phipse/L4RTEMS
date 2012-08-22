@@ -387,7 +387,6 @@ main( int argc, char **argv )
   vcpu->r()->sp = initial_sp; //(l4_umword_t)hdl_stack + sizeof(hdl_stack); 
   vcpu->r()->ax = 0x2badb002;
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
-  // touched by the RTEMS start.S code
 
   // read fs and gs and store in the vcpu registers
   //asm volatile ( "mov %%fs, %0" : "=r" (vcpu->r()->fs));
@@ -402,6 +401,7 @@ main( int argc, char **argv )
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
   vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
+  // touched by the RTEMS start.S code
 
   printf( "vcpuh addr: %x \n", (unsigned int) vcpuh );
   printf( "sharedVarStruct: %x \n", (unsigned int) &sharedstruct );
@@ -422,7 +422,7 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
-#if 1  
+#if 0  
   /* create timer thread */
   L4::Cap<L4::Thread> timer;
   timer->ex_regs( (l4_umword_t) l4rtems_timer,
@@ -464,4 +464,35 @@ l4rtems_irq_restore( void )
 {
   l4vcpu_irq_restore( vcpuh, saved_irq_state, l4_utcb(), 
     (l4vcpu_event_hndl_t) handler, (l4vcpu_setup_ipc_t) irq_start );
+}
+
+
+
+unsigned int
+l4rtems_inport( unsigned int port, unsigned int size )
+{// magic size numbers: 0 -> byte, 1 -> word, 2 -> long 
+  switch( size )
+  {
+    case( 0 ): return l4util_in8( port );
+    case( 1 ): return l4util_in16( port );
+    case( 2 ): return l4util_in32( port );
+    default: printf( "Inport: Bad size value specified: %u\n\n", size );
+	     l4_sleep_forever(); 
+	     return -1;
+  }
+}
+
+
+
+void
+l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
+{// magic size numbers: 0 -> byte, 1 -> word, 2 -> long
+  switch( size )
+  {
+    case( 0 ): return l4util_out8( value, port );
+    case( 1 ): return l4util_out16( value, port );
+    case( 2 ): return l4util_out32( value, port );
+    default: printf( "Outport: Bad size value specified: %u\n\n", size );
+	     l4_sleep_forever(); 
+  }
 }
