@@ -132,7 +132,6 @@ next_step:
 | hardware interrupts as well. We just have to reprogram the 8259's, and
 | it isn't fun.
 +---------------------------------------------------------------------*/
-/* No need for this right now */
 	movb	$0x11, al		/* initialization sequence          */
 	outb	al, $0x20		/* send it to 8259A-1               */
 	call	SYM(pc386_delay)
