@@ -228,13 +228,42 @@ addres changed and it magically worked. If you initialize with 0 it is moved to
 the .bss segment, if initalized with 1 somewhere else. This is really hacky
 stuff, but it works.
 
-
 ++++ TODO +++++ The wrapper code of the main function needs to be structured.
 It's all messy.
-
 
 The execution of the RTEMS_Guest stopps, when RTEMS tries to initialize the
 timer, because the 'inport' and 'outport' routines aren't handled yet. I added
 l4rtems_inport/outport to the wrapper and modified
 i386_inport_byte/word/long and i386_outport_byte/word/long with a call to
 l4rtems_{in/out}port.
+
+
+
+23/08/2012
+I added my library functions to rtems with 'ar r librtemscpu.a libl4rtems.o.a'.
+That is very hacky, but I haven't found the right way to place an additional
+library in the rtems build. This introduced another phdr into the elf file of
+the hello-sample with the type GNU_STACK. At the moment I simply ignore it and
+it seems to work.
+
+++++ TODO ++++ Find a way to add libraries to RTEMS.
+++++ TODO ++++ Modify wrapper.cc::load_elf() function to load more than one
+phdr.
+
+I have to give the in/out-port thingy a second look, as the pending operation
+tries to send data to a port. I think I need to grab a capability for this port
+first.
+So the inport/outport methods have to keep track of the port-capabilities and
+aquire a new one, if they don't have it.
+
+
+24/08/2012
+Timer: Either I write a virtual interface for the hardware timer or I write a
+software timer for RTEMS and adjust the RTEMS code.
+The port stuff, should throw a GPF, as the Task doesn't have the rights to
+write to that port, but it doesn't.
+
+Console: I have a growing need of initalizing a console to get some debugging
+output directly from the RTEMS guest.
+
+IDT: The rtems_irq_mngt_init fails, as we didn't set a IDT.

@@ -330,13 +330,17 @@ void slowLoop (unsigned int loopCount)
 void
 Calibrate_loop_1ms(void)
 {
+  // RTEMSVCPU: We have a timer thread in the wrapper, which ticks
+  // periodically, so we don't need this.
+  
+#if 0
   unsigned int offset, offsetTmp, emptyCall, emptyCallTmp, res, i, j;
   unsigned int targetClockBits, currentClockBits;
   unsigned int slowLoopGranularity, fastLoopGranularity;
   rtems_interrupt_level  level;
   int retries = 0;
 
-//  rtems_interrupt_disable(level);
+  rtems_interrupt_disable(level);
 
 retry:
   if ( ++retries >= 5 ) {
@@ -506,7 +510,7 @@ retry:
   printk("slowLoop1ms = %u, fastLoop1ms = %u\n", slowLoop1ms, fastLoop1ms);
 #endif
   rtems_interrupt_enable(level);
-
+#endif
 }
 
 /*

@@ -150,6 +150,7 @@ handler()
      interrupt. The handler checks the entry reason, and replies with an 
      apropriate action. */
   printf("Hello Handler\n");
+
   enter_kdebug("handler entry");
   handler_prolog();
 //  vcpu->print_state("State:");
@@ -177,7 +178,7 @@ handler()
     switch( vcpu->i()->label )
     {
       case(9000):
-	   printf("Triggered IRQ\n");
+	   printf("Triggered Timer IRQ\n");
 	   break;
       case(9001):
 	   io_handler_in();
@@ -207,13 +208,17 @@ handler()
 
 void
 starter( void )
-{ /* This is the starting point for hte vcpu task. It sets its task and 
+{ /* This is the starting point for the vcpu task. It sets its task and 
      resumes immediatly. */
 
   printf("Hello starter\n");
 
   printf( "VCPU fs: %x, gs: %x \n", (unsigned int) vcpu->r()->fs, 
       (unsigned int) vcpu->r()->gs);
+//  asm volatile ( " mov $0x43, %edx \t\n"
+//	" mov $0x36, %al  \t\n"
+//	" out %al, (%dx)   \t\n"
+//	);
   enter_kdebug( "VCPU starter" );
 
   L4::Cap<L4::Thread> self; 
@@ -263,11 +268,12 @@ load_elf( char *name, l4_umword_t *initial_sp )
     l4_sleep_forever();
   }
   int num_phdrs = ehdr->num_phdrs();
-  if( num_phdrs > 1 )
+  // there are two headers in the file, but we only need the first.
+/*  if( num_phdrs > 1 )
   {
     printf("Code cannot handle more than one phdr! going to sleep\n");
     l4_sleep_forever();
-  }
+  }*/
 /* save mapping information for the binary */
   l4_addr_t vaddr;
   unsigned long memsz = 0, filesz = 0, offset = 0;
@@ -467,6 +473,26 @@ l4rtems_irq_restore( void )
 }
 
 
+// lookup port cabaility
+// if not present, aquire port capability && store it in a list
+// else return it
+
+
+void
+lookupPortCap( unsigned int port )
+{ // search port in capability list
+
+}
+
+
+void 
+aquirePortCap( unsigned int port )
+{ // if lookupPortCap failed, get new capability for port
+}
+
+
+
+
 
 unsigned int
 l4rtems_inport( unsigned int port, unsigned int size )
@@ -489,9 +515,9 @@ l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
 {// magic size numbers: 0 -> byte, 1 -> word, 2 -> long
   switch( size )
   {
-    case( 0 ): return l4util_out8( value, port );
-    case( 1 ): return l4util_out16( value, port );
-    case( 2 ): return l4util_out32( value, port );
+    case( 0 ): l4util_out8( value, port ); break;
+    case( 1 ): l4util_out16( value, port ); break;
+    case( 2 ): l4util_out32( value, port ); break;
     default: printf( "Outport: Bad size value specified: %u\n\n", size );
 	     l4_sleep_forever(); 
   }
