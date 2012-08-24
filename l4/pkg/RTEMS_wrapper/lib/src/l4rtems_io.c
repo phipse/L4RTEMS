@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <l4/util/util.h>
+#include <l4/util/port_io.h>
 #include <l4/RTEMS_wrapper/l4rtems_io.h> 
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 
@@ -56,6 +57,36 @@ l4rtems_inch( void )
   l4_sleep_forever();
 }
 
+
+
+unsigned int
+l4rtems_inport( unsigned int port, unsigned int size )
+{// magic size numbers: 0 -> byte, 1 -> word, 2 -> long 
+  switch( size )
+  {
+    case( 0 ): return l4util_in8( port );
+    case( 1 ): return l4util_in16( port );
+    case( 2 ): return l4util_in32( port );
+    default: printf( "Inport: Bad size value specified: %u\n\n", size );
+	     l4_sleep_forever(); 
+	     return -1;
+  }
+}
+
+
+
+void
+l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
+{// magic size numbers: 0 -> byte, 1 -> word, 2 -> long
+  switch( size )
+  {
+    case( 0 ): l4util_out8( value, port ); break;
+    case( 1 ): l4util_out16( value, port ); break;
+    case( 2 ): l4util_out32( value, port ); break;
+    default: printf( "Outport: Bad size value specified: %u\n\n", size );
+	     l4_sleep_forever(); 
+  }
+}
 
 #if 0
 void
