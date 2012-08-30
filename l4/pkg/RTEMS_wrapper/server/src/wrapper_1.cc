@@ -326,11 +326,11 @@ load_elf( char *name, l4_umword_t *initial_sp )
   }
   int num_phdrs = ehdr->num_phdrs();
   // there are two headers in the file, but we only need the first.
-/*  if( num_phdrs > 1 )
+  if( num_phdrs > 1 )
   {
     printf("Code cannot handle more than one phdr! going to sleep\n");
     l4_sleep_forever();
-  }*/
+  }
 /* save mapping information for the binary */
   l4_addr_t vaddr;
   unsigned long memsz = 0, filesz = 0, offset = 0;
