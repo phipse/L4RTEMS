@@ -34,6 +34,11 @@ starter( void );
 unsigned long
 load_elf( char *name, unsigned long *initial_sp );
 
+
+// programmable periodic timer interrupt
+void l4rtems_timer( unsigned long period );
+
+
 /* provides access to the vcpu irq interface  */
 
 unsigned long __attribute__((weak))

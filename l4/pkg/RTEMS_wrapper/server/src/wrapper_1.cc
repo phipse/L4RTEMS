@@ -233,15 +233,17 @@ starter( void )
 
 
 void
-l4rtems_timer( void )
+l4rtems_timer( unsigned long period = 10 )
 { /* This function triggers an IRQ to test the IRQ entry capability of the running 
-     rtems guest application. */
-
+     rtems guest application. The timer resolution is milliseconds.
+     If no parameter is set, the default period is 10ms. */
+  
   irq->attach( 9000, vcpu_cap );
+
   while(1)
   {
     irq->trigger();
-    l4_sleep(10);
+    l4_sleep( period );
   }
 }
 
@@ -428,7 +430,7 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
-#if 0  
+#if 1  
   /* create timer thread */
   L4::Cap<L4::Thread> timer;
   timer->ex_regs( (l4_umword_t) l4rtems_timer,

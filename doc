@@ -267,3 +267,9 @@ Console: I have a growing need of initalizing a console to get some debugging
 output directly from the RTEMS guest.
 
 IDT: The rtems_irq_mngt_init fails, as we didn't set a IDT.
+
+
+30/08/2012
+The l4rtems_timer got a default period of 10ms, but the caller is able to
+define it's own period length in milliseconds <ms>.
+
