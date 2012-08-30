@@ -9,6 +9,8 @@
  * 
  */
 
+#define DEBUG 1
+
 /* C includes */
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,6 +49,8 @@
 #include <l4/re/util/video/goos_fb>
 #include <l4/libgfxbitmap/bitmap.h>
 #include <l4/libgfxbitmap/font.h>
+
+
 using L4Re::chksys;
 using L4Re::chkcap;
 
@@ -55,7 +59,7 @@ using namespace L4Re;
 
 static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
-static L4::Cap<L4::Irq> irq;
+static L4::Cap<L4::Irq> timerIRQ;
 static L4::Cap<L4::Thread> vcpu_cap;
 static l4_vcpu_state_t *vcpuh;
 
@@ -87,8 +91,9 @@ setup_user_state( l4_vcpu_state_t *vcpu)
   vcpu->r.es = ds;
   vcpu->r.ds = ds;
   vcpu->r.ss = ds;
-
+#if DEBUG
   enter_kdebug( "setup user state" );
+#endif
 }
 
 
@@ -98,7 +103,9 @@ setup_user_state( l4_vcpu_state_t *vcpu)
 static void
 handler_prolog()
 {
+#if DEBUG
   enter_kdebug( "handler prolog" );
+#endif
   asm volatile( 
       " mov %0, %%es \t\n"
       " mov %0, %%ds \t\n"
@@ -147,10 +154,10 @@ initVideo( sharedvars_t *sharedVar )
   unsigned defaultFontWidth = gfxbitmap_font_width (GFXBITMAP_DEFAULT_FONT );
   sharedVar->linesPerPage = info.height / defaultFontHeight;
   sharedVar->columnsPerPage = info.width / defaultFontWidth;
-#if 1
-  printf( "ds_start: %x, bitmapBaseAddr: %x, ioCrtBaseAddr: %x\n", 
+#if DEBUG
+  printf( "ds_start: %lx, bitmapBaseAddr: %p, ioCrtBaseAddr: %lx\n", 
       ds_start, sharedVar->bitmapBaseAddr, sharedVar->ioCrtBaseAddr ); 
-  printf( "lPP: %u , cPP %u\n", 
+  printf( "lPP: %lu , cPP %lu\n", 
       sharedVar->linesPerPage, sharedVar->columnsPerPage);
 #endif
 }
@@ -158,6 +165,7 @@ initVideo( sharedvars_t *sharedVar )
 l4_umword_t value;
 l4_umword_t port;
 
+#if 0
 l4_umword_t
 l4rtems_port_irq_in( l4_umword_t _port)
 {
@@ -175,6 +183,7 @@ l4rtems_port_irq_out( l4_umword_t _port, l4_umword_t _value)
   value = _value;
   irq->trigger();
 }
+#endif
 
 static void
 io_handler_in()
@@ -195,8 +204,9 @@ handler()
      interrupt. The handler checks the entry reason, and replies with an 
      apropriate action. */
   printf("Hello Handler\n");
-
+#if DEBUG
   enter_kdebug("handler entry");
+#endif
   handler_prolog();
 //  vcpu->print_state("State:");
   vcpu->state()->clear( L4_VCPU_F_EXCEPTIONS );
@@ -283,11 +293,11 @@ l4rtems_timer( unsigned long period = 1 )
      rtems guest application. The timer resolution is milliseconds.
      If no parameter is set, the default period is 1ms. */
   
-  irq->attach( 9000, vcpu_cap );
+  timerIRQ->attach( 9000, vcpu_cap );
 
   while(1)
   {
-    irq->trigger();
+    timerIRQ->trigger();
     l4_sleep( period );
   }
 }
@@ -394,6 +404,7 @@ main( int argc, char **argv )
     printf("ERROR: No elf provided!\n");
     return -1; 
   }
+
   /* open elf file and load it into memory */
   l4_umword_t initial_sp, entry;
   entry = load_elf( argv[1], &initial_sp );
@@ -406,21 +417,21 @@ main( int argc, char **argv )
   L4Re::Env::env()->factory()->create_task(vcpu_task, 
 	        l4_fpage_invalid());
 
-  /* new thread/vCPU */
+  // new thread/vCPU
   vcpu_cap = L4Re::Util::cap_alloc.alloc<L4::Thread>();
   l4_touch_rw(thread_stack, sizeof(thread_stack));
   L4Re::Env::env()->factory()->create_thread(vcpu_cap);
 
   // get memory for vCPU state
   l4_addr_t kumem = (l4_addr_t)l4re_env()->first_free_utcb;
-  
   l4_utcb_t *vcpu_utcb = (l4_utcb_t *)kumem;
   vcpu = L4vcpu::Vcpu::cast(kumem + L4_UTCB_OFFSET);
+
+  // set entry IP + SP
   vcpu->entry_sp((l4_umword_t)hdl_stack + sizeof(hdl_stack));
-/* entry point of the interrupt handler */
   vcpu->entry_ip( (l4_umword_t)handler);
 
-  printf("VCPU: utcb = %p, vcpu = %p\n", vcpu_utcb, vcpu);
+//  printf("VCPU: utcb = %p, vcpu = %p\n", vcpu_utcb, vcpu);
   
   setup_user_state(reinterpret_cast<l4_vcpu_state_t*> (vcpu));
   vcpu->saved_state()->set( 
@@ -428,44 +439,34 @@ main( int argc, char **argv )
       | L4_VCPU_F_IRQ
      /* | L4_VCPU_DEBUG_EXC*/ );
   
-  /* create multiboot structure */
+  
+  // create multiboot structure
   multiboot_structure multi = { 1, 0, 1024 };
   
-  /*set the start register */
-  vcpu->r()->ip = entry;
-  if( initial_sp == 0 )
-  {
-    printf("ERROR: No sp\n");
-  }
-  vcpu->r()->sp = initial_sp; //(l4_umword_t)hdl_stack + sizeof(hdl_stack); 
-  vcpu->r()->ax = 0x2badb002;
-  vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
-
-  // read fs and gs and store in the vcpu registers
-  //asm volatile ( "mov %%fs, %0" : "=r" (vcpu->r()->fs));
-  //asm volatile ( "mov %%gs, %0" : "=r" (vcpu->r()->gs));
-
-  printf("ip: %lx, sp: %lx, bx: %lx\n",vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
-
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
-  printf("vcpuh: %p vcpu %p\n", vcpuh, vcpu);
 
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
   initVideo( sharedstruct );
+  
+  // initialize the start registers
+  vcpu->r()->ip = entry;
+  vcpu->r()->sp = initial_sp;  
+  vcpu->r()->ax = 0x2badb002;
+  vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
   vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
-  // touched by the RTEMS start.S code
-
-  printf( "vcpuh addr: %x \n", (unsigned int) vcpuh );
+					  // touched by the RTEMS start.S code
+#if DEBUG					  
+  printf("ip: %lx, sp: %lx, bx: %lx\n",
+     vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
+  printf( "vcpuh: %x, vcpu %x\n", (unsigned int) vcpuh, (unsigned int) vcpu);
   printf( "sharedVarStruct: %x \n", (unsigned int) &sharedstruct );
   printf( "sharedVarStruct: %x \n", (unsigned int) sharedstruct->vcpu );
+#endif
 
-  /* IRQ setup */
-  irq = L4Re::Util::cap_alloc.alloc<L4::Irq>();
-  L4Re::Env::env()->factory()->create_irq(irq);
 
-  /* give control to the vcpu */
+  // give control to the vcpu 
   L4::Thread::Attr attr;
   attr.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
   attr.exc_handler( L4Re::Env::env()->main_thread() );
@@ -476,8 +477,13 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
+
 #if 0  
-  /* create timer thread */
+  // IRQ setup 
+  timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
+  L4Re::Env::env()->factory()->create_irq( timerIRQ );
+  
+  // create timer thread
   L4::Cap<L4::Thread> timer;
   timer->ex_regs( (l4_umword_t) l4rtems_timer,
 		  (l4_umword_t) timer_stack + sizeof(timer_stack),
@@ -525,7 +531,7 @@ l4rtems_irq_restore( void )
 // if not present, aquire port capability && store it in a list
 // else return it
 
-
+#if 0
 void
 lookupPortCap( unsigned int port )
 { // search port in capability list
@@ -537,7 +543,7 @@ void
 aquirePortCap( unsigned int port )
 { // if lookupPortCap failed, get new capability for port
 }
-
+#endif 
 
 
 
