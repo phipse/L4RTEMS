@@ -17,7 +17,7 @@
 #include <bsp.h>
 #include <bsp/bootcard.h>
 /* L4RTEMS: include the wrapper.h to get the sharedVariableStruct */
-#include "../include/wrapper_1.h"
+#include <rtems/score/wrapper.h>
 
 #ifdef BSP_GET_WORK_AREA_DEBUG
   #include <rtems/bspIo.h>
@@ -57,7 +57,7 @@ uint32_t bsp_mem_size = 0;
 extern uint32_t _stack_size;
 
 /* global variable to store the pointer to the structure shared with L4Re. */
-struct guestHostShare *sharedVariableStruct = 1;
+sharedvars_t *sharedVariableStruct = 1;
 l4vcpu_irq_state_t l4rtems_vcpu_irq_state = 1;
 
 void bsp_size_memory(void)

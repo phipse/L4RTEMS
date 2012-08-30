@@ -19,6 +19,10 @@
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu; 
+  unsigned long *bitmapBaseAddr;
+  unsigned long ioCrtBaseAddr;
+  unsigned long linesPerPage;
+  unsigned long columnsPerPage;
 } sharedvars_t;
 
 

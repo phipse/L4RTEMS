@@ -65,7 +65,7 @@ BEGIN_CODE
 	EXTERN (boot_card)
 	EXTERN (_load_segments)
 	EXTERN (_return_to_monitor)
-	EXTERN (_IBMPC_initVideo)
+	EXTERN (_L4RTEMS_initVideo)
 	EXTERN (debugPollingGetChar)
 	EXTERN (checkCPUtypeSetCr0)
 	EXTERN (BSP_console_select)
@@ -215,7 +215,7 @@ SYM (zero_bss):
 | if it was called earlier
 | So from now we can use printk
 +-------------------------------------------------------------------*/
-	#call _IBMPC_initVideo
+	call _L4RTEMS_initVideo
 
 /*---------------------------------------------------------------------+
 | Check CPU type. Enable Cache and init coprocessor if needed.

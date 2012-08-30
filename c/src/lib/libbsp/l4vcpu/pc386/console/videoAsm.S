@@ -32,10 +32,26 @@
  *   	void wr_cursor(newPosition, ioBaseAddr)
  */
 
+/* RTEMSVCPU: rewrite to adapt the code to long datatypes */
 wr_cursor:	pushl	%ecx
 		movl	8(%esp), %ecx		/* Get new cursor position */
-		movb	$CC_CURSHIGH, %al	/* Cursor high location */
+/*		movb	$CC_CURSHIGH, %al */	/* Cursor high location */
+		mov	$CC_CURSHIGH, %eax
 		movl	12(%esp), %edx		/* Get IO base address */
+/* -- snip: asm code for long instructions -- */		
+		outb	(%dx)
+		inc	%edx
+		mov	%ecx, %eax
+		outb	(%dx)
+		dec	%edx
+		mov	$CC_CURSLOW, %eax
+		outb	(%dx)
+		inc	%edx
+		mov	%ecx, %eax
+		outb	(%dx)
+		pop	%ecx
+		ret
+/* -- snip: old ascm code for short -- */
 		outb	(%dx)
 		incw	%dx			/* Program Data register */
 		movb	%ch, %al

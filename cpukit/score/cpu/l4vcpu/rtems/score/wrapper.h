@@ -15,6 +15,10 @@
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu; 
+  unsigned long *bitmapBaseAddr;
+  unsigned long ioCrtBaseAddr;
+  unsigned long linesPerPage;
+  unsigned long columnsPerPage;
 } sharedvars_t;
 
 
@@ -29,6 +33,11 @@ starter( void );
 
 unsigned long
 load_elf( char *name, unsigned long *initial_sp );
+
+
+// programmable periodic timer interrupt
+void l4rtems_timer( unsigned long period );
+
 
 /* provides access to the vcpu irq interface  */
 

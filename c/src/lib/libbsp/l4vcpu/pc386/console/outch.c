@@ -24,23 +24,23 @@
 
 #include <crt.h>
 
-extern void wr_cursor(int, unsigned short);
+extern void wr_cursor(int, unsigned long);
 
 #define TAB_SPACE 4
-static unsigned short *bitMapBaseAddr;
-static unsigned short ioCrtBaseAddr;
-static unsigned short maxCol;
-static unsigned short maxRow;
+static unsigned long *bitMapBaseAddr;
+static unsigned long ioCrtBaseAddr;
+static unsigned long maxCol;
+static unsigned long maxRow;
 static unsigned char  row;
 static unsigned char  column;
-static unsigned short attribute;
+static unsigned long attribute;
 static unsigned int   nLines;
 
 static void
 scroll(void)
 {
     int i, j;				    /* Counters	*/
-    unsigned short *pt_scroll, *pt_bitmap;  /* Pointers on the bit-map	*/
+    unsigned long *pt_scroll, *pt_bitmap;  /* Pointers on the bit-map	*/
 
     pt_bitmap = bitMapBaseAddr;
     j = 0;
@@ -102,7 +102,7 @@ gotorc(int r, int c)
 static void
 videoPutChar(char car)
 {
-    unsigned short *pt_bitmap = bitMapBaseAddr + row * maxCol + column;
+    unsigned long *pt_bitmap = bitMapBaseAddr + row * maxCol + column;
 
     switch (car) {
     case '\b': {
@@ -281,20 +281,42 @@ static int escaped = 0;
 |        Arguments: None.
 |          Returns: Nothing.
 +--------------------------------------------------------------------------*/
-/* RTEMSVCPU: */
+/* RTEMSVCPU:  We don't want to emulate the POST-BIOS state. */
+#include <rtems/score/wrapper.h>
+
+extern sharedvars_t *sharedVariableStruct;
+
+void 
+_L4RTEMS_initVideo( void )
+{
+  // take these parameters from the l4 framebuffer passed in the
+  // sharedVariableStruct.
+  bitMapBaseAddr = sharedVariableStruct->bitmapBaseAddr;
+  ioCrtBaseAddr = sharedVariableStruct->ioCrtBaseAddr;
+  maxCol = sharedVariableStruct->columnsPerPage;
+  maxRow = sharedVariableStruct->linesPerPage;
+  column = 0;
+  row = 0;
+  attribute = ((BLACK << 4) | WHITE ) << 8;
+  nLines = 0;
+//  while(true) asm __volatile__ ("mov  %0, %%edx " : : "r"(ioCrtBaseAddr) );
+  clear_screen();
+}
+
+
 void
 _IBMPC_initVideo(void)
 {
     unsigned char* pt = (unsigned char*) (VIDEO_MODE_ADDR);
 
     if (*pt == VGAMODE7) {
-      bitMapBaseAddr = (unsigned short*) V_MONO;
+      bitMapBaseAddr = (unsigned long*) V_MONO;
     }
     else {
-      bitMapBaseAddr = (unsigned short*) V_COLOR;
+      bitMapBaseAddr = (unsigned long*) V_COLOR;
     }
-    ioCrtBaseAddr = *(unsigned short*) DISPLAY_CRT_BASE_IO_ADDR;
-    maxCol  = * (unsigned short*) NB_MAX_COL_ADDR;
+    ioCrtBaseAddr = *(unsigned long*) DISPLAY_CRT_BASE_IO_ADDR;
+    maxCol  = * (unsigned long*) NB_MAX_COL_ADDR;
     maxRow  = * (unsigned char*)  NB_MAX_ROW_ADDR;
     column  = 0;
     row     = 0;

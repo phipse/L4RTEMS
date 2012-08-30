@@ -273,3 +273,19 @@ IDT: The rtems_irq_mngt_init fails, as we didn't set a IDT.
 The l4rtems_timer got a default period of 10ms, but the caller is able to
 define it's own period length in milliseconds <ms>.
 
+=== Console
+The sharedVariableStruct gets extended to pass the framebuffer parameters to
+RTEMS, which are needed to initialize the RTEMS console. The initVideo routine
+was rewritten and tailored to virtual interface.
+
+I did some adaptions in the outch.c file, to support 'unsigned long' datatypes
+(less casting) and some followup rewrite in videoAsm.S to ensure these changes
+don't cause problems. (Need somebody to check the asm code!)
+
+In start.S I replaced the call to _IBMPC_initVideo with my _L4RTEMS_initVideo
+and it looks like the sharedVariableStruct doesn't store the pointer - again.
+Maybe this is due to the additional tasks running to provide IO and framebuffer
+functionality, but I am not sure. 
+
+The wrapper initializes a goos_fb and stores the necessary values in the
+guestHostStruct.

@@ -43,9 +43,15 @@
 #include <uclibc/fcntl.h>
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 #include <l4/RTEMS_wrapper/shared.h>
-
+// goos framebuffer and font includes
+#include <l4/re/util/video/goos_fb>
+#include <l4/libgfxbitmap/bitmap.h>
+#include <l4/libgfxbitmap/font.h>
 using L4Re::chksys;
 using L4Re::chkcap;
+
+using namespace L4;
+using namespace L4Re;
 
 static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
@@ -70,7 +76,7 @@ typedef struct multiboot
 
 
 /* setup_user_state:
- * save the current fs, ds and set the vcpu ss */
+ * save the current fs, ds and set the vcpu segments */
 static void
 setup_user_state( l4_vcpu_state_t *vcpu)
 {
@@ -108,6 +114,45 @@ irq_start()
  void
 irq_pending()
 {
+}
+
+
+void
+initVideo( sharedvars_t *sharedVar )
+{
+  Cap<Video::Goos> fb_cap = Env::env()->get_cap<Video::Goos>( "goosfb" );
+
+  Util::Video::Goos_fb fb( fb_cap );
+  l4_size_t ds_size = fb.buffer()->size();
+  l4_addr_t ds_start;
+  long err = Env::env()->rm()->attach( &ds_start, ds_size, Rm::Search_addr, fb.buffer() );
+
+  if( err )
+    printf( "Could not attach goos_fb ds: %li\n", err );
+
+  Video::View::Info info;
+  err = fb.view_info( &info );
+  if(err )
+    printf ("Failed to obtain view info: %li\n", err );
+
+  if( 0 != gfxbitmap_font_init() )
+    printf( "gfxbitmap_font_init failed. \n" );
+  
+
+  // I assume bitmapBaseAddr is the start of the frambuffer memory
+  sharedVar->bitmapBaseAddr = reinterpret_cast<unsigned long*>(ds_start);
+  // I assume ioCrtBaseAddr is the start of the framebuffer memory, we'll see
+  sharedVar->ioCrtBaseAddr = ds_start;
+  unsigned defaultFontHeight = gfxbitmap_font_height ( GFXBITMAP_DEFAULT_FONT );
+  unsigned defaultFontWidth = gfxbitmap_font_width (GFXBITMAP_DEFAULT_FONT );
+  sharedVar->linesPerPage = info.height / defaultFontHeight;
+  sharedVar->columnsPerPage = info.width / defaultFontWidth;
+#if 1
+  printf( "ds_start: %x, bitmapBaseAddr: %x, ioCrtBaseAddr: %x\n", 
+      ds_start, sharedVar->bitmapBaseAddr, sharedVar->ioCrtBaseAddr ); 
+  printf( "lPP: %u , cPP %u\n", 
+      sharedVar->linesPerPage, sharedVar->columnsPerPage);
+#endif
 }
 
 l4_umword_t value;
@@ -233,10 +278,10 @@ starter( void )
 
 
 void
-l4rtems_timer( unsigned long period = 10 )
+l4rtems_timer( unsigned long period = 1 )
 { /* This function triggers an IRQ to test the IRQ entry capability of the running 
      rtems guest application. The timer resolution is milliseconds.
-     If no parameter is set, the default period is 10ms. */
+     If no parameter is set, the default period is 1ms. */
   
   irq->attach( 9000, vcpu_cap );
 
@@ -408,6 +453,7 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
+  initVideo( sharedstruct );
   vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
   // touched by the RTEMS start.S code
 
@@ -430,7 +476,7 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
-#if 1  
+#if 0  
   /* create timer thread */
   L4::Cap<L4::Thread> timer;
   timer->ex_regs( (l4_umword_t) l4rtems_timer,
