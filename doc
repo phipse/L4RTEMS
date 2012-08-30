@@ -270,8 +270,9 @@ IDT: The rtems_irq_mngt_init fails, as we didn't set a IDT.
 
 
 30/08/2012
-The l4rtems_timer got a default period of 10ms, but the caller is able to
-define it's own period length in milliseconds <ms>.
+The l4rtems_timer got a default period of 1ms, but the caller is able to
+define it's own period length in milliseconds <ms>. Default was chosen due to
+the call to 'calibrate 1ms loop' function at RTEMS startup.
 
 === Console
 The sharedVariableStruct gets extended to pass the framebuffer parameters to
