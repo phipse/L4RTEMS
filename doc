@@ -230,6 +230,7 @@ stuff, but it works.
 
 ++++ TODO +++++ The wrapper code of the main function needs to be structured.
 It's all messy.
+++++ DONE +++++
 
 The execution of the RTEMS_Guest stopps, when RTEMS tries to initialize the
 timer, because the 'inport' and 'outport' routines aren't handled yet. I added
@@ -299,3 +300,24 @@ the pointer to the pointer to the datastructure.. .
 Following nice output in the framebuffer the 'wr_curser' method brings
 problems, as it wants to talk to outports. But the framebuffer is handled by
 L4Re and so I need to replace it.
+
+== Console
+Easy way: just reroute the output to l4re and let it handle the printing.
+Difficult way: Fiddle with the framebuffer and work with the disadvantages.
+Choose: Easy way! ==> wr_curser stuff unnecessary
+
+== IDT
+Hardware IDT isn't necessary, only the stuff that sets up the table in
+software, so the handler can address it. So give the rtems_irq_mngt_init a
+closer look.
+
+== Handler
+Needs to move into RTEMS, for effective IRQ handling.
+
+== Timer IRQ
+Works, but as interrupts are disabled, there is no current use.
+
+++++ TODO ++++ interrupts.h
+  replace the NULL parts in l4vcpu_irq_restore!
+
+

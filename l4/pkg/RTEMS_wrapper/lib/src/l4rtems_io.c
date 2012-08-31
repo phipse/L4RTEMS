@@ -67,7 +67,7 @@ l4rtems_inport( unsigned int port, unsigned int size )
     case( 0 ): return l4util_in8( port );
     case( 1 ): return l4util_in16( port );
     case( 2 ): return l4util_in32( port );
-    default: printf( "Inport: Bad size value specified: %u\n\n", size );
+    default:// printf( "Inport: Bad size value specified: %u\n\n", size );
 	     l4_sleep_forever(); 
 	     return -1;
   }
@@ -83,7 +83,7 @@ l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
     case( 0 ): l4util_out8( value, port ); break;
     case( 1 ): l4util_out16( value, port ); break;
     case( 2 ): l4util_out32( value, port ); break;
-    default: printf( "Outport: Bad size value specified: %u\n\n", size );
+    default: //printf( "Outport: Bad size value specified: %u\n\n", size );
 	     l4_sleep_forever(); 
   }
 }

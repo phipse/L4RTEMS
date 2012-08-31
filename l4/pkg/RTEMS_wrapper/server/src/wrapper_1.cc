@@ -3,7 +3,7 @@
  * the vCPU interface.
  *
  * Maintainer:	philipp.eppelt@mailbox.tu-dresden.de
- * Date:	04/2012
+ * Date:	08/2012
  * Purpose: The wrapper loads an elf file, provided as 2nd argument into its
  *	    addressspace and ties it to a vcpu task.
  * 
@@ -87,11 +87,11 @@ setup_user_state( l4_vcpu_state_t *vcpu)
   asm volatile( "mov %%fs, %0" : "=r"(fs) );
   asm volatile( "mov %%ds, %0" : "=r"(ds) );
   vcpu->r.gs = ds;
-  vcpu->r.fs = ds;
+  vcpu->r.fs = fs;
   vcpu->r.es = ds;
   vcpu->r.ds = ds;
   vcpu->r.ss = ds;
-#if DEBUG
+#if !DEBUG
   enter_kdebug( "setup user state" );
 #endif
 }
@@ -103,7 +103,8 @@ setup_user_state( l4_vcpu_state_t *vcpu)
 static void
 handler_prolog()
 {
-#if DEBUG
+#if !DEBUG
+  printf( "fs: %x\n", fs);
   enter_kdebug( "handler prolog" );
 #endif
   asm volatile( 
@@ -113,16 +114,9 @@ handler_prolog()
       : : "r"(ds),"r"(fs) );
 }
 
-void
-irq_start()
-{
-}
 
- void
-irq_pending()
-{
-}
-
+#if 0
+// deprecated, as we use the serial console  or redirect output to l4_printf
 
 void
 initVideo( sharedvars_t *sharedVar )
@@ -155,6 +149,7 @@ initVideo( sharedvars_t *sharedVar )
   unsigned defaultFontWidth = gfxbitmap_font_width (GFXBITMAP_DEFAULT_FONT );
   sharedVar->linesPerPage = info.height / defaultFontHeight;
   sharedVar->columnsPerPage = info.width / defaultFontWidth;
+  memset( (void*)ds_start, 6, ds_size );
 #if DEBUG
   printf( "ds_start: %lx, bitmapBaseAddr: %p, ioCrtBaseAddr: %lx\n", 
       ds_start, sharedVar->bitmapBaseAddr, sharedVar->ioCrtBaseAddr ); 
@@ -162,42 +157,9 @@ initVideo( sharedvars_t *sharedVar )
       sharedVar->linesPerPage, sharedVar->columnsPerPage);
 #endif
 }
-
-l4_umword_t value;
-l4_umword_t port;
-
-#if 0
-l4_umword_t
-l4rtems_port_irq_in( l4_umword_t _port)
-{
-  irq->attach(9001, vcpu_cap);
-  port = _port;
-  irq->trigger();
-  return value;
-}
-
-void
-l4rtems_port_irq_out( l4_umword_t _port, l4_umword_t _value)
-{
-  irq->attach(9002, vcpu_cap);
-  port = _port;
-  value = _value;
-  irq->trigger();
-}
 #endif
 
-static void
-io_handler_in()
-{
-  printf("IO handler in\n");
 
-}
-
-static void
-io_handler_out()
-{
-  printf("IO handler out\n");
-}
 
 static void
 handler()
@@ -205,11 +167,11 @@ handler()
      interrupt. The handler checks the entry reason, and replies with an 
      apropriate action. */
   printf("Hello Handler\n");
+//  vcpu->print_state("State:");
 #if DEBUG
   enter_kdebug("handler entry");
 #endif
   handler_prolog();
-//  vcpu->print_state("State:");
   vcpu->state()->clear( L4_VCPU_F_EXCEPTIONS );
   printf("vcpu->ip: %lx\n", vcpu->r()->ip);
   
@@ -236,12 +198,6 @@ handler()
       case(9000):
 	   printf("Triggered Timer IRQ\n");
 	   break;
-      case(9001):
-	   io_handler_in();
-	   break;
-      case(9002):
-	   io_handler_out();
-	   break;
       default:
 	   printf("Unrecognized IRQ\n");
 	   printf("irq: %lx \n", vcpu->i()->tag.label() );
@@ -252,8 +208,8 @@ handler()
     vcpu->print_state("Handler Unknown Entry:");
   }
 
+//  vcpu->print_state("resume ");
   L4::Cap<L4::Thread> self;
-  //vcpu->task( vcpu_task );
   self->vcpu_resume_commit( self->vcpu_resume_start() );
 
   printf("hier gehts nicht weiter\n");
@@ -271,14 +227,16 @@ starter( void )
 
   printf( "VCPU fs: %x, gs: %x \n", (unsigned int) vcpu->r()->fs, 
       (unsigned int) vcpu->r()->gs);
-//  asm volatile ( " mov $0x43, %edx \t\n"
-//	" mov $0x36, %al  \t\n"
-//	" out %al, (%dx)   \t\n"
-//	);
+
+//  asm volatile ( " mov $0x43, %%edx \t\n"
+//	" mov $0x36, %%al  \t\n"
+//	" out %%al, %%dx   \t\n"
+//	::: );
+
   enter_kdebug( "VCPU starter" );
 
   L4::Cap<L4::Thread> self; 
-  vcpu->task(vcpu_task);
+//  vcpu->task(vcpu_task);
   self->vcpu_resume_commit( self->vcpu_resume_start() );
   
   printf("sleep forever\n");
@@ -330,7 +288,7 @@ load_elf( char *name, l4_umword_t *initial_sp )
   if( num_phdrs > 1 )
   {
     printf("Code cannot handle more than one phdr! going to sleep\n");
-    l4_sleep_forever();
+//    l4_sleep_forever();
   }
 /* save mapping information for the binary */
   l4_addr_t vaddr;
@@ -399,6 +357,8 @@ main( int argc, char **argv )
       starts the vcpu and goes to sleep. It never exits. */
   
   printf( "Hello Wrapper!\n" );
+  asm volatile (" mov %%fs, %0" : "=r"(fs) :: );
+  printf( "fs: %x\n", fs);
   /* 1st argument must be the RTEMS elf file */
   if( argc < 2 )
   {
@@ -425,6 +385,7 @@ main( int argc, char **argv )
 
   // get memory for vCPU state
   l4_addr_t kumem = (l4_addr_t)l4re_env()->first_free_utcb;
+  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
   l4_utcb_t *vcpu_utcb = (l4_utcb_t *)kumem;
   vcpu = L4vcpu::Vcpu::cast(kumem + L4_UTCB_OFFSET);
 
@@ -437,7 +398,7 @@ main( int argc, char **argv )
   setup_user_state(reinterpret_cast<l4_vcpu_state_t*> (vcpu));
   vcpu->saved_state()->set( 
        L4_VCPU_F_EXCEPTIONS
-      | L4_VCPU_F_IRQ
+//      | L4_VCPU_F_IRQ
      /* | L4_VCPU_DEBUG_EXC*/ );
   
   
@@ -449,9 +410,7 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
-  initVideo( sharedstruct );
-  printf( "Sharedstruct: %p, %p, %p, %lx, %lx, %lx \n", sharedstruct->vcpu,
-      sharedstruct->bitmapBaseAddr, sharedstruct->ioCrtBaseAddr, sharedstruct->linesPerPage, sharedstruct->columnsPerPage );
+  
   // initialize the start registers
   vcpu->r()->ip = entry;
   vcpu->r()->sp = initial_sp;  
@@ -459,6 +418,8 @@ main( int argc, char **argv )
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
   vcpu->r()->dx = (l4_umword_t) sharedstruct; // save it to edx, as it is not
 					  // touched by the RTEMS start.S code
+  //initVideo( sharedstruct );
+  //    sharedstruct->bitmapBaseAddr, sharedstruct->ioCrtBaseAddr, sharedstruct->linesPerPage, sharedstruct->columnsPerPage );
 #if DEBUG					  
   printf("ip: %lx, sp: %lx, bx: %lx\n",
      vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
@@ -480,7 +441,7 @@ main( int argc, char **argv )
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
 
-#if 0  
+#if 1  
   // IRQ setup 
   timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
   L4Re::Env::env()->factory()->create_irq( timerIRQ );
@@ -496,58 +457,6 @@ main( int argc, char **argv )
   l4_sleep_forever(); 
   return 0;
 }
-
-
-static l4vcpu_irq_state_t saved_irq_state;
-
-void
-l4rtems_irq_disable( void )
-{
-  l4vcpu_irq_disable( vcpuh );
-}
-
-
-void
-l4rtems_irq_disable_save( void )
-{
-  saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
-}
-
-void
-l4rtems_irq_enable( void )
-{
-  l4vcpu_irq_enable( vcpuh, l4_utcb(), (l4vcpu_event_hndl_t) handler, 
-    (l4vcpu_setup_ipc_t) irq_start );
-}
-
-
-void
-l4rtems_irq_restore( void )
-{
-  l4vcpu_irq_restore( vcpuh, saved_irq_state, l4_utcb(), 
-    (l4vcpu_event_hndl_t) handler, (l4vcpu_setup_ipc_t) irq_start );
-}
-
-
-// lookup port cabaility
-// if not present, aquire port capability && store it in a list
-// else return it
-
-#if 0
-void
-lookupPortCap( unsigned int port )
-{ // search port in capability list
-
-}
-
-
-void 
-aquirePortCap( unsigned int port )
-{ // if lookupPortCap failed, get new capability for port
-}
-#endif 
-
-
 
 
 unsigned int
