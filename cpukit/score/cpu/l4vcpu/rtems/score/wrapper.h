@@ -15,18 +15,16 @@
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu; 
-  unsigned long *bitmapBaseAddr;
-  unsigned long ioCrtBaseAddr;
-  unsigned long linesPerPage;
-  unsigned long columnsPerPage;
+// framebuffer console stuff - atm unneccessary
+//  unsigned long *bitmapBaseAddr;
+//  unsigned long ioCrtBaseAddr;
+//  unsigned long linesPerPage;
+//  unsigned long columnsPerPage;
 } sharedvars_t;
 
 
 void
-irq_start( void );
-
-void
-irq_pending( void );
+l4rtems_outch( char c );
 
 void
 starter( void );
@@ -39,16 +37,6 @@ load_elf( char *name, unsigned long *initial_sp );
 void l4rtems_timer( unsigned long period );
 
 
-/* provides access to the vcpu irq interface  */
-
-unsigned long __attribute__((weak))
-l4rtems_port_irq_in( unsigned long _port);
-
-void
-l4rtems_port_irq_out( unsigned long _port, unsigned long _value)
-__attribute__((weak));
-
-
 // magic size numbers: 0 -> byte, 1 -> word, 2 -> long
 unsigned int
 l4rtems_inport( unsigned int port, unsigned int size );
@@ -57,24 +45,5 @@ l4rtems_inport( unsigned int port, unsigned int size );
 // magic size numbers: 0 -> byte, 1 -> word, 2 -> long
 void
 l4rtems_outport( unsigned int port, unsigned int value, unsigned int size );
-
-/* IRQ Handling */
-
-  
-void
-l4rtems_irq_disable( void );
-
-
-void
-l4rtems_irq_disable_save( void );
-
-
-void
-l4rtems_irq_enable( void );
-
-
-void
-l4rtems_irq_restore( void );
-
 
 #endif /* !L4RTEMS_WRAPPER */

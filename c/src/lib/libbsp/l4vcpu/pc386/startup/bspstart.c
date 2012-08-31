@@ -65,12 +65,15 @@ void bsp_start_default( void )
   /*
    * Init rtems interrupt management
    */
-  rtems_irq_mngt_init();
+// RTEMSVCPU: Give it a closer look later..
+//  rtems_irq_mngt_init();
+
 
   /*
    * Init rtems exceptions management
    */
-  rtems_exception_init_mngt();
+// RTEMSVCPU: No need fo this either.
+//  rtems_exception_init_mngt();
 
   /*
    * init PCI Bios interface...
