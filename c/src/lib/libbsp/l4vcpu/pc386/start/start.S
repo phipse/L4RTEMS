@@ -215,7 +215,7 @@ SYM (zero_bss):
 | if it was called earlier
 | So from now we can use printk
 +-------------------------------------------------------------------*/
-	call _L4RTEMS_initVideo
+	#call _L4RTEMS_initVideo
 
 /*---------------------------------------------------------------------+
 | Check CPU type. Enable Cache and init coprocessor if needed.
