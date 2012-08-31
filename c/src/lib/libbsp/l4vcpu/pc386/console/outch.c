@@ -96,7 +96,7 @@ gotorc(int r, int c)
 }
 
 #define ESC		((char)27)
-/* erase current location without moving the cursor */
+/* erase current location without moving the cursor aka DEL*/
 #define BLANK	((char)0x7f)
 
 static void
@@ -264,7 +264,7 @@ clear_screen(void)
 void
 _IBMPC_outch(char c)
 {
-static int escaped = 0;
+  static int escaped = 0;
 
   if ( ! (escaped = handleEscape(escaped, c)) ) {
     if ( '\n' == c )
@@ -291,6 +291,7 @@ _L4RTEMS_initVideo( void )
 {
   // take these parameters from the l4 framebuffer passed in the
   // sharedVariableStruct.
+  // Framebuffer != videoMemory
   bitMapBaseAddr = sharedVariableStruct->bitmapBaseAddr;
   ioCrtBaseAddr = sharedVariableStruct->ioCrtBaseAddr;
   maxCol = sharedVariableStruct->columnsPerPage;
@@ -299,6 +300,7 @@ _L4RTEMS_initVideo( void )
   row = 0;
   attribute = ((BLACK << 4) | WHITE ) << 8;
   nLines = 0;
+  memset( bitMapBaseAddr, '0', maxCol*maxRow );
   clear_screen();
 }
 
