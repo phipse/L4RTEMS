@@ -290,3 +290,12 @@ functionality, but I am not sure.
 
 The wrapper initializes a goos_fb and stores the necessary values in the
 guestHostStruct.
+
+
+31/08/2012
+Thanks to Björn, I discovered my fault. I dereferenced the pointer not often
+enough, I fixed it by storing the pointer to the datastructure in EDX and not
+the pointer to the pointer to the datastructure.. .
+Following nice output in the framebuffer the 'wr_curser' method brings
+problems, as it wants to talk to outports. But the framebuffer is handled by
+L4Re and so I need to replace it.

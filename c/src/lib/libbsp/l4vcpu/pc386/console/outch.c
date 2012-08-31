@@ -24,7 +24,7 @@
 
 #include <crt.h>
 
-extern void wr_cursor(int, unsigned long);
+//extern void wr_cursor(int, unsigned long);
 
 #define TAB_SPACE 4
 static unsigned long *bitMapBaseAddr;
@@ -71,8 +71,8 @@ doCRNL(int cr, int nl)
 	if (cr)
     	column = 0;
     /* Move cursor on the next location  */
-	if (cr || nl)
-    	wr_cursor(row * maxCol + column, ioCrtBaseAddr);
+//	if (cr || nl)
+//    	wr_cursor(row * maxCol + column, ioCrtBaseAddr);
 }
 
 int (*videoHook)(char, int *)=0;
@@ -82,8 +82,8 @@ advanceCursor(void)
 {
   if (++column == maxCol)
 	doCRNL(1,1);
-  else
-	wr_cursor(row * maxCol + column, ioCrtBaseAddr);
+//  else
+//	wr_cursor(row * maxCol + column, ioCrtBaseAddr);
 }
 
 static void
@@ -92,7 +92,7 @@ gotorc(int r, int c)
 	column = c;
 	row    = r;
 
-  	wr_cursor(row * maxCol + column, ioCrtBaseAddr);
+//  	wr_cursor(row * maxCol + column, ioCrtBaseAddr);
 }
 
 #define ESC		((char)27)
@@ -108,7 +108,7 @@ videoPutChar(char car)
     case '\b': {
 	    if (column) column--;
 	    /* Move cursor on the previous location  */
-	    wr_cursor(row * maxCol + column, ioCrtBaseAddr);
+//	    wr_cursor(row * maxCol + column, ioCrtBaseAddr);
 	    return;
 	}
 	case '\t': {
@@ -121,7 +121,7 @@ videoPutChar(char car)
 		return;
 	    }
 	    while (i--)	*pt_bitmap++ = ' ' | attribute;
-	    wr_cursor(row * maxCol + column, ioCrtBaseAddr);
+//	    wr_cursor(row * maxCol + column, ioCrtBaseAddr);
 	    return;
 	}
 	case '\n': {
@@ -299,7 +299,6 @@ _L4RTEMS_initVideo( void )
   row = 0;
   attribute = ((BLACK << 4) | WHITE ) << 8;
   nLines = 0;
-//  while(true) asm __volatile__ ("mov  %0, %%edx " : : "r"(ioCrtBaseAddr) );
   clear_screen();
 }
 

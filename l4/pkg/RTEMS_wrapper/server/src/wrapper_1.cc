@@ -127,6 +127,7 @@ irq_pending()
 void
 initVideo( sharedvars_t *sharedVar )
 {
+//  printf( "Addr sharedVar: %p, Value: %p, 
   Cap<Video::Goos> fb_cap = Env::env()->get_cap<Video::Goos>( "goosfb" );
 
   Util::Video::Goos_fb fb( fb_cap );
@@ -449,13 +450,14 @@ main( int argc, char **argv )
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
   initVideo( sharedstruct );
-  
+  printf( "Sharedstruct: %p, %p, %p, %lx, %lx, %lx \n", sharedstruct->vcpu,
+      sharedstruct->bitmapBaseAddr, sharedstruct->ioCrtBaseAddr, sharedstruct->linesPerPage, sharedstruct->columnsPerPage );
   // initialize the start registers
   vcpu->r()->ip = entry;
   vcpu->r()->sp = initial_sp;  
   vcpu->r()->ax = 0x2badb002;
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
-  vcpu->r()->dx = (l4_umword_t) &sharedstruct; // save it to edx, as it is not
+  vcpu->r()->dx = (l4_umword_t) sharedstruct; // save it to edx, as it is not
 					  // touched by the RTEMS start.S code
 #if DEBUG					  
   printf("ip: %lx, sp: %lx, bx: %lx\n",
