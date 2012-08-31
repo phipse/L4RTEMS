@@ -76,7 +76,7 @@ int BSPCmdBaud     = 9600;
 /* printk support */
 // RTEMSVPCU: adjusted the IO functions
 BSP_output_char_function_type BSP_output_char =
-                       (BSP_output_char_function_type) _IBMPC_outch;
+                       (BSP_output_char_function_type) l4rtems_outch; //_IBMPC_outch;
 
 BSP_polling_getchar_function_type BSP_poll_char = BSP_wait_polled_input;
 
