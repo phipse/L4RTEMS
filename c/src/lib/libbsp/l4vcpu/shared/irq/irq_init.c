@@ -102,11 +102,14 @@ void raw_idt_notify(void)
 
 void  rtems_irq_mngt_init(void)
 {
+  // RTEMSVCPU hardware initialization is unnecessary
+#if 0
     int 			i;
     interrupt_gate_descriptor* 	idt_entry_tbl;
     unsigned int                limit;
     rtems_interrupt_level       level;
 
+    //no HW table existing -> kill both vars
     i386_get_info_from_IDTR(&idt_entry_tbl, &limit);
 
     /* Convert into number of entries */
@@ -151,6 +154,12 @@ void  rtems_irq_mngt_init(void)
      * with raw handlers.  We must now initialize the higher level
      * interrupt management.
      */
+
+
+#endif
+    //RTEMSVCPU: Just initialize the high level structures.
+
+
 
     /*
      * Init initial Interrupt management config

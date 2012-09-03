@@ -11,7 +11,9 @@ Added l4vcpu in config.sub
 
 
 
-Added symbolic link to wrapper_1.h in back_rtems/cpukit/score/cpu/l4vcpu/rtems/score/ and added the include in 'interrupts.h' in the same folder
+Added symbolic link to wrapper_1.h in 
+back_rtems/cpukit/score/cpu/l4vcpu/rtems/score/ 
+and added the include in 'interrupts.h' in the same folder
 
 Added wrapper_1.h file mentioned above in cpukit/score/cpu/l4vcpu/Makefile.am
 
@@ -321,3 +323,17 @@ Works, but as interrupts are disabled, there is no current use.
   replace the NULL parts in l4vcpu_irq_restore!
 
 
+
+03/09/2012
+== Console
+Third way: use serial interface / uart.
+
+== Interrupt extension
+RTEMS has an interrupt abstraction layer, called 'interrupt extension' defined
+in libbsp/shared/include/irq-generic.h . There are the needs for minimal IRQ
+handling defined. 
+
+I removed all hardware related interrupt init code in shared/irq/irq-init.c 
+and hope,there is no direct call from the higher level code to these entries.
+Well, there is an outport call at BSP_irq_enable_at_i8259s, so this can't work
+yet. But apart from this, it looks fine.

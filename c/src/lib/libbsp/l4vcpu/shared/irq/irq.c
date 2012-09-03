@@ -234,7 +234,8 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   /*
    * must enable slave pic anyway
    */
-  BSP_irq_enable_at_i8259s(2);
+  //  RTEMSVCPU: outport problem so ignore for now
+//  BSP_irq_enable_at_i8259s(2);
 
   return RTEMS_SUCCESSFUL;
 }

@@ -65,19 +65,23 @@ void bsp_start_default( void )
   /*
    * Init rtems interrupt management
    */
-// RTEMSVCPU: Give it a closer look later..
-//  rtems_irq_mngt_init();
+// RTEMSVCPU: This now only initalizes the high lvl structures of the IDT
+  rtems_irq_mngt_init();
 
 
   /*
    * Init rtems exceptions management
    */
-// RTEMSVCPU: No need fo this either.
+// RTEMSVCPU: No need for this, as L4vcpu is handling the exception stuff.
 //  rtems_exception_init_mngt();
 
   /*
    * init PCI Bios interface...
    */
+
+  // progress kill to signal progress
+  while( true );
+
   pci_init_retval = pci_initialize();
   if (pci_init_retval != PCIB_ERR_SUCCESS) {
       printk("PCI bus: could not initialize PCI BIOS interface\n");
