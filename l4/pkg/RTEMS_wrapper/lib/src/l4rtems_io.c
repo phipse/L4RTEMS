@@ -11,12 +11,13 @@
 #include <l4/RTEMS_wrapper/l4rtems_io.h> 
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 
-static char buf_out[256];
-static int i = 0;
 
 void
 l4rtems_outch( char c )
 {
+  static char buf_out[256];
+  static int i = 0;
+
   if( c == '\n' )
   {
     printf( "%s\n", buf_out);
@@ -31,12 +32,13 @@ l4rtems_outch( char c )
 }
 
 
-static char buf_in[256];
-static int o = -1;
 
 int
 l4rtems_inch( void )
 {
+  static char buf_in[256];
+  static int o = -1;
+
   if( o == -1 )
   {
     o = scanf( "%s", buf_in );
