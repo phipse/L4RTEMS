@@ -292,10 +292,10 @@ _L4RTEMS_initVideo( void )
   // take these parameters from the l4 framebuffer passed in the
   // sharedVariableStruct.
   // Framebuffer != videoMemory
-  bitMapBaseAddr = sharedVariableStruct->bitmapBaseAddr;
-  ioCrtBaseAddr = sharedVariableStruct->ioCrtBaseAddr;
-  maxCol = sharedVariableStruct->columnsPerPage;
-  maxRow = sharedVariableStruct->linesPerPage;
+//  bitMapBaseAddr = sharedVariableStruct->bitmapBaseAddr;
+//  ioCrtBaseAddr = sharedVariableStruct->ioCrtBaseAddr;
+//  maxCol = sharedVariableStruct->columnsPerPage;
+//  maxRow = sharedVariableStruct->linesPerPage;
   column = 0;
   row = 0;
   attribute = ((BLACK << 4) | WHITE ) << 8;
