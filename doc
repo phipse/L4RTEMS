@@ -337,3 +337,13 @@ I removed all hardware related interrupt init code in shared/irq/irq-init.c
 and hope,there is no direct call from the higher level code to these entries.
 Well, there is an outport call at BSP_irq_enable_at_i8259s, so this can't work
 yet. But apart from this, it looks fine.
+
+== bsp_start_default
+killed PCI and IDE init, as it is unnecessary right now. I need to get the
+interrupt stuff working first.
+It works!
+Back at the boot_card startup sequence, the
+bootcard_bsp_libc_helper/bsp_libc_init function is causing trouble. It calls
+RTEMS_Malloc_Initialize but on the way it crashes into an unhandled 'cli'
+instruction. I have no idea how it gets there, at the moment, but now I fix the
+printk output.

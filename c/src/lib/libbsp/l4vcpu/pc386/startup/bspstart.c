@@ -79,15 +79,14 @@ void bsp_start_default( void )
    * init PCI Bios interface...
    */
 
-  // progress kill to signal progress
-  while( true );
+// RTEMSVCPU: the PCI bus is not of any interest to get a working example first
+//  pci_init_retval = pci_initialize();
+//  if (pci_init_retval != PCIB_ERR_SUCCESS) {
+//      printk("PCI bus: could not initialize PCI BIOS interface\n");
+//  }
 
-  pci_init_retval = pci_initialize();
-  if (pci_init_retval != PCIB_ERR_SUCCESS) {
-      printk("PCI bus: could not initialize PCI BIOS interface\n");
-  }
-
-  bsp_ide_cmdline_init();
+//RTEMSVCPU: IDE not interesting right now
+//  bsp_ide_cmdline_init();
 
 } /* bsp_start */
 
