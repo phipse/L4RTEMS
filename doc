@@ -1,3 +1,8 @@
+=== NOTE ===
+Dates are written as DD/MM/YYYY
+============
+
+
 Testing the cross compiler with the test mentioned in getting started pdf works
 
 Added symbolic links from l4vcpu-rtems4.11-* to i386-rtems4.11-* in
@@ -347,3 +352,16 @@ bootcard_bsp_libc_helper/bsp_libc_init function is causing trouble. It calls
 RTEMS_Malloc_Initialize but on the way it crashes into an unhandled 'cli'
 instruction. I have no idea how it gets there, at the moment, but now I fix the
 printk output.
+
+
+
+06/09/2012
+== RTEMS_Malloc_Initialize
+Fixed! The multiboot structure was filled with bogus numbers, so the numbers
+read from it were wrong. With the current ones, I get reasonable results and
+the init process advances to the keyboard driver.
+
+== Console output:
+Still no printk support, as I have no clue how to get the stdin file descriptor
+inside of RTEMS. Maybe the serial bus is the way to go, but I need to read on 
+this first. 

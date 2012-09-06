@@ -1,3 +1,3 @@
-requires: libc libgfxbitmap 
+requires: libc libgfxbitmap uclibc 
 provides: rtems_wrapper
 maintainer: philipp.eppelt@mailbox.tu-dresden.de

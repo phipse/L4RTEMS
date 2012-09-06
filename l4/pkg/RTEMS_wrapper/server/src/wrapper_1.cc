@@ -403,7 +403,7 @@ main( int argc, char **argv )
   
   
   // create multiboot structure
-  multiboot_structure multi = { 1, 0, 1024 };
+  multiboot_structure multi = { 1UL << 0, 512, 2048 };
   
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
 
