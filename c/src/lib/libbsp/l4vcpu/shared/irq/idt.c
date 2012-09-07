@@ -18,6 +18,13 @@
  * $Id: idt.c,v 1.16 2011/02/11 12:06:31 ralf Exp $
  */
 
+//
+//
+//RTEMSVCPU: All unnecessary, as this handles hardware stuff
+//
+//
+#if 0
+
 #include <libcpu/cpu.h>
 #include <bsp/irq.h>
 
@@ -286,3 +293,4 @@ int i386_set_gdt_entry (unsigned short segment_selector, unsigned base,
 
     return 1;
 }
+#endif

@@ -210,8 +210,10 @@ static void compute_i8259_masks_from_prio (void)
   rtems_interrupt_enable(level);
 }
 
+//RTEMSVCPU: use this functions as interface to the L4Re wrapper
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
+  // RTEMSVCPU: Add interrupt vector to L4Re, as we have a handler now.
   BSP_irq_enable_at_i8259s(vector);
 
   return RTEMS_SUCCESSFUL;
@@ -220,6 +222,8 @@ rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
 {
   BSP_irq_disable_at_i8259s(vector);
+  //RTEMSVCPU: as the last interrupt handler was removed and the vector was
+  //disabled, remove the interrupt vector from L4Re.
 
   return RTEMS_SUCCESSFUL;
 }

@@ -40,7 +40,7 @@ extern "C" {
 +--------------------------------------------------------------------------*/
 
     /* Base vector for our IRQ handlers. */
-#define BSP_IRQ_VECTOR_BASE		BSP_ASM_IRQ_VECTOR_BASE
+#define BSP_IRQ_VECTOR_BASE		BSP_ASM_IRQ_VECTOR_BASE // 0x20 <- irq_asm.h
 #define BSP_IRQ_LINES_NUMBER    	16
 #define BSP_LOWEST_OFFSET		0
 #define BSP_MAX_OFFSET		 	(BSP_IRQ_LINES_NUMBER - 1)
@@ -67,6 +67,8 @@ typedef unsigned short rtems_i8259_masks;
 
 extern  rtems_i8259_masks i8259s_cache;
 
+#if 0
+// RTEMSVCPU: No PIC to handle
 /*-------------------------------------------------------------------------+
 | Function Prototypes.
 +--------------------------------------------------------------------------*/
@@ -98,7 +100,7 @@ int BSP_irq_ack_at_i8259s           	(const rtems_irq_number irqLine);
  * function to check if a particular irq is enabled at 8259 level. After calling
  */
 int BSP_irq_enabled_at_i8259s        	(const rtems_irq_number irqLine);
-
+#endif /* 0 */
 #ifdef __cplusplus
 }
 #endif

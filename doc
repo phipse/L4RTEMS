@@ -373,3 +373,26 @@ this first.
 I am passing the l4 stdin/out file descriptors in the sharedVarStruct. Printk
 works without error, but also without output.. .
 For everything else I have to advance the interrupt handling first.
+
+=== Educated guess
+- Request every IRQ nbr, RTEMS has a handler for. So far:
+    #define BSP_PERIODIC_TIMER    0
+    #define BSP_KEYBOARD          1
+    #define BSP_UART_COM2_IRQ	  3
+    #define BSP_UART_COM1_IRQ	  4
+    #define BSP_RT_TIMER1	  8
+    #define BSP_RT_TIMER3	  10
+- attach/detach RTEMS thread to these IRQs, when 
+    bsp_interrupt_handler_install/remove is called.
+- triggered IRQ forces vcpu_exit, an handler_entry and the  handler calls
+    rtems_interrupt_handler_dispatch with the irq nbr.
+- provide replacement for BSP_irq_enable/disable_at_i8259s
+- ++OR++ provide replacement for bsp_interrupt_vector_enable/disable and make
+    sure nobody wants to use BSP_irq_enable/disable_at_i8259s.
+
+2nd step
+-- handler then tries to read from in/out_port, which needs to be done through
+    L4Re!?
+
+I marked the points in l4vcpu/irq.c, where the L4Re wrapper communication is
+necessary.
