@@ -11,10 +11,13 @@
 #define L4RTEMS_WRAPPER
 
 #include <rtems/l4vcpu/l4vcpu.h>
+#include <stdio.h>
 
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu; 
+  FILE * fd_in;
+  FILE * fd_out;
 // framebuffer console stuff - atm unneccessary
 //  unsigned long *bitmapBaseAddr;
 //  unsigned long ioCrtBaseAddr;

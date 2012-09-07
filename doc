@@ -365,3 +365,11 @@ the init process advances to the keyboard driver.
 Still no printk support, as I have no clue how to get the stdin file descriptor
 inside of RTEMS. Maybe the serial bus is the way to go, but I need to read on 
 this first. 
+
+++++ TODO ++++ Fix the IDT setup.
+
+
+07/09/2012
+I am passing the l4 stdin/out file descriptors in the sharedVarStruct. Printk
+works without error, but also without output.. .
+For everything else I have to advance the interrupt handling first.

@@ -5,23 +5,24 @@
  */
 
 
-#include <stdio.h>
 #include <l4/util/util.h>
 #include <l4/util/port_io.h>
 #include <l4/RTEMS_wrapper/l4rtems_io.h> 
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 
+extern sharedvars_t* sharedVariableStruct;
 
 void
 l4rtems_outch( char c )
 {
   static char buf_out[256];
   static int i = 0;
+  FILE * fin = sharedVariableStruct->fd_in;
 
+  fprintf( fin, "c", c );
   if( c == '\n' )
   {
-    printf( "%s\n", buf_out);
-//    fprintf( stdout, "%s\n", buf_out); 
+    fprintf( fin , "%s\n", buf_out); 
     i = 0;
   }
   else
@@ -32,17 +33,18 @@ l4rtems_outch( char c )
 }
 
 
-
+// here is some bogus going on with the returntype and in the loop.
+// FIXME
 int
 l4rtems_inch( void )
 {
   static char buf_in[256];
   static int o = -1;
+  FILE * fout = sharedVariableStruct->fd_out;
 
   if( o == -1 )
   {
-    o = scanf( "%s", buf_in );
-//    o = fscanf( stdin, "%s", buf_in);
+    o = fscanf( fout, "%s", buf_in);
     if( o == 0 )
       return 0;
     // here should be some check, to assure the validity of the input

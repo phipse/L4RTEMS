@@ -403,6 +403,7 @@ main( int argc, char **argv )
   
   
   // create multiboot structure
+  // flags, lowerMem, upperMem [KB]
   multiboot_structure multi = { 1UL << 0, 512, 2048 };
   
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
@@ -410,6 +411,8 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
+  sharedstruct->fd_in = stdin;
+  sharedstruct->fd_out = stdout;
   
   // initialize the start registers
   vcpu->r()->ip = entry;
