@@ -19,7 +19,7 @@ l4rtems_outch( char c )
   static int i = 0;
   FILE * fin = sharedVariableStruct->fd_in;
 
-  fprintf( fin, "c", c );
+  fprintf( fin, "%c", c );
   if( c == '\n' )
   {
     fprintf( fin , "%s\n", buf_out); 

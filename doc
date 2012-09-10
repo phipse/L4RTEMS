@@ -396,3 +396,7 @@ For everything else I have to advance the interrupt handling first.
 
 I marked the points in l4vcpu/irq.c, where the L4Re wrapper communication is
 necessary.
+
+
+10/09/2012
+Added the L4 routines for attaching and detaching IRQs.

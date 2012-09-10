@@ -9,6 +9,6 @@ SRC_CC          = wrapper_1.cc
 #SRC_CC 		= wrapper_c_interface.cc
 
 # list requirements of your program here
-REQUIRES_LIBS   = libvcpu stdlibs libgfxbitmap 
+REQUIRES_LIBS   = libvcpu stdlibs libstdc++ 
 
 include $(L4DIR)/mk/prog.mk

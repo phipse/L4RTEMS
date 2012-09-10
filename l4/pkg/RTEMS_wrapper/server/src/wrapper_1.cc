@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <map>
 
 /* L4 includes */
 #include <l4/sys/task>
@@ -69,13 +70,14 @@ static char timer_stack[8<<10];
 
 static unsigned long fs, ds;
 
+
+/* Multiboot structure to provide lower and upper memory */
 typedef struct multiboot
 {
   long flags;
   long mem_lower;
   long mem_upper;
 } multiboot_structure;
-
 
 
 
@@ -228,15 +230,9 @@ starter( void )
   printf( "VCPU fs: %x, gs: %x \n", (unsigned int) vcpu->r()->fs, 
       (unsigned int) vcpu->r()->gs);
 
-//  asm volatile ( " mov $0x43, %%edx \t\n"
-//	" mov $0x36, %%al  \t\n"
-//	" out %%al, %%dx   \t\n"
-//	::: );
-
-  enter_kdebug( "VCPU starter" );
+//  enter_kdebug( "VCPU starter" );
 
   L4::Cap<L4::Thread> self; 
-//  vcpu->task(vcpu_task);
   self->vcpu_resume_commit( self->vcpu_resume_start() );
   
   printf("sleep forever\n");
@@ -259,6 +255,69 @@ l4rtems_timer( unsigned long period = 1 )
     timerIRQ->trigger();
     l4_sleep( period );
   }
+}
+
+static std::map<unsigned, Cap<Irq> > attachedIrqNbr;
+
+bool
+requestIrq( unsigned irqNbr )
+{ /* Create IRQ object and attach it to the requested irqNbr. Then store the
+     irqNbr and the capability in a map. */
+  // if already attached, do nothing
+  if( attachedIrqNbr.end() != attachedIrqNbr.find( irqNbr ) )
+    return true;
+
+  // request new capability and create IRQ
+  Cap<Irq> newIrq = L4Re::Util::cap_alloc.alloc<Irq>();
+  if( !newIrq.is_valid() )
+  {
+    fprintf( stdout, "newIrq cap invalid!\n\n" );
+    return false;
+  }
+
+  l4_msgtag_t err = Env::env()->factory()->create_irq( newIrq );
+  if( err.has_error() )
+  {
+    fprintf( stdout, "create_irq failed! Flags: %x \n\n", err.flags() );
+    return false;
+  }
+
+  // attach vcpu thread to the IRQ
+  err = newIrq->attach( irqNbr, vcpu_cap );
+  if( err.has_error() )
+  {
+    fprintf( stdout, "IRQ attach failed! Flags: %x \n\n", err.flags() );
+    return false;
+  }
+
+  //TODO check return value
+  attachedIrqNbr.insert( std::pair<unsigned, Cap<Irq> > (irqNbr, newIrq) );
+
+  return true;
+}
+
+
+
+void
+detachIrq( unsigned irqNbr )
+{ /* If irqNbr is found in the attachedIrqNbr set, it was previously attached.
+     So detach and remove. */
+  std::map<unsigned, Cap<Irq> >::iterator iter = attachedIrqNbr.find( irqNbr );
+  if( iter == attachedIrqNbr.end() )
+  {
+    fprintf( stdout, "detachIrq:: IrqNbr not found: %u! \n\n", irqNbr );
+    return;
+  }
+  l4_msgtag_t err = iter->second->detach();
+  if( err.has_error() )
+  {
+    fprintf( stdout, "detachIrq:: Detatch failed! Flags: %x\n\n", 
+	err.flags() );
+    return;
+  }
+
+  //TODO check return value
+  attachedIrqNbr.erase( iter ); 
 }
 
 
@@ -358,7 +417,7 @@ main( int argc, char **argv )
   
   printf( "Hello Wrapper!\n" );
   asm volatile (" mov %%fs, %0" : "=r"(fs) :: );
-  printf( "fs: %x\n", fs);
+  printf( "fs: %lx\n", fs);
   /* 1st argument must be the RTEMS elf file */
   if( argc < 2 )
   {

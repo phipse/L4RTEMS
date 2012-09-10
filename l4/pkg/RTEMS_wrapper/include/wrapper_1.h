@@ -16,6 +16,7 @@
   #include <l4/sys/vcpu.h>
 #endif
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct guestHostShare
 {
@@ -39,6 +40,10 @@ starter( void );
 unsigned long
 load_elf( char *name, unsigned long *initial_sp );
 
+
+bool requestIrq( unsigned irqNbr );
+
+void detachIrq( unsigned irqNbr );
 
 // programmable periodic timer interrupt
 void l4rtems_timer( unsigned long period );
