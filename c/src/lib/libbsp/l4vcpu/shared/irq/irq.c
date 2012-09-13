@@ -24,6 +24,9 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+//RTEMSVCPU:
+#include <rtems/score/wrapper.h>
+
 /*
  * pointer to the mask representing the additionnal irq vectors
  * that must be disabled when a particular entry is activated.
@@ -69,6 +72,10 @@ rtems_i8259_masks i8259s_cache = 0xFFFB;
 +--------------------------------------------------------------------------*/
 int BSP_irq_disable_at_i8259s    (const rtems_irq_number irqLine)
 {
+  //RTEMSVCPU: handle calls from anywhere
+  bsp_interrupt_vector_disable( irqLine );
+  return 0;
+#if 0  
   unsigned short        mask;
   rtems_interrupt_level level;
 
@@ -93,6 +100,7 @@ int BSP_irq_disable_at_i8259s    (const rtems_irq_number irqLine)
   rtems_interrupt_enable(level);
 
   return 0;
+#endif
 }
 
 /*-------------------------------------------------------------------------+
@@ -104,6 +112,10 @@ int BSP_irq_disable_at_i8259s    (const rtems_irq_number irqLine)
 +--------------------------------------------------------------------------*/
 int BSP_irq_enable_at_i8259s    (const rtems_irq_number irqLine)
 {
+  //RTEMSVCPU: handle calls from anywhere
+  bsp_interrupt_vector_enable( irqLine );
+  return 0;
+#if 0
   unsigned short        mask;
   rtems_interrupt_level level;
 
@@ -128,6 +140,7 @@ int BSP_irq_enable_at_i8259s    (const rtems_irq_number irqLine)
   rtems_interrupt_enable(level);
 
   return 0;
+#endif
 } /* mask_irq */
 
 int BSP_irq_enabled_at_i8259s        	(const rtems_irq_number irqLine)
@@ -214,16 +227,19 @@ static void compute_i8259_masks_from_prio (void)
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   // RTEMSVCPU: Add interrupt vector to L4Re, as we have a handler now.
-  BSP_irq_enable_at_i8259s(vector);
+  if( !l4rtems_requestIrq( vector ) )
+    return RTEMS_IO_ERROR;
+//  BSP_irq_enable_at_i8259s(vector);
 
   return RTEMS_SUCCESSFUL;
 }
 
 rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
 {
-  BSP_irq_disable_at_i8259s(vector);
   //RTEMSVCPU: as the last interrupt handler was removed and the vector was
   //disabled, remove the interrupt vector from L4Re.
+  l4rtems_detachIrq( vector );
+//  BSP_irq_disable_at_i8259s(vector);
 
   return RTEMS_SUCCESSFUL;
 }
@@ -238,8 +254,9 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   /*
    * must enable slave pic anyway
    */
-  //  RTEMSVCPU: outport problem so ignore for now
+  //  RTEMSVCPU: use the L4 routines for that.
 //  BSP_irq_enable_at_i8259s(2);
+  bsp_interrupt_vector_enable( 2 );
 
   return RTEMS_SUCCESSFUL;
 }

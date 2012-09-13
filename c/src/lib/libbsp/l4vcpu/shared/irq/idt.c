@@ -23,7 +23,7 @@
 //RTEMSVCPU: All unnecessary, as this handles hardware stuff
 //
 //
-#if 0
+#if 1
 
 #include <libcpu/cpu.h>
 #include <bsp/irq.h>

@@ -19,7 +19,9 @@ include_rtems_l4vcpu_HEADERS = rtems/l4vcpu/l4compiler.h rtems/l4vcpu/l4consts.h
 	rtems/l4vcpu/l4utcb.h rtems/l4vcpu/l4__vcpu-arch.h \
 	rtems/l4vcpu/l4vcpu_arch.h rtems/l4vcpu/l4vcpu.h \
 	rtems/l4vcpu/l4err.h rtems/l4vcpu/l4int_x86.h rtems/l4vcpu/l4__l4_fpage.h \
-	rtems/l4vcpu/l4__timeout.h rtems/l4vcpu/l4utcb_x86.h
+	rtems/l4vcpu/l4__timeout.h rtems/l4vcpu/l4utcb_x86.h \
+	rtems/l4vcpu/l4ipc-invoke-x86.h rtems/l4vcpu/l4ipc-l42-gcc3-nopic.h \
+	rtems/l4vcpu/l4kdebug.h
 
 
 noinst_LIBRARIES = libscorecpu.a

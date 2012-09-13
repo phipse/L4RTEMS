@@ -128,3 +128,15 @@ $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb_x86.h: rtems/l4vcpu/l4utcb_x86.h $(PROJEC
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb_x86.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4utcb_x86.h
 
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc-invoke-x86.h: rtems/l4vcpu/l4ipc-invoke-x86.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc-invoke-x86.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc-invoke-x86.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc-l42-gcc3-nopic.h: rtems/l4vcpu/l4ipc-l42-gcc3-nopic.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc-l42-gcc3-nopic.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4ipc-l42-gcc3-nopic.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4kdebug.h: rtems/l4vcpu/l4kdebug.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kdebug.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kdebug.h
+

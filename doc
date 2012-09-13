@@ -10,7 +10,7 @@ Added symbolic links from l4vcpu-rtems4.11-* to i386-rtems4.11-* in
 
 Added l4vcpu in c/src/aclocal/rtems-cpu-subdirs.m4
 
-Added l4vcpu in config.sub
+Added l4vcpu in config.sub around line 319, to the "i*86 | x86_64" option
 
 --- above is critical -- 
 
@@ -400,3 +400,10 @@ necessary.
 
 10/09/2012
 Added the L4 routines for attaching and detaching IRQs.
+Restructured the RTEMS_wrapper files: Moved a lot of code into the now C++
+library.
+
+
+13/09/2012
+Incrementally linked libl4rtems.a without loose ends.
+Still problems with output routing.

@@ -10,6 +10,10 @@
 #ifndef L4RTEMS_WRAPPER
 #define L4RTEMS_WRAPPER
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if L4RTEMS
   #include <rtems/l4vcpu/l4vcpu.h>
 #else
@@ -30,9 +34,14 @@ typedef struct guestHostShare
 //  unsigned long columnsPerPage;
 } sharedvars_t;
 
+//global vars
+static l4_cap_idx_t _vcpu_cap;
 
 void
 l4rtems_outch( char c );
+
+int
+l4rtems_inch( void );
 
 void
 starter( void );
@@ -41,9 +50,9 @@ unsigned long
 load_elf( char *name, unsigned long *initial_sp );
 
 
-bool requestIrq( unsigned irqNbr );
+bool l4rtems_requestIrq( unsigned irqNbr );
 
-void detachIrq( unsigned irqNbr );
+void l4rtems_detachIrq( unsigned irqNbr );
 
 // programmable periodic timer interrupt
 void l4rtems_timer( unsigned long period );
@@ -58,5 +67,8 @@ l4rtems_inport( unsigned int port, unsigned int size );
 void
 l4rtems_outport( unsigned int port, unsigned int value, unsigned int size );
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* !L4RTEMS_WRAPPER */

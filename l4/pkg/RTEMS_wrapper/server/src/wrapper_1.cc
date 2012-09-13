@@ -20,7 +20,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-#include <map>
 
 /* L4 includes */
 #include <l4/sys/task>
@@ -203,6 +202,7 @@ handler()
       default:
 	   printf("Unrecognized IRQ\n");
 	   printf("irq: %lx \n", vcpu->i()->tag.label() );
+	   //call RTEMS bsp_interrupt_handler_dispatch( vcpu->i()->label() );
     }
   }
   else
@@ -257,68 +257,6 @@ l4rtems_timer( unsigned long period = 1 )
   }
 }
 
-static std::map<unsigned, Cap<Irq> > attachedIrqNbr;
-
-bool
-requestIrq( unsigned irqNbr )
-{ /* Create IRQ object and attach it to the requested irqNbr. Then store the
-     irqNbr and the capability in a map. */
-  // if already attached, do nothing
-  if( attachedIrqNbr.end() != attachedIrqNbr.find( irqNbr ) )
-    return true;
-
-  // request new capability and create IRQ
-  Cap<Irq> newIrq = L4Re::Util::cap_alloc.alloc<Irq>();
-  if( !newIrq.is_valid() )
-  {
-    fprintf( stdout, "newIrq cap invalid!\n\n" );
-    return false;
-  }
-
-  l4_msgtag_t err = Env::env()->factory()->create_irq( newIrq );
-  if( err.has_error() )
-  {
-    fprintf( stdout, "create_irq failed! Flags: %x \n\n", err.flags() );
-    return false;
-  }
-
-  // attach vcpu thread to the IRQ
-  err = newIrq->attach( irqNbr, vcpu_cap );
-  if( err.has_error() )
-  {
-    fprintf( stdout, "IRQ attach failed! Flags: %x \n\n", err.flags() );
-    return false;
-  }
-
-  //TODO check return value
-  attachedIrqNbr.insert( std::pair<unsigned, Cap<Irq> > (irqNbr, newIrq) );
-
-  return true;
-}
-
-
-
-void
-detachIrq( unsigned irqNbr )
-{ /* If irqNbr is found in the attachedIrqNbr set, it was previously attached.
-     So detach and remove. */
-  std::map<unsigned, Cap<Irq> >::iterator iter = attachedIrqNbr.find( irqNbr );
-  if( iter == attachedIrqNbr.end() )
-  {
-    fprintf( stdout, "detachIrq:: IrqNbr not found: %u! \n\n", irqNbr );
-    return;
-  }
-  l4_msgtag_t err = iter->second->detach();
-  if( err.has_error() )
-  {
-    fprintf( stdout, "detachIrq:: Detatch failed! Flags: %x\n\n", 
-	err.flags() );
-    return;
-  }
-
-  //TODO check return value
-  attachedIrqNbr.erase( iter ); 
-}
 
 
 
@@ -441,6 +379,7 @@ main( int argc, char **argv )
   vcpu_cap = L4Re::Util::cap_alloc.alloc<L4::Thread>();
   l4_touch_rw(thread_stack, sizeof(thread_stack));
   L4Re::Env::env()->factory()->create_thread(vcpu_cap);
+  _vcpu_cap = vcpu_cap.cap();
 
   // get memory for vCPU state
   l4_addr_t kumem = (l4_addr_t)l4re_env()->first_free_utcb;
@@ -521,31 +460,3 @@ main( int argc, char **argv )
 }
 
 
-unsigned int
-l4rtems_inport( unsigned int port, unsigned int size )
-{// magic size numbers: 0 -> byte, 1 -> word, 2 -> long 
-  switch( size )
-  {
-    case( 0 ): return l4util_in8( port );
-    case( 1 ): return l4util_in16( port );
-    case( 2 ): return l4util_in32( port );
-    default: printf( "Inport: Bad size value specified: %u\n\n", size );
-	     l4_sleep_forever(); 
-	     return -1;
-  }
-}
-
-
-
-void
-l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
-{// magic size numbers: 0 -> byte, 1 -> word, 2 -> long
-  switch( size )
-  {
-    case( 0 ): l4util_out8( value, port ); break;
-    case( 1 ): l4util_out16( value, port ); break;
-    case( 2 ): l4util_out32( value, port ); break;
-    default: printf( "Outport: Bad size value specified: %u\n\n", size );
-	     l4_sleep_forever(); 
-  }
-}
