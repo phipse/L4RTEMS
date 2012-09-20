@@ -257,6 +257,12 @@ l4rtems_timer( unsigned long period = 1 )
   }
 }
 
+void
+l4rtems_ouch( char c )
+{
+  printf( "%c", c );
+}
+
 
 
 

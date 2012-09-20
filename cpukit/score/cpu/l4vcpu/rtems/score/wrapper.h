@@ -18,6 +18,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdbool.h>
 
+
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu; 
