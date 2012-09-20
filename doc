@@ -407,3 +407,9 @@ library.
 13/09/2012
 Incrementally linked libl4rtems.a without loose ends.
 Still problems with output routing.
+
+
+20/09/2012
+L4linux and l4openbsd use a L4_EXTERNAL_FUNC routine and together with
+__l4_external_resolver. To provide an interface for functions running in the
+host to the guest.
