@@ -7,8 +7,14 @@
 
 #include <l4/util/util.h>
 #include <l4/util/port_io.h>
-#include <l4/RTEMS_wrapper/l4rtems_io.h> 
 #include <l4/RTEMS_wrapper/wrapper_1.h>
+#include <l4/sys/irq>
+#include <l4/sys/vcpu.h>
+#include <l4/sys/thread>
+#include <l4/sys/factory>
+#include <l4/re/env>
+#include <l4/re/util/cap_alloc>
+#include <l4/util/atomic.h>
 
 extern sharedvars_t* sharedVariableStruct;
 
@@ -17,12 +23,15 @@ l4rtems_outch( char c )
 {
   static char buf_out[256];
   static int i = 0;
-  FILE * fin = sharedVariableStruct->fd_in;
 
-  fprintf( fin, "%c", c );
-  if( c == '\n' )
+  if( c == '\n'  || c == 0 )
   {
-    fprintf( fin , "%s\n", buf_out); 
+    buf_out[i] = 0;
+    sprintf( sharedVariableStruct->buff_out , "%s", buf_out ); 
+    sharedVariableStruct->outready = true;
+    // Spin while the output hasn't been written
+//    while( sharedVariableStruct->outready )
+    // sth goes wrong, the loop spinns and spinns and spinns
     i = 0;
   }
   else
@@ -40,16 +49,15 @@ l4rtems_inch( void )
 {
   static char buf_in[256];
   static int o = -1;
-  FILE * fout = sharedVariableStruct->fd_out;
 
   if( o == -1 )
   {
-    o = fscanf( fout, "%s", buf_in);
+//    o = fscanf( std, "%s", buf_in);
     if( o == 0 )
       return 0;
     // here should be some check, to assure the validity of the input
     // if( j == EOF )
-    // fprintf( stdout, "PANIC: Nothing to read\n");
+    // fprintf( fout, "PANIC: Nothing to read\n");
   }
   else
   {
@@ -92,11 +100,56 @@ l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
   }
 }
 
-#if 0
-void
-l4rtems_irq_disable_save( void )
-{
- void* dummy; 
- //  saved_irq_state = l4vcpu_irq_disable_save( vcpuh );
+using namespace L4;
+using namespace L4Re;
+
+
+
+bool
+l4rtems_requestIrq( unsigned irqNbr )
+{ /* Create IRQ object and attach it to the requested irqNbr. Then store the
+     irqNbr and the capability in a map. */
+
+  // request new capability and create IRQ
+/*  Cap<Irq> newIrq = L4Re::Util::cap_alloc.alloc<Irq>();
+  if( !newIrq.is_valid() )
+  {
+    sprintf( fout, "newIrq cap invalid!\n\n" );
+    flag = true;
+    return false;
+  }
+
+  l4_msgtag_t err = Env::env()->factory()->create_irq( newIrq );
+  if( err.has_error() )
+  {
+    sprintf( fout, "create_irq failed! Flags: %x \n\n", err.flags() );
+    flag = true;
+    return false;
+  }
+
+  // attach vcpu thread to the IRQ
+  err = newIrq->attach( irqNbr, Cap<Thread>(_vcpu_cap) );
+  if( err.has_error() )
+  {
+    sprintf( fout, "IRQ attach failed! Flags: %x \n\n", err.flags() );
+    flag = true;
+    return false;
+  }
+  */
+  return true; 
 }
-#endif
+
+
+
+void
+l4rtems_detachIrq( unsigned irqNbr )
+{
+  // Detach from irqNbr
+  l4_msgtag_t err = l4_irq_detach( _vcpu_cap );
+  if( err.has_error() )
+  {
+//    printk( "detachIrq:: Detatch failed! Flags: %x\n\n", 
+//	err.flags() );
+    return;
+  }
+}
