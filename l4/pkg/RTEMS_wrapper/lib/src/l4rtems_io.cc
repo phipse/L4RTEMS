@@ -23,14 +23,16 @@ l4rtems_outch( char c )
 {
   static char buf_out[256];
   static int i = 0;
+  char* sharedBuf  = sharedVariableStruct->buff_out;
+  unsigned* outflag = &sharedVariableStruct->outready;
 
   if( c == '\n'  || c == 0 )
   {
     buf_out[i] = 0;
-    sprintf( sharedVariableStruct->buff_out , "%s", buf_out ); 
-    sharedVariableStruct->outready = true;
+    sprintf( sharedBuf, "%s", buf_out ); 
+    *outflag = true;
     // Spin while the output hasn't been written
-//    while( sharedVariableStruct->outready )
+//    while( outflag )
     // sth goes wrong, the loop spinns and spinns and spinns
     i = 0;
   }
