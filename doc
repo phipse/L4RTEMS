@@ -443,3 +443,7 @@ compile time, when the macros get evaluated. If I can get a hold on the drivers
 needed for startup (keyboard, ...), I can reason about the virtualization 
 design. I think this way is better than taking a driver by driver approach.
 
+The keyboard get's initialized together with the console in console.c.
+Ignoring this, leads to an error in threadhandler.c, due to an sti instruction.
+I tried to change it to i386_interrupt_enable/disable but this leads to a ton
+of compile errors.
