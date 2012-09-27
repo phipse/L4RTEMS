@@ -413,3 +413,26 @@ Still problems with output routing.
 L4linux and l4openbsd use a L4_EXTERNAL_FUNC routine and together with
 __l4_external_resolver. To provide an interface for functions running in the
 host to the guest.
+
+
+27/09/2012
+Next approach on the printing issue. I use an additional thread to print
+everything, that's written to a shared buffer by RTEMS. The buffer and a flag
+is passed in the sharedVariableStructure.
+??? How do I pass arguments to l4_threads? Atm I worked around it with global
+vars.
+
+++++ TODO ++++ Add atomic compare and swap to deal with the shared flag.
+--> preliminary solution: nobody can write to the buffer, before the buffer 
+is written to the output
+
+Removed some of the incrementally linked libraries, as they cause trouble.
+Comment out some of my library code, too, to postpone the undefined reference
+errors.
+
+::::OUTPUT ISSUE:::: Got output with the output thread polling on the flag. 
+DRAWBACKS: 
+- Spinning while the output isn't consumed by l4rtems_buffOut;
+- Bad performance
+
+The spinning stuff doesn't work, as the loop never exits. Don't know why.

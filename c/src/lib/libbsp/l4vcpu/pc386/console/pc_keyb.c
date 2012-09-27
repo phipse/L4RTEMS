@@ -459,6 +459,7 @@ static int kbd_read_data(void)
 {
 	int retval = KBD_NO_DATA;
 	unsigned char status;
+	printk( "THERE SHOUDL BE OUTPUT!\n" );
 
 	status = kbd_read_status();
 	if (status & KBD_STAT_OBF) {

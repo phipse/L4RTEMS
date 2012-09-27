@@ -25,9 +25,9 @@ extern "C" {
 
 typedef struct guestHostShare
 {
-  l4_vcpu_state_t *vcpu; 
-  FILE * fd_in;
-  FILE * fd_out;
+  l4_vcpu_state_t *vcpu;  // pointer to vcpu struct
+  char* buff_out;	  // pointer to output buffer
+  unsigned outready;
 // framebuffer console stuff - atm unneccessary
 //  unsigned long *bitmapBaseAddr;
 //  unsigned long ioCrtBaseAddr;

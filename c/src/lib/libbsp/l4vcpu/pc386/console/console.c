@@ -45,7 +45,7 @@
 #include <rtems/keyboard.h>
 
 // RTEMSVCPU: what is the final path of the bsp includes?
-//#include "../include/l4rtems_io.h"
+#include <rtems/score/wrapper.h>
 
 /*
  * Possible value for console input/output :

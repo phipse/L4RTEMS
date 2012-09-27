@@ -39,6 +39,7 @@
 #include <l4/re/util/cap_alloc>
 #include <l4/re/env>
 #include <l4/util/util.h>
+#include <l4/util/atomic.h>
 #include <l4/util/elf.h>
 #include <l4/util/port_io.h>
 #include <l4/libloader/elf>
@@ -66,6 +67,7 @@ static l4_vcpu_state_t *vcpuh;
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
 static char timer_stack[8<<10];
+static char out_stack[8<<10];
 
 static unsigned long fs, ds;
 
@@ -230,7 +232,7 @@ starter( void )
   printf( "VCPU fs: %x, gs: %x \n", (unsigned int) vcpu->r()->fs, 
       (unsigned int) vcpu->r()->gs);
 
-//  enter_kdebug( "VCPU starter" );
+  enter_kdebug( "VCPU starter" );
 
   L4::Cap<L4::Thread> self; 
   self->vcpu_resume_commit( self->vcpu_resume_start() );
@@ -247,6 +249,8 @@ l4rtems_timer( unsigned long period = 1 )
 { /* This function triggers an IRQ to test the IRQ entry capability of the running 
      rtems guest application. The timer resolution is milliseconds.
      If no parameter is set, the default period is 1ms. */
+
+  printf( "Hello timer\n" );
   
   timerIRQ->attach( 9000, vcpu_cap );
 
@@ -257,10 +261,30 @@ l4rtems_timer( unsigned long period = 1 )
   }
 }
 
+
+char* outbuffer = 0;
+unsigned* outflag = 0;
+
 void
-l4rtems_ouch( char c )
+l4rtems_buffOut( void )
 {
-  printf( "%c", c );
+  printf( "Hello buffOut\n" );
+
+  while( true )
+  {
+    if( *outflag )
+    {
+      printf( "RTEMS>>> %s\n" , outbuffer );
+      //TODO add atomic compare and swap
+      unsigned ret = l4util_xchg32( outflag, false);
+      printf( "xchg32 val: %u\n", ret );
+      printf( "new outflag val: %u \n", *outflag );
+    }
+    else
+    {
+      l4_sleep( 10 );
+    }
+  }
 }
 
 
@@ -415,8 +439,15 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
-  sharedstruct->fd_in = stdin;
-  sharedstruct->fd_out = stdout;
+  sharedstruct->buff_out = new char[100];
+  sharedstruct->outready = false;
+
+  outbuffer = sharedstruct->buff_out;
+  outflag = &sharedstruct->outready;
+  printf( "outbuffer: %x, outflag: %x \n", outbuffer, outflag );
+
+  //null char array
+  memset( sharedstruct->buff_out, '0', 100 );
   
   // initialize the start registers
   vcpu->r()->ip = entry;
@@ -432,7 +463,9 @@ main( int argc, char **argv )
      vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);
   printf( "vcpuh: %x, vcpu %x\n", (unsigned int) vcpuh, (unsigned int) vcpu);
   printf( "sharedVarStruct: %x \n", (unsigned int) &sharedstruct );
-  printf( "sharedVarStruct: %x \n", (unsigned int) sharedstruct->vcpu );
+  printf( "sharedVarStruct_vcpu: %x \n", (unsigned int) sharedstruct->vcpu );
+  printf( "sharedVarStruct_bufout: %x \n", (unsigned int) sharedstruct->buff_out );
+  printf( "sharedVarStruct_outready: %x \n", (unsigned int) sharedstruct->outready );
 #endif
 
 
@@ -447,6 +480,14 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
+  
+  
+  // create output thread
+  L4::Cap<L4::Thread> output;
+  output->ex_regs( (l4_umword_t) l4rtems_buffOut,
+		  (l4_umword_t) out_stack + sizeof(out_stack),
+		  0 );
+  L4Re::Env::env()->scheduler()->run_thread( output, l4_sched_param(5) ); 
 
 #if 1  
   // IRQ setup 
@@ -458,8 +499,10 @@ main( int argc, char **argv )
   timer->ex_regs( (l4_umword_t) l4rtems_timer,
 		  (l4_umword_t) timer_stack + sizeof(timer_stack),
 		  0 );
-  L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(2) ); 
+  L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(4) ); 
 #endif
+  
+  
   
   l4_sleep_forever(); 
   return 0;
