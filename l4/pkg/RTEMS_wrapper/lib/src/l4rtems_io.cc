@@ -44,31 +44,29 @@ l4rtems_outch( char c )
 }
 
 
-// here is some bogus going on with the returntype and in the loop.
-// FIXME
 int
 l4rtems_inch( void )
 {
-  static char buf_in[256];
-  static int o = -1;
+  static char buf_in;
+  int o = 0;
+  char* sharedBuf = sharedVariableStruct->buff_in;
+  unsigned* inflag = sharedVariableStruct->inready;
 
-  if( o == -1 )
-  {
-//    o = fscanf( std, "%s", buf_in);
-    if( o == 0 )
-      return 0;
-    // here should be some check, to assure the validity of the input
-    // if( j == EOF )
-    // fprintf( fout, "PANIC: Nothing to read\n");
-  }
-  else
-  {
-    --o;
-    return buf_in[ o+1 ];
-  }
 
-  printf("PANIC: l4rtems_inch: should never be reached\n");
-  l4_sleep_forever();
+  if( inflag )
+  {
+    o = sscanf( &buf_in, "%c", sharedBuf );
+    l4util_xchg32( inflag, false );
+    l4rtems_outch(buf_in);
+    if( o == 1 )
+      return buf_in;
+    else
+      return buf_in;
+      asm __volatile__ ( " mov %0, %%eax \t\n"
+//	  "mov %1, %%ebx \t\n"
+	  "ud2 \t\n" : :"r"(o), "r"(buf_in) : );
+
+  }
 }
 
 

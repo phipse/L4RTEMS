@@ -68,6 +68,7 @@ static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
 static char timer_stack[8<<10];
 static char out_stack[8<<10];
+static char in_stack[8<<10];
 
 static unsigned long fs, ds;
 
@@ -287,7 +288,30 @@ l4rtems_buffOut( void )
   }
 }
 
+char inbuffer = 0;
+unsigned inflag = 0;
 
+void
+l4rtems_buffIn( void )
+{
+  printf( "Hello buffIn\n" );
+
+  while( true ) 
+  {
+    if( !inflag )
+    {
+//      scanf( "%c", &inbuffer );
+      inbuffer = 'f';
+      unsigned ret = l4util_xchg32( &inflag, true );
+      printf( "inflag was: %u\n", ret );
+      //printf( "New inflag val: %u\n," *inflag );
+    }
+    else
+    {
+      l4_sleep( 10 );
+    }
+  }
+}
 
 
 l4_umword_t
@@ -444,7 +468,11 @@ main( int argc, char **argv )
 
   outbuffer = sharedstruct->buff_out;
   outflag = &sharedstruct->outready;
-  printf( "outbuffer: %x, outflag: %x \n", outbuffer, outflag );
+  printf( "outbuffer: %p, outflag: %x \n", outbuffer, *outflag );
+  
+  sharedstruct->buff_in = &inbuffer;
+  sharedstruct->inready = &inflag;
+  printf( "inbuffer: %x, inflag: %x \n", inbuffer, inflag );
 
   //null char array
   memset( sharedstruct->buff_out, '0', 100 );
@@ -488,6 +516,14 @@ main( int argc, char **argv )
 		  (l4_umword_t) out_stack + sizeof(out_stack),
 		  0 );
   L4Re::Env::env()->scheduler()->run_thread( output, l4_sched_param(5) ); 
+  
+  
+  // create input thread
+  L4::Cap<L4::Thread> input;
+  input->ex_regs( (l4_umword_t) l4rtems_buffIn,
+		  (l4_umword_t) in_stack + sizeof(in_stack),
+		  0 );
+  L4Re::Env::env()->scheduler()->run_thread( input, l4_sched_param(5) ); 
 
 #if 1  
   // IRQ setup 

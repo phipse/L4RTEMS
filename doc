@@ -455,4 +455,7 @@ in the if-branch is sourrounded by braces.
 Implemented i386_flash_interrupts, but push %(level); popf; cli; doesn't 
 necessarily enable interrupts, so my implementation is far away from stable.
 
-
+Added another thread to provide keyboard input to the guest. Most likely not
+the intended behaivour of this kind of virtualization solution, but it's a
+first try.
+Somehow I end up, at bsp_reset. 

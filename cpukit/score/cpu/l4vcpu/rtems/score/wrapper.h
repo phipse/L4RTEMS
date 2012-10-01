@@ -23,12 +23,9 @@ typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu;  // pointer to vcpu struct
   char* buff_out;	  // pointer to output buffer
-  unsigned outready;
-// framebuffer console stuff - atm unneccessary
-//  unsigned long *bitmapBaseAddr;
-//  unsigned long ioCrtBaseAddr;
-//  unsigned long linesPerPage;
-//  unsigned long columnsPerPage;
+  unsigned outready;	  // flag for filled buff_out
+  char* buff_in;	  // pointer to input buffer
+  unsigned* inready;	  // buff_in ready flag
 } sharedvars_t;
 
 //global vars
