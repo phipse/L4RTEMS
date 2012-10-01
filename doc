@@ -447,3 +447,12 @@ The keyboard get's initialized together with the console in console.c.
 Ignoring this, leads to an error in threadhandler.c, due to an sti instruction.
 I tried to change it to i386_interrupt_enable/disable but this leads to a ton
 of compile errors.
+
+
+1/10/2012
+The compile error might be macro related. It disappears, when the one operation
+in the if-branch is sourrounded by braces.
+Implemented i386_flash_interrupts, but push %(level); popf; cli; doesn't 
+necessarily enable interrupts, so my implementation is far away from stable.
+
+

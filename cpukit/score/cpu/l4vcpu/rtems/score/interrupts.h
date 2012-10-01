@@ -54,14 +54,20 @@ extern sharedvars_t *sharedVariableStruct;
       NULL, NULL); \
   }
 
+// RTEMSVCPU:
+// is this really a flash? Because push level; popf; doesn't necessarily enable
+// interrupts
 #define i386_flash_interrupts( _level ) \
   { \
-    __asm__ volatile ( "push %0 ; \
+    i386_enable_interrupts( _level ); \
+    i386_disable_interrupts( _level ); \
+  }
+/*    __asm__ volatile ( "push %0 ; \
                     popf ; \
                     cli" \
                     : : "rm" ((_level)) : "cc" \
-    ); \
-  }
+    ); \ 
+  }*/
 
 #define i386_get_interrupt_level( _level ) \
   do { \
