@@ -278,13 +278,14 @@ l4rtems_buffOut( void )
       printf( "RTEMS>>> %s\n" , outbuffer );
       //TODO add atomic compare and swap
       unsigned ret = l4util_xchg32( outflag, false);
-      printf( "xchg32 val: %u\n", ret );
-      printf( "new outflag val: %u \n", *outflag );
+      //printf( "xchg32 val: %u\n", ret );
+      //printf( "new outflag val: %u , %p \n", *outflag, outflag );
     }
     else
     {
-      l4_sleep( 10 );
-    }
+//     printf( " out sleeping!\n");
+     l4_sleep( 1 );
+    } 
   }
 }
 
@@ -463,12 +464,12 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
-  sharedstruct->buff_out = new char[100];
+  sharedstruct->buff_out = new char[1024];
   sharedstruct->outready = false;
 
   outbuffer = sharedstruct->buff_out;
   outflag = &sharedstruct->outready;
-  printf( "outbuffer: %p, outflag: %x \n", outbuffer, *outflag );
+  printf( "outbuffer: %p, outflag: %p \n", outbuffer, outflag );
   
   sharedstruct->buff_in = &inbuffer;
   sharedstruct->inready = &inflag;
@@ -519,12 +520,12 @@ main( int argc, char **argv )
   
   
   // create input thread
-  L4::Cap<L4::Thread> input;
+/*  L4::Cap<L4::Thread> input;
   input->ex_regs( (l4_umword_t) l4rtems_buffIn,
 		  (l4_umword_t) in_stack + sizeof(in_stack),
 		  0 );
   L4Re::Env::env()->scheduler()->run_thread( input, l4_sched_param(5) ); 
-
+*/
 #if 1  
   // IRQ setup 
   timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();

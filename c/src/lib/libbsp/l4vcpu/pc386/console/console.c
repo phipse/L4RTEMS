@@ -78,7 +78,7 @@ int BSPCmdBaud     = 9600;
 BSP_output_char_function_type BSP_output_char =
                        (BSP_output_char_function_type) l4rtems_outch; //_IBMPC_outch;
 
-BSP_polling_getchar_function_type BSP_poll_char = BSP_wait_polled_input;
+BSP_polling_getchar_function_type BSP_poll_char = l4rtems_inch; //BSP_wait_polled_input;
 
 /*-------------------------------------------------------------------------+
 | External Prototypes
@@ -247,7 +247,8 @@ console_initialize(rtems_device_major_number major,
                    void                      *arg)
 {
   rtems_status_code status;
-
+  // RTEMSVCPU: ignore this driver for now
+  return RTEMS_SUCCESSFUL;
 
   /* Initialize the KBD interface */
   kbd_init();

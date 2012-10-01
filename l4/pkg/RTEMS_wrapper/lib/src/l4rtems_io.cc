@@ -21,7 +21,8 @@ extern sharedvars_t* sharedVariableStruct;
 void
 l4rtems_outch( char c )
 {
-  static char buf_out[256];
+  const int j = 512;
+  static char buf_out[j];
   static int i = 0;
   char* sharedBuf  = sharedVariableStruct->buff_out;
   unsigned* outflag = &sharedVariableStruct->outready;
@@ -30,11 +31,14 @@ l4rtems_outch( char c )
   {
     buf_out[i] = 0;
     sprintf( sharedBuf, "%s", buf_out ); 
-    *outflag = true;
+    l4util_xchg32( outflag, true );
+    bool ret = false;
     // Spin while the output hasn't been written
-//    while( outflag )
+    while( !ret )
+	ret = l4util_cmpxchg32( &sharedVariableStruct->outready, false, false);
     // sth goes wrong, the loop spinns and spinns and spinns
-    i = 0;
+//    if(i == j)
+      i = 0;
   }
   else
   {
@@ -51,13 +55,14 @@ l4rtems_inch( void )
   int o = 0;
   char* sharedBuf = sharedVariableStruct->buff_in;
   unsigned* inflag = sharedVariableStruct->inready;
-
+  return 64;
 
   if( inflag )
   {
     o = sscanf( &buf_in, "%c", sharedBuf );
+    buf_in = 'f';
     l4util_xchg32( inflag, false );
-    l4rtems_outch(buf_in);
+
     if( o == 1 )
       return buf_in;
     else

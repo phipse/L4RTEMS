@@ -459,3 +459,7 @@ Added another thread to provide keyboard input to the guest. Most likely not
 the intended behaivour of this kind of virtualization solution, but it's a
 first try.
 Somehow I end up, at bsp_reset. 
+--> At the end of the programm. Yay! But output is missing! 
+Well, the output was there, just not there. Printf is directing somewhere else
+than printk. So Hello World with printk instead of printf shows everything on
+the right console. 
