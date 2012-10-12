@@ -15,6 +15,8 @@
 #include <l4/re/env>
 #include <l4/re/util/cap_alloc>
 #include <l4/util/atomic.h>
+#include <l4/re/c/log.h>
+#include <string.h>
 
 extern sharedvars_t* sharedVariableStruct;
 
@@ -29,15 +31,17 @@ l4rtems_outch( char c )
 
   if( c == '\n'  || c == 0 )
   {
-    buf_out[i] = 0;
+    buf_out[i] = '\n';
+    l4re_log_print_srv( sharedVariableStruct->logcap, buf_out );
+    /*
     sprintf( sharedBuf, "%s", buf_out ); 
     l4util_xchg32( outflag, true );
     bool ret = false;
     // Spin while the output hasn't been written
     while( !ret )
 	ret = l4util_cmpxchg32( &sharedVariableStruct->outready, false, false);
-    // sth goes wrong, the loop spinns and spinns and spinns
-//    if(i == j)
+//    if(i == j)*/
+      memset( buf_out, 0, j );
       i = 0;
   }
   else

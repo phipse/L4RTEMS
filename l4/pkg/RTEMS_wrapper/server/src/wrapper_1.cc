@@ -464,7 +464,8 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
-  sharedstruct->buff_out = new char[1024];
+  sharedstruct->buff_size = 1024;
+  sharedstruct->buff_out = new char[sharedstruct->buff_size];
   sharedstruct->outready = false;
 
   outbuffer = sharedstruct->buff_out;
@@ -475,8 +476,10 @@ main( int argc, char **argv )
   sharedstruct->inready = &inflag;
   printf( "inbuffer: %x, inflag: %x \n", inbuffer, inflag );
 
+  sharedstruct->logcap = L4Re::Env::env()->get_cap<void>( "moes_log" ).cap();
+
   //null char array
-  memset( sharedstruct->buff_out, '0', 100 );
+  memset( sharedstruct->buff_out, '0', sharedstruct->buff_size );
   
   // initialize the start registers
   vcpu->r()->ip = entry;
@@ -512,7 +515,17 @@ main( int argc, char **argv )
   
   
   // create output thread
+  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
+  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
+  l4_utcb_t *utcb_out = (l4_utcb_t *)kumem;
+  
+  L4::Thread::Attr attr_out;
+  attr_out.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
+  attr_out.exc_handler( L4Re::Env::env()->main_thread() );
+  attr_out.bind( utcb_out, L4Re::This_task);
+  
   L4::Cap<L4::Thread> output;
+  output->control( attr_out );
   output->ex_regs( (l4_umword_t) l4rtems_buffOut,
 		  (l4_umword_t) out_stack + sizeof(out_stack),
 		  0 );
@@ -520,19 +533,39 @@ main( int argc, char **argv )
   
   
   // create input thread
-/*  L4::Cap<L4::Thread> input;
+  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
+  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
+  l4_utcb_t *utcb_in = (l4_utcb_t *)kumem;
+  
+  L4::Thread::Attr attr_in;
+  attr_in.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
+  attr_in.exc_handler( L4Re::Env::env()->main_thread() );
+  attr_in.bind( utcb_in, L4Re::This_task);
+
+  L4::Cap<L4::Thread> input;
+  input->control( attr_in );
   input->ex_regs( (l4_umword_t) l4rtems_buffIn,
 		  (l4_umword_t) in_stack + sizeof(in_stack),
 		  0 );
   L4Re::Env::env()->scheduler()->run_thread( input, l4_sched_param(5) ); 
-*/
+
 #if 1  
   // IRQ setup 
   timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
   L4Re::Env::env()->factory()->create_irq( timerIRQ );
   
   // create timer thread
+  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
+  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
+  l4_utcb_t *utcb_time = (l4_utcb_t *)kumem;
+
+  L4::Thread::Attr attr_time;
+  attr_time.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
+  attr_time.exc_handler( L4Re::Env::env()->main_thread() );
+  attr_time.bind( utcb_time, L4Re::This_task);
+
   L4::Cap<L4::Thread> timer;
+  timer->control( attr_time );
   timer->ex_regs( (l4_umword_t) l4rtems_timer,
 		  (l4_umword_t) timer_stack + sizeof(timer_stack),
 		  0 );

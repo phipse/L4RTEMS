@@ -404,15 +404,18 @@ Restructured the RTEMS_wrapper files: Moved a lot of code into the now C++
 library.
 
 
+
 13/09/2012
 Incrementally linked libl4rtems.a without loose ends.
 Still problems with output routing.
+
 
 
 20/09/2012
 L4linux and l4openbsd use a L4_EXTERNAL_FUNC routine and together with
 __l4_external_resolver. To provide an interface for functions running in the
 host to the guest.
+
 
 
 27/09/2012
@@ -449,6 +452,7 @@ I tried to change it to i386_interrupt_enable/disable but this leads to a ton
 of compile errors.
 
 
+
 1/10/2012
 The compile error might be macro related. It disappears, when the one operation
 in the if-branch is sourrounded by braces.
@@ -463,3 +467,18 @@ Somehow I end up, at bsp_reset.
 Well, the output was there, just not there. Printf is directing somewhere else
 than printk. So Hello World with printk instead of printf shows everything on
 the right console. 
+
+
+
+12/10/2012
+I extended the sharedVariableStruct with a buffer size variable for the I/O
+buffers.
+And I redesigned the whole output thing. I don't need an output thread with
+busy waiting anymore. A small drawback is the missing color atm.
+
+::: Interesting behaviour
+In bspreset.c is a call 'outport_byte(0x64, 0xFE)', which uses the outb
+instruction and resets the whole L4 task. I replaced it with a while loop to
+prevent the reboot. 
+Actually the outb instruction should trigger a general protection fault and
+drop into the handler.

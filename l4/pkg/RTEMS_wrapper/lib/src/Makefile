@@ -8,10 +8,11 @@ LINK_INCR_ADD_LIBS =
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libc_be_minimal_log_io.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libsupc++_minimal.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re-util.a
-#LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libc_be_l4refile.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libuc_c.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libc_be_l4refile.a
+LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re-c.a
+LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re.a
 LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libl4sys.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libl4util.a
 

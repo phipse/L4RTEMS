@@ -26,10 +26,12 @@ extern "C" {
 typedef struct guestHostShare
 {
   l4_vcpu_state_t *vcpu;  // pointer to vcpu struct
+  unsigned buff_size;	  // size of the I/O buffers
   char* buff_out;	  // pointer to output buffer
   unsigned outready;	  // flag for filled buff_out
   char* buff_in;	  // pointer to input buffer
   unsigned* inready;	  // buff_in ready flag
+  l4_cap_idx_t logcap;	  // capability for the log to use print
 } sharedvars_t;
 
 //global vars

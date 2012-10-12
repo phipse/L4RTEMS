@@ -16,5 +16,6 @@
 void bsp_reset(void)
 {
   /* shutdown and reboot */
-  outport_byte(0x64, 0xFE);      /* use keyboard controler to do the job... */
+//  outport_byte(0x64, 0xFE);      /* use keyboard controler to do the job... */
+  while(1);
 }
