@@ -67,7 +67,6 @@ static l4_vcpu_state_t *vcpuh;
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
 static char timer_stack[8<<10];
-static char out_stack[8<<10];
 static char in_stack[8<<10];
 
 static unsigned long fs, ds;
@@ -263,31 +262,6 @@ l4rtems_timer( unsigned long period = 1 )
 }
 
 
-char* outbuffer = 0;
-unsigned* outflag = 0;
-
-void
-l4rtems_buffOut( void )
-{
-  printf( "Hello buffOut\n" );
-
-  while( true )
-  {
-    if( *outflag )
-    {
-      printf( "RTEMS>>> %s\n" , outbuffer );
-      //TODO add atomic compare and swap
-      unsigned ret = l4util_xchg32( outflag, false);
-      //printf( "xchg32 val: %u\n", ret );
-      //printf( "new outflag val: %u , %p \n", *outflag, outflag );
-    }
-    else
-    {
-//     printf( " out sleeping!\n");
-     l4_sleep( 1 );
-    } 
-  }
-}
 
 char inbuffer = 0;
 unsigned inflag = 0;
@@ -465,22 +439,14 @@ main( int argc, char **argv )
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
   sharedstruct->buff_size = 1024;
-  sharedstruct->buff_out = new char[sharedstruct->buff_size];
-  sharedstruct->outready = false;
 
-  outbuffer = sharedstruct->buff_out;
-  outflag = &sharedstruct->outready;
-  printf( "outbuffer: %p, outflag: %p \n", outbuffer, outflag );
-  
   sharedstruct->buff_in = &inbuffer;
   sharedstruct->inready = &inflag;
   printf( "inbuffer: %x, inflag: %x \n", inbuffer, inflag );
 
   sharedstruct->logcap = L4Re::Env::env()->get_cap<void>( "moes_log" ).cap();
 
-  //null char array
-  memset( sharedstruct->buff_out, '0', sharedstruct->buff_size );
-  
+
   // initialize the start registers
   vcpu->r()->ip = entry;
   vcpu->r()->sp = initial_sp;  
@@ -496,8 +462,6 @@ main( int argc, char **argv )
   printf( "vcpuh: %x, vcpu %x\n", (unsigned int) vcpuh, (unsigned int) vcpu);
   printf( "sharedVarStruct: %x \n", (unsigned int) &sharedstruct );
   printf( "sharedVarStruct_vcpu: %x \n", (unsigned int) sharedstruct->vcpu );
-  printf( "sharedVarStruct_bufout: %x \n", (unsigned int) sharedstruct->buff_out );
-  printf( "sharedVarStruct_outready: %x \n", (unsigned int) sharedstruct->outready );
 #endif
 
 
@@ -512,24 +476,6 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
-  
-  
-  // create output thread
-  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
-  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
-  l4_utcb_t *utcb_out = (l4_utcb_t *)kumem;
-  
-  L4::Thread::Attr attr_out;
-  attr_out.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
-  attr_out.exc_handler( L4Re::Env::env()->main_thread() );
-  attr_out.bind( utcb_out, L4Re::This_task);
-  
-  L4::Cap<L4::Thread> output;
-  output->control( attr_out );
-  output->ex_regs( (l4_umword_t) l4rtems_buffOut,
-		  (l4_umword_t) out_stack + sizeof(out_stack),
-		  0 );
-  L4Re::Env::env()->scheduler()->run_thread( output, l4_sched_param(5) ); 
   
   
   // create input thread
