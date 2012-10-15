@@ -30,7 +30,8 @@ l4rtems_outch( char c )
   if( c == '\n'  || c == 0 )
   {
     buf_out[i] = '\n';
-    l4re_log_print_srv( sharedVariableStruct->logcap, buf_out );
+    l4_vcon_write( sharedVariableStruct->logcap, buf_out, ++i );
+//    l4re_log_print_srv( sharedVariableStruct->logcap, buf_out );
     memset( buf_out, 0, j );
     i = 0;
   }
