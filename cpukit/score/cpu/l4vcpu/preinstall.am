@@ -140,3 +140,11 @@ $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kdebug.h: rtems/l4vcpu/l4kdebug.h $(PROJECT_IN
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kdebug.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kdebug.h
 
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4thread.h: rtems/l4vcpu/l4thread.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4thread.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4thread.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4util.h: rtems/l4vcpu/l4util.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4util.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4util.h
+

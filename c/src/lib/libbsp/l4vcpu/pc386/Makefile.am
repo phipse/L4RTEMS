@@ -39,20 +39,21 @@ noinst_LIBRARIES = libbspstart.a
 libbspstart_a_SOURCES = start/start.S
 project_lib_DATA = start.$(OBJEXT)
 
-EXTRA_DIST = start/start16.S
-start16.$(OBJEXT): start/start16.S
-	$(CPPASCOMPILE) $(AM_CPPFLAGS) -DHEADERADDR=$(HEADERADDR) -o $@ -c $<
+# RTEMSVCPU: No need for 16bit
+#EXTRA_DIST = start/start16.S
+#start16.$(OBJEXT): start/start16.S
+#	$(CPPASCOMPILE) $(AM_CPPFLAGS) -DHEADERADDR=$(HEADERADDR) -o $@ -c $<
 
-start16-elf32.$(OBJEXT): start16.$(OBJEXT)
-	$(LD) -N -T $(top_srcdir)/startup/linkcmds -Ttext $(START16ADDR) -e start16 -nostdlib \
-	  --oformat=elf32-i386 \
-	-o $@ $<
+#start16-elf32.$(OBJEXT): start16.$(OBJEXT)
+#	$(LD) -N -T $(top_srcdir)/startup/linkcmds -Ttext $(START16ADDR) -e start16 -nostdlib \
+#	  --oformat=elf32-i386 \
+#	-o $@ $<
 
-start16.bin: start16-elf32.$(OBJEXT)
-	$(OBJCOPY) -O binary $< $@
-CLEANFILES += start16.bin
+#start16.bin: start16-elf32.$(OBJEXT)
+#	$(OBJCOPY) -O binary $< $@
+#CLEANFILES += start16.bin
 
-project_lib_DATA += start16.bin
+#project_lib_DATA += start16.bin
 
 dist_project_lib_DATA += startup/linkcmds
 
@@ -61,7 +62,7 @@ libbsp_a_SOURCES =
 
 # clock
 libbsp_a_SOURCES += clock/ckinit.c clock/todcfg.c ../../shared/tod.c \
-    ../../../shared/clockdrv_shell.h include/wrapper_1.h
+    ../../../shared/clockdrv_shell.h
 
 include_rtemsdir = $(includedir)/rtems
 include_rtems_HEADERS = console/keyboard.h console/kd.h console/ps2_drv.h
@@ -101,7 +102,8 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c ../../shared/bsppost.c \
     ../../shared/src/irq-legacy.c \
     ../../shared/src/irq-info.c \
     ../../shared/src/irq-shell.c \
-    ../../shared/src/irq-server.c
+    ../../shared/src/irq-server.c \
+    startup/handler.c
 
 # timer
 libbsp_a_SOURCES += timer/timer.c timer/timerisr.S
@@ -150,7 +152,7 @@ if HAS_NETWORKING
 libbsp_a_LIBADD += ne2000.rel wd8003.rel 3c509.rel
 endif
 
-EXTRA_DIST += HOWTO README.dec21140 STATUS times_i486dx times_p5
+EXTRA_DIST = HOWTO README.dec21140 STATUS times_i486dx times_p5
 
 include $(srcdir)/preinstall.am
 include $(top_srcdir)/../../../../automake/local.am
