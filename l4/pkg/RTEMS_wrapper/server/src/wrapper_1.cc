@@ -45,11 +45,8 @@
 #include <l4/libloader/elf>
 #include <uclibc/fcntl.h>
 #include <l4/RTEMS_wrapper/wrapper_1.h>
+#include <l4/RTEMS_wrapper/handler.h>
 #include <l4/RTEMS_wrapper/shared.h>
-// goos framebuffer and font includes
-#include <l4/re/util/video/goos_fb>
-#include <l4/libgfxbitmap/bitmap.h>
-#include <l4/libgfxbitmap/font.h>
 
 
 using L4Re::chksys;
@@ -62,14 +59,12 @@ static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
 static L4::Cap<L4::Irq> timerIRQ;
 static L4::Cap<L4::Thread> vcpu_cap;
-static l4_vcpu_state_t *vcpuh;
 
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
 static char timer_stack[8<<10];
 static char in_stack[8<<10];
 
-static unsigned long fs, ds;
 
 
 /* Multiboot structure to provide lower and upper memory */
@@ -101,124 +96,9 @@ setup_user_state( l4_vcpu_state_t *vcpu)
 
 
 
-/* handler_prolog:
- * recover the saved host fs & ds */
-static void
-handler_prolog()
-{
-#if !DEBUG
-  printf( "fs: %x\n", fs);
-  enter_kdebug( "handler prolog" );
-#endif
-  asm volatile( 
-      " mov %0, %%es \t\n"
-      " mov %0, %%ds \t\n"
-      " mov %1, %%fs \t\n"
-      : : "r"(ds),"r"(fs) );
-}
-
-
-#if 0
-// deprecated, as we use the serial console  or redirect output to l4_printf
-
-void
-initVideo( sharedvars_t *sharedVar )
-{
-//  printf( "Addr sharedVar: %p, Value: %p, 
-  Cap<Video::Goos> fb_cap = Env::env()->get_cap<Video::Goos>( "goosfb" );
-
-  Util::Video::Goos_fb fb( fb_cap );
-  l4_size_t ds_size = fb.buffer()->size();
-  l4_addr_t ds_start;
-  long err = Env::env()->rm()->attach( &ds_start, ds_size, Rm::Search_addr, fb.buffer() );
-
-  if( err )
-    printf( "Could not attach goos_fb ds: %li\n", err );
-
-  Video::View::Info info;
-  err = fb.view_info( &info );
-  if(err )
-    printf ("Failed to obtain view info: %li\n", err );
-
-  if( 0 != gfxbitmap_font_init() )
-    printf( "gfxbitmap_font_init failed. \n" );
-  
-
-  // I assume bitmapBaseAddr is the start of the frambuffer memory
-  sharedVar->bitmapBaseAddr = reinterpret_cast<unsigned long*>(ds_start);
-  // I assume ioCrtBaseAddr is the start of the framebuffer memory, we'll see
-  sharedVar->ioCrtBaseAddr = ds_start;
-  unsigned defaultFontHeight = gfxbitmap_font_height ( GFXBITMAP_DEFAULT_FONT );
-  unsigned defaultFontWidth = gfxbitmap_font_width (GFXBITMAP_DEFAULT_FONT );
-  sharedVar->linesPerPage = info.height / defaultFontHeight;
-  sharedVar->columnsPerPage = info.width / defaultFontWidth;
-  memset( (void*)ds_start, 6, ds_size );
-#if DEBUG
-  printf( "ds_start: %lx, bitmapBaseAddr: %p, ioCrtBaseAddr: %lx\n", 
-      ds_start, sharedVar->bitmapBaseAddr, sharedVar->ioCrtBaseAddr ); 
-  printf( "lPP: %lu , cPP %lu\n", 
-      sharedVar->linesPerPage, sharedVar->columnsPerPage);
-#endif
-}
-#endif
 
 
 
-static void
-handler()
-{ /* This handler is invoked, if the guest system suffers a page fault or an
-     interrupt. The handler checks the entry reason, and replies with an 
-     apropriate action. */
-  printf("Hello Handler\n");
-//  vcpu->print_state("State:");
-#if DEBUG
-  enter_kdebug("handler entry");
-#endif
-  handler_prolog();
-  vcpu->state()->clear( L4_VCPU_F_EXCEPTIONS );
-  printf("vcpu->ip: %lx\n", vcpu->r()->ip);
-  
-  /* checking the entry reason */
-  if( vcpu->is_page_fault_entry() )
-  {
-    printf("page fault entry\n");
-    l4_umword_t pfnum = vcpu->r()->pfa;
-    printf("pfa: %lx\n",pfnum);
-    /* where do I get the snd_base? */
-    vcpu_task->map( L4Re::This_task, 
-	l4_fpage( pfnum, L4_PAGESIZE, L4_FPAGE_RWX ),
-	 0);
-    printf("Handler: Page mapped\n");
-    /* copied out of vcpu example: why state add? */
-    vcpu->saved_state()->add( L4_VCPU_F_PAGE_FAULTS );
-    printf("Handler: saved_state added\n");
-  }
-  else if( vcpu->is_irq_entry() )
-  {
-    printf("irq entry!\n" );
-    switch( vcpu->i()->label )
-    {
-      case(9000):
-	   printf("Triggered Timer IRQ\n");
-	   break;
-      default:
-	   printf("Unrecognized IRQ\n");
-	   printf("irq: %lx \n", vcpu->i()->tag.label() );
-	   //call RTEMS bsp_interrupt_handler_dispatch( vcpu->i()->label() );
-    }
-  }
-  else
-  {
-    vcpu->print_state("Handler Unknown Entry:");
-  }
-
-//  vcpu->print_state("resume ");
-  L4::Cap<L4::Thread> self;
-  self->vcpu_resume_commit( self->vcpu_resume_start() );
-
-  printf("hier gehts nicht weiter\n");
-  l4_sleep_forever();
-}
 
 
 
@@ -418,7 +298,7 @@ main( int argc, char **argv )
 
   // set entry IP + SP
   vcpu->entry_sp((l4_umword_t)hdl_stack + sizeof(hdl_stack));
-  vcpu->entry_ip( (l4_umword_t)handler);
+  vcpu->entry_ip( 0x100a60);
 
 //  printf("VCPU: utcb = %p, vcpu = %p\n", vcpu_utcb, vcpu);
   
@@ -477,24 +357,6 @@ main( int argc, char **argv )
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
   
-  
-  // create input thread
-  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
-  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
-  l4_utcb_t *utcb_in = (l4_utcb_t *)kumem;
-  
-  L4::Thread::Attr attr_in;
-  attr_in.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
-  attr_in.exc_handler( L4Re::Env::env()->main_thread() );
-  attr_in.bind( utcb_in, L4Re::This_task);
-
-  L4::Cap<L4::Thread> input;
-  input->control( attr_in );
-  input->ex_regs( (l4_umword_t) l4rtems_buffIn,
-		  (l4_umword_t) in_stack + sizeof(in_stack),
-		  0 );
-  L4Re::Env::env()->scheduler()->run_thread( input, l4_sched_param(5) ); 
-
 #if 1  
   // IRQ setup 
   timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
@@ -517,6 +379,24 @@ main( int argc, char **argv )
 		  0 );
   L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(4) ); 
 #endif
+  
+/*  // create input thread
+  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
+  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
+  l4_utcb_t *utcb_in = (l4_utcb_t *)kumem;
+  
+  L4::Thread::Attr attr_in;
+  attr_in.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
+  attr_in.exc_handler( L4Re::Env::env()->main_thread() );
+  attr_in.bind( utcb_in, L4Re::This_task);
+
+  L4::Cap<L4::Thread> input;
+  input->control( attr_in );
+  input->ex_regs( (l4_umword_t) l4rtems_buffIn,
+		  (l4_umword_t) in_stack + sizeof(in_stack),
+		  0 );
+  L4Re::Env::env()->scheduler()->run_thread( input, l4_sched_param(5) ); 
+*/
   
   
   

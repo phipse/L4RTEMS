@@ -17,5 +17,6 @@ void bsp_reset(void)
 {
   /* shutdown and reboot */
 //  outport_byte(0x64, 0xFE);      /* use keyboard controler to do the job... */
+  i386_enable_interrupts( 1 );
   while(1);
 }

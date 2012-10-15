@@ -14,7 +14,11 @@
 extern "C" {
 #endif
 
+#if L4RTEMS
   #include <rtems/l4vcpu/l4vcpu.h>
+#else
+  #include <l4/sys/vcpu.h>
+#endif
 #include <stdio.h>
 #include <stdbool.h>
 

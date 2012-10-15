@@ -482,3 +482,20 @@ instruction and resets the whole L4 task. I replaced it with a while loop to
 prevent the reboot. 
 Actually the outb instruction should trigger a general protection fault and
 drop into the handler.
+
+
+
+15/10/2012
+Modified the l4_log_print_srv to l4_vcon_write.
+NULL parameters in l4_irq_restore replaced with handler and setup_ipc. 
+To achieve this the handler needs to be moved inside of RTEMS.
+Moving the handler to a seperate file first and later into the RTEMS.
+setup_ipc: empfangsbuffer vorbereiten, nur relevant, wenn man server ist. 
+Added l4thread.h and l4util.h to the l4vcpu/rtems/l4vcpu include list and to
+the corresponding makefile.
+I moved the handler.c into the startup directory of the BSP:
+l4vcpu/pc386/startup/ and the handler.h into score/cpu/l4vcpu/rtems/l4vcpu.
+
+Well, seems to work, but the handler can't be invoked, as the address
+is currently not read. 
++++++ TODO: get the handler IP from the loaded elf file.
