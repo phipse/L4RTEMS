@@ -499,3 +499,11 @@ l4vcpu/pc386/startup/ and the handler.h into score/cpu/l4vcpu/rtems/l4vcpu.
 Well, seems to work, but the handler can't be invoked, as the address
 is currently not read. 
 +++++ TODO: get the handler IP from the loaded elf file.
+
+
+
+19/10/2012
+To get the IP of the handler, we need to read the symbol table entries, until
+we find the right one, but where the heck do I get this entry?
+I try to hack my way through the section header table, but it's messy and takes
+time.
