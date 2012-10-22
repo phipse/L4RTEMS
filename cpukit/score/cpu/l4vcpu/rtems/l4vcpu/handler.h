@@ -10,12 +10,7 @@ extern "C" {
 #include <rtems/l4vcpu/l4sys-vcpu.h>
 
 
-
-static unsigned long fs, ds;
-static l4_vcpu_state_t *vcpuh;
-
-void handler( void );
-
+void l4rtems_handler( void );
 
 #ifdef __cplusplus
 }

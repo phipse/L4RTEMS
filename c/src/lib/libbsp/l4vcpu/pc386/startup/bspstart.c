@@ -33,6 +33,8 @@
 #include <bsp.h>
 #include <rtems/pci.h>
 #include <libcpu/cpuModel.h>
+#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/handler.h>
 
 /*
  *  External routines
@@ -48,10 +50,18 @@ extern void bsp_size_memory(void);
 |        Arguments: None.
 |          Returns: Nothing.
 +--------------------------------------------------------------------------*/
+
+extern sharedvars_t *sharedVariableStruct;
+
 void bsp_start_default( void )
 {
   int pci_init_retval;
+  
 
+  // L4RTEMS: initialize the entry_ip from the vcpu
+  sharedVariableStruct->vcpu->entry_ip = l4rtems_handler;
+  
+  
   /*
    *  We need to determine how much memory there is in the system.
    */

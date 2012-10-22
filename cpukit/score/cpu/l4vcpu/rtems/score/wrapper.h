@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-  #include <rtems/l4vcpu/l4vcpu.h>
+#include <rtems/l4vcpu/l4vcpu.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -26,6 +26,7 @@ typedef struct guestHostShare
   char* buff_in;	  // pointer to input buffer
   unsigned* inready;	  // buff_in ready flag
   l4_cap_idx_t logcap;	  // capability for the log to use print
+  unsigned long ufs, uds; // user/host fs ds
 } sharedvars_t;
 
 //global vars
