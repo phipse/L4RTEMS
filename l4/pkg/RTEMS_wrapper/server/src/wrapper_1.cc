@@ -45,7 +45,6 @@
 #include <l4/libloader/elf>
 #include <uclibc/fcntl.h>
 #include <l4/RTEMS_wrapper/wrapper_1.h>
-#include <l4/RTEMS_wrapper/handler.h>
 #include <l4/RTEMS_wrapper/shared.h>
 
 
@@ -59,12 +58,14 @@ static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
 static L4::Cap<L4::Irq> timerIRQ;
 static L4::Cap<L4::Thread> vcpu_cap;
+static l4_vcpu_state_t *vcpuh;
 
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
 static char timer_stack[8<<10];
 static char in_stack[8<<10];
 
+static unsigned long fs, ds;
 
 
 /* Multiboot structure to provide lower and upper memory */
@@ -93,13 +94,6 @@ setup_user_state( l4_vcpu_state_t *vcpu)
   enter_kdebug( "setup user state" );
 #endif
 }
-
-
-
-
-
-
-
 
 
 void
@@ -208,9 +202,11 @@ load_elf( char *name, l4_umword_t *initial_sp )
       memsz  = phdr.memsz();
       filesz = phdr.filesz();
       offset = phdr.offset();
+      break;
     }
   }
   munmap( e, st.st_size);
+  // size for stack and heap
   memsz += 0x1000;
   
   /* aquire capability, dataspace and mapping region */
@@ -249,7 +245,7 @@ load_elf( char *name, l4_umword_t *initial_sp )
   memcpy( (void*)vaddr, (void*)phdr, memsz);
   /* save the stack pointer for later use */
   *initial_sp = (l4_umword_t) vaddr+memsz-5;  
-
+  
   d->debug(0);
   return ehdr->entry();
 }
@@ -298,7 +294,7 @@ main( int argc, char **argv )
 
   // set entry IP + SP
   vcpu->entry_sp((l4_umword_t)hdl_stack + sizeof(hdl_stack));
-  vcpu->entry_ip( 0x100a60);
+  vcpu->entry_ip( 0);
 
 //  printf("VCPU: utcb = %p, vcpu = %p\n", vcpu_utcb, vcpu);
   
@@ -318,6 +314,9 @@ main( int argc, char **argv )
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
+  sharedstruct->ufs = fs;
+  sharedstruct->uds = ds;
+
   sharedstruct->buff_size = 1024;
 
   sharedstruct->buff_in = &inbuffer;
@@ -334,8 +333,6 @@ main( int argc, char **argv )
   vcpu->r()->bx = (l4_umword_t) &multi; // pointer zur mutliboot struktur
   vcpu->r()->dx = (l4_umword_t) sharedstruct; // save it to edx, as it is not
 					  // touched by the RTEMS start.S code
-  //initVideo( sharedstruct );
-  //    sharedstruct->bitmapBaseAddr, sharedstruct->ioCrtBaseAddr, sharedstruct->linesPerPage, sharedstruct->columnsPerPage );
 #if DEBUG					  
   printf("ip: %lx, sp: %lx, bx: %lx\n",
      vcpu->r()->ip, vcpu->r()->sp, vcpu->r()->bx);

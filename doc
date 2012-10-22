@@ -507,3 +507,13 @@ To get the IP of the handler, we need to read the symbol table entries, until
 we find the right one, but where the heck do I get this entry?
 I try to hack my way through the section header table, but it's messy and takes
 time.
+
+
+
+22/10/2012
+Discarded the changes made last time. RTEMS now initializes the vcpu->entry_ip
+by itself as soon as start_bsp() is invoked. 
+This is safe, because the vcpu starts with disabled IRQs and pagefaults can't
+occure, so there won't be an vcpu exit until the entry_ip and therefore the
+exception handler is set. 
+
