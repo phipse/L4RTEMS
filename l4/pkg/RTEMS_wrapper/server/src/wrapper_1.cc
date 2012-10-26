@@ -187,8 +187,7 @@ load_elf( char *name, l4_umword_t *initial_sp )
   // there are two headers in the file, but we only need the first.
   if( num_phdrs > 1 )
   {
-    printf("Code cannot handle more than one phdr! going to sleep\n");
-//    l4_sleep_forever();
+    printf("Code cannot handle more than one phdr! undefined behaviour!\n");
   }
 /* save mapping information for the binary */
   l4_addr_t vaddr;

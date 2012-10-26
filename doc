@@ -517,3 +517,9 @@ This is safe, because the vcpu starts with disabled IRQs and pagefaults can't
 occure, so there won't be an vcpu exit until the entry_ip and therefore the
 exception handler is set. 
 
+
+26/10/2012
+Revised the l4rtems_inch function. Now it uses l4_vcon_read to read a whole
+buffsize and returns it char by char, until its own buffer is empty. 
+
+

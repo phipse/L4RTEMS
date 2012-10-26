@@ -13,7 +13,7 @@
 #include <l4/sys/thread>
 #include <l4/sys/factory>
 #include <l4/re/env>
-#include <l4/re/util/cap_alloc>
+#include <l4/re/c/util/cap_alloc.h>
 #include <l4/util/atomic.h>
 #include <l4/re/c/log.h>
 #include <string.h>
@@ -46,27 +46,33 @@ l4rtems_outch( char c )
 int
 l4rtems_inch( void )
 {
-  static char buf_in;
-  int o = 0;
-  char* sharedBuf = sharedVariableStruct->buff_in;
-  unsigned* inflag = sharedVariableStruct->inready;
-  return 64;
+  const int buffsize = 512;
+  static char buff[ buffsize ];
+  static int read = 0;
+  static int charptr = 0;
+  static int flag = 0;
 
-  if( inflag )
+  if( flag != 0  && charptr == read )
   {
-    o = sscanf( &buf_in, "%c", sharedBuf );
-    buf_in = 'f';
-    l4util_xchg32( inflag, false );
-
-    if( o == 1 )
-      return buf_in;
-    else
-      return buf_in;
-      asm __volatile__ ( " mov %0, %%eax \t\n"
-//	  "mov %1, %%ebx \t\n"
-	  "ud2 \t\n" : :"r"(o), "r"(buf_in) : );
-
+    read = l4_vcon_read( sharedVariableStruct->logcap, buff, buffsize );
+    if( read <=  buffsize )
+      flag = 0;
+    charptr = 0;
   }
+  
+
+  if( read == 0 || charptr == read )
+  {
+    read = l4_vcon_read( sharedVariableStruct->logcap, buff, buffsize );
+    charptr = 0;
+    if( read < 0 )
+      return read;
+    else if( read > buffsize )
+      flag++;
+  }
+
+  return buff[charptr++];
+
 }
 
 
@@ -110,33 +116,31 @@ l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr. Then store the
      irqNbr and the capability in a map. */
 
-  // request new capability and create IRQ
-/*  Cap<Irq> newIrq = L4Re::Util::cap_alloc.alloc<Irq>();
-  if( !newIrq.is_valid() )
+/*  // request new capability and create IRQ
+  l4_cap_idx_t newIrq = l4re_util_cap_alloc();
+  if( l4_is_invalid_cap( newIrq) )
   {
-    sprintf( fout, "newIrq cap invalid!\n\n" );
-    flag = true;
+    printf( "newIrq cap invalid!\n\n" );
     return false;
   }
 
-  l4_msgtag_t err = Env::env()->factory()->create_irq( newIrq );
+  l4_msgtag_t err = l4_factory_create_irq( l4re_env()->factory, newIrq );
   if( err.has_error() )
   {
-    sprintf( fout, "create_irq failed! Flags: %x \n\n", err.flags() );
-    flag = true;
+    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
     return false;
   }
 
   // attach vcpu thread to the IRQ
-  err = newIrq->attach( irqNbr, Cap<Thread>(_vcpu_cap) );
+  err = l4_irq_attach( newIrq, irqNbr, _vcpu_cap );
   if( err.has_error() )
   {
-    sprintf( fout, "IRQ attach failed! Flags: %x \n\n", err.flags() );
-    flag = true;
+    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
     return false;
   }
-  */
-  return true; 
+  
+  return true; */
+  return false;
 }
 
 
@@ -145,7 +149,7 @@ void
 l4rtems_detachIrq( unsigned irqNbr )
 {
   // Detach from irqNbr
-  l4_msgtag_t err = l4_irq_detach( _vcpu_cap );
+  l4_msgtag_t err = l4_irq_detach( irqNbr );
   if( err.has_error() )
   {
 //    printk( "detachIrq:: Detatch failed! Flags: %x\n\n", 
