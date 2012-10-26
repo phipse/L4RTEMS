@@ -16,8 +16,10 @@ extern "C" {
 
 #if L4RTEMS
   #include <rtems/l4vcpu/l4vcpu.h>
+  #include <rtems/l4vcpu/l4reenv.h>
 #else
   #include <l4/sys/vcpu.h>
+  #include <l4/re/env.h>
 #endif
 #include <stdio.h>
 #include <stdbool.h>
@@ -25,12 +27,10 @@ extern "C" {
 
 typedef struct guestHostShare
 {
-  l4_vcpu_state_t *vcpu;  // pointer to vcpu struct
-  unsigned buff_size;	  // size of the I/O buffers
-  char* buff_in;	  // pointer to input buffer
-  unsigned* inready;	  // buff_in ready flag
-  l4_cap_idx_t logcap;	  // capability for the log to use print
-  unsigned long ufs, uds; // user/host fs ds
+  l4_vcpu_state_t   *vcpu;    // pointer to vcpu struct
+  l4_cap_idx_t	    logcap;   // capability for the log to use print
+  unsigned long	    ufs, uds; // user/host fs ds
+  l4re_env_t*	    l4re_env; // l4re environment pointer
 } sharedvars_t;
 
 //global vars

@@ -53,6 +53,7 @@ extern void bsp_size_memory(void);
 
 extern sharedvars_t *sharedVariableStruct;
 
+
 void bsp_start_default( void )
 {
   int pci_init_retval;
@@ -60,6 +61,7 @@ void bsp_start_default( void )
 
   // L4RTEMS: initialize the entry_ip from the vcpu
   sharedVariableStruct->vcpu->entry_ip = l4rtems_handler;
+  // RTEMSVCPU: TODO provide l4re_env as global variable for the l4re linkage
   
   
   /*

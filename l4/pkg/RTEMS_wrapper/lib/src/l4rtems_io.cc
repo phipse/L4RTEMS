@@ -116,18 +116,18 @@ l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr. Then store the
      irqNbr and the capability in a map. */
 
-/*  // request new capability and create IRQ
+  // request new capability and create IRQ
   l4_cap_idx_t newIrq = l4re_util_cap_alloc();
   if( l4_is_invalid_cap( newIrq) )
   {
-    printf( "newIrq cap invalid!\n\n" );
+//    printf( "newIrq cap invalid!\n\n" );
     return false;
   }
 
   l4_msgtag_t err = l4_factory_create_irq( l4re_env()->factory, newIrq );
   if( err.has_error() )
   {
-    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
+//    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
     return false;
   }
 
@@ -135,12 +135,12 @@ l4rtems_requestIrq( unsigned irqNbr )
   err = l4_irq_attach( newIrq, irqNbr, _vcpu_cap );
   if( err.has_error() )
   {
-    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
+//    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
     return false;
   }
   
-  return true; */
-  return false;
+  return true; 
+//  return false;
 }
 
 

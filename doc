@@ -522,4 +522,5 @@ exception handler is set.
 Revised the l4rtems_inch function. Now it uses l4_vcon_read to read a whole
 buffsize and returns it char by char, until its own buffer is empty. 
 
-
+I added the pointer to the l4re environment to the shared structure, in order
+to gain access to capability allocation. TODO see bspstart.c

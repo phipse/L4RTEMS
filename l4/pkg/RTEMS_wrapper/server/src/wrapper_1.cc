@@ -63,7 +63,6 @@ static l4_vcpu_state_t *vcpuh;
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
 static char timer_stack[8<<10];
-static char in_stack[8<<10];
 
 static unsigned long fs, ds;
 
@@ -315,14 +314,8 @@ main( int argc, char **argv )
   sharedstruct->vcpu = vcpuh;
   sharedstruct->ufs = fs;
   sharedstruct->uds = ds;
-
-  sharedstruct->buff_size = 1024;
-
-  sharedstruct->buff_in = &inbuffer;
-  sharedstruct->inready = &inflag;
-  printf( "inbuffer: %x, inflag: %x \n", inbuffer, inflag );
-
   sharedstruct->logcap = L4Re::Env::env()->get_cap<void>( "moes_log" ).cap();
+  sharedstruct->l4re_env = l4re_env();
 
 
   // initialize the start registers
@@ -375,24 +368,6 @@ main( int argc, char **argv )
 		  0 );
   L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(4) ); 
 #endif
-  
-/*  // create input thread
-  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
-  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
-  l4_utcb_t *utcb_in = (l4_utcb_t *)kumem;
-  
-  L4::Thread::Attr attr_in;
-  attr_in.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
-  attr_in.exc_handler( L4Re::Env::env()->main_thread() );
-  attr_in.bind( utcb_in, L4Re::This_task);
-
-  L4::Cap<L4::Thread> input;
-  input->control( attr_in );
-  input->ex_regs( (l4_umword_t) l4rtems_buffIn,
-		  (l4_umword_t) in_stack + sizeof(in_stack),
-		  0 );
-  L4Re::Env::env()->scheduler()->run_thread( input, l4_sched_param(5) ); 
-*/
   
   
   
