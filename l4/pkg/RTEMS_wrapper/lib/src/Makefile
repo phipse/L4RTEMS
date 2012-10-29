@@ -13,7 +13,10 @@ LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re-util.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libuc_c.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libc_be_l4refile.a
 LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re-c.a
-LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re.a
+LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/pkg/l4re/lib/src/OBJ-x86_686-l4f/rm.o
+LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/pkg/l4re/lib/src/OBJ-x86_686-l4f/mem_alloc.o
+LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/pkg/l4re/lib/src/OBJ-x86_686-l4f/dataspace.o
+#LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/lib4re.a
 LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libl4sys.a
 #LINK_INCR_ADD_LIBS += $(L4DIR)/../../build/lib/x86_686/l4f/libl4util.a
 

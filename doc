@@ -524,3 +524,15 @@ buffsize and returns it char by char, until its own buffer is empty.
 
 I added the pointer to the l4re environment to the shared structure, in order
 to gain access to capability allocation. TODO see bspstart.c
+
+
+
+29/10/2012
+I declared a global variable l4re_global_env (IMPORTANT: same name as in l4re!)
+and set it in the bspstart routine to the l4re_global_env value passed in the
+shared struct.
+Unfortunatly the incremental linking process for libl4rtems.o.a already
+declared a fixed symbol with that name, hence the l4re routines never used the
+rtems-declared one. So I needed to use object files for the incremental linking
+instead of full libraries. For details see
+l4/pkg/RTEMS_wrapper/lib/src/Makefile.
