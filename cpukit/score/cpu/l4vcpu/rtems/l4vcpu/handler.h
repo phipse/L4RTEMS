@@ -11,6 +11,7 @@ extern "C" {
 
 
 void l4rtems_handler( void );
+void l4rtems_setup_ipc( l4_utcb_t* utcb );
 
 #ifdef __cplusplus
 }

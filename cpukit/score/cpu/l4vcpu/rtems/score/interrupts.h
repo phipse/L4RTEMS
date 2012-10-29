@@ -55,6 +55,12 @@ extern sharedvars_t *sharedVariableStruct;
       l4rtems_handler, NULL); \
   }
 
+#define i386_open_interrupts( ) \
+  { l4vcpu_irq_enable( \
+      sharedVariableStruct->vcpu, l4_utcb(), \
+      l4rtems_handler, l4rtems_setup_ipc ); \
+  }
+
 // RTEMSVCPU:
 // is this really a flash? Because push level; popf; doesn't necessarily enable
 // interrupts

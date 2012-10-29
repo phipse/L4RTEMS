@@ -118,7 +118,7 @@ starter( void )
 
 
 void
-l4rtems_timer( unsigned long period = 1 )
+l4rtems_timer( unsigned long period = 100 )
 { /* This function triggers an IRQ to test the IRQ entry capability of the running 
      rtems guest application. The timer resolution is milliseconds.
      If no parameter is set, the default period is 1ms. */

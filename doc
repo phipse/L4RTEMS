@@ -536,3 +536,11 @@ declared a fixed symbol with that name, hence the l4re routines never used the
 rtems-declared one. So I needed to use object files for the incremental linking
 instead of full libraries. For details see
 l4/pkg/RTEMS_wrapper/lib/src/Makefile.
+
+I implemented a setup_ipc method, which does nothing, just to prevent a NULL
+pointer. 
+Additionally I am missing timer interrupts in the vcpu. To enable interrupts
+the first time, we need a call to l4vcpu_irq_enable, and not .._restore.
+After calling irq_enable at the end of the hello world routine, I get endless
+handler entries, whose reason I don't know. 
+

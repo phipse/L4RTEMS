@@ -4,6 +4,7 @@
 #include <rtems/l4vcpu/l4thread.h>
 #include <rtems/l4vcpu/l4util.h>
 #include <rtems/score/wrapper.h>
+#include <bsp/irq-generic.h>
 
 #include <stdio.h>
 
@@ -32,19 +33,20 @@ handler_prolog( void )
 
 
 void
-l4rtems_handler( void )
+l4rtems_handler( l4_vcpu_state_t* vcpuh )
 { /* This handler is invoked, if the guest system suffers a page fault or an
      interrupt. The handler checks the entry reason, and replies with an 
      apropriate action. */
   printk("Hello Handler\n");
-  vcpuh = sharedVariableStruct->vcpu;
+  if( vcpuh == NULL )
+    vcpuh = sharedVariableStruct->vcpu;
 #if DEBUG
   //l4vcpu_print_state( vcpuh, "State: ");
   enter_kdebug("handler entry");
 #endif
   handler_prolog();
   vcpuh->state &= L4_VCPU_F_EXCEPTIONS;
-//  printk("vcpu->ip: %lx\n", vcpuh->r.ip);
+  printk("vcpu->trapno: %lx\n", vcpuh->r.trapno);
   
   /* checking the entry reason */
   if( l4vcpu_is_page_fault_entry( vcpuh ) )
@@ -72,17 +74,27 @@ l4rtems_handler( void )
       default:
 	   printk("Unrecognized IRQ\n");
 	   printk("irq: %lx \n", vcpuh->i.label );
-	   //call RTEMS bsp_interrupt_handler_dispatch( vcpu->i()->label() );
+	   bsp_interrupt_handler_dispatch( vcpuh->i.label );
     }
   }
   else
   {
     //l4vcpu_print_state( vcpuh, "Handler Unknown Entry:");
+    printk( "unknown entry reason! \n" );
   }
 
 //  vcpu->print_state("resume ");
   l4_cap_idx_t self = L4_INVALID_CAP;
   l4_thread_vcpu_resume_commit( self, l4_thread_vcpu_resume_start() );
 
-  printk("hier gehts nicht weiter\n");
+  printk("this should NOT be reached: handler.c\n");
+}
+
+
+
+void
+l4rtems_setup_ipc( l4_utcb_t* utcb )
+{
+  (void*) utcb;
+  return;  
 }
