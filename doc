@@ -543,4 +543,9 @@ Additionally I am missing timer interrupts in the vcpu. To enable interrupts
 the first time, we need a call to l4vcpu_irq_enable, and not .._restore.
 After calling irq_enable at the end of the hello world routine, I get endless
 handler entries, whose reason I don't know. 
+Did bogus. Implemented an extra handleIrq function, to provide as a callback
+function to l4vcpu_irq_enable/restore.
+
+Interrupt labels: Nicht die beiden unteren bits verwenden. Nur wenn
+Absenderrechte interessant sind, dann anschauen: Maskieren, unmaskieren.
 

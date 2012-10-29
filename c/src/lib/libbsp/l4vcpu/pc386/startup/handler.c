@@ -65,6 +65,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   }
   else if( l4vcpu_is_irq_entry( vcpuh ) )
   {
+//    vcpuh->saved_state |= L4_VCPU_F_IRQ;
     printk("irq entry!\n" );
     switch( vcpuh->i.label )
     {
@@ -90,6 +91,22 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   printk("this should NOT be reached: handler.c\n");
 }
 
+
+void
+handleIrq( l4_vcpu_state_t *vcpuh )
+{
+    printk("irq entry!\n" );
+    switch( vcpuh->i.label )
+    {
+      case(9000):
+	   printk("Triggered Timer IRQ\n");
+	   break;
+      default:
+	   printk("Unrecognized IRQ\n");
+	   printk("irq: %lx \n", vcpuh->i.label );
+	   bsp_interrupt_handler_dispatch( vcpuh->i.label );
+    }
+}
 
 
 void

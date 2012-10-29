@@ -52,13 +52,13 @@ extern sharedvars_t *sharedVariableStruct;
 #define i386_enable_interrupts( _level )  \
   { l4vcpu_irq_restore( \
       sharedVariableStruct->vcpu, l4rtems_vcpu_irq_state, l4_utcb(), \
-      l4rtems_handler, NULL); \
+      handleIrq, l4rtems_setup_ipc ); \
   }
 
 #define i386_open_interrupts( ) \
   { l4vcpu_irq_enable( \
       sharedVariableStruct->vcpu, l4_utcb(), \
-      l4rtems_handler, l4rtems_setup_ipc ); \
+      handleIrq, l4rtems_setup_ipc ); \
   }
 
 // RTEMSVCPU:
