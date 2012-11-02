@@ -126,10 +126,11 @@ l4rtems_timer( unsigned long period = 1000 )
   printf( "Hello timer\n" );
   
   timerIRQ->attach( 9000, vcpu_cap );
-
+  int cnt = 0;
   while(1)
   {
     timerIRQ->trigger();
+    printf("timer triggered: %i \n", ++cnt );
     l4_sleep( period );
   }
 }

@@ -10,9 +10,9 @@ extern "C" {
 #include <rtems/l4vcpu/l4sys-vcpu.h>
 
 
-void l4rtems_handler( l4_vcpu_state_t* vcpuh );
+l4_fastcall void l4rtems_handler( l4_vcpu_state_t* vcpuh );
 void l4rtems_setup_ipc( l4_utcb_t* utcb );
-void handleIrq( l4_vcpu_state_t *vcpuh );
+void l4rtems_irq_handler( l4_vcpu_state_t *vcpuh );
 
 
 #ifdef __cplusplus

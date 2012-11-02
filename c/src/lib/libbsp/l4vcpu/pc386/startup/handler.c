@@ -1,8 +1,9 @@
-#define DEBUG 0
+#define DEBUG 1
 
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4thread.h>
 #include <rtems/l4vcpu/l4util.h>
+#include <rtems/l4vcpu/l4kdebug.h>
 #include <rtems/score/wrapper.h>
 #include <bsp/irq-generic.h>
 
@@ -32,21 +33,16 @@ handler_prolog( void )
 
 
 
-void
-l4rtems_handler( l4_vcpu_state_t* vcpuh )
+l4_fastcall void
+l4rtems_handler( l4_vcpu_state_t* vcpuh ) 
 { /* This handler is invoked, if the guest system suffers a page fault or an
      interrupt. The handler checks the entry reason, and replies with an 
      apropriate action. */
   printk("Hello Handler\n");
   if( vcpuh == NULL )
     vcpuh = sharedVariableStruct->vcpu;
-#if DEBUG
-  //l4vcpu_print_state( vcpuh, "State: ");
-  enter_kdebug("handler entry");
-#endif
   handler_prolog();
   vcpuh->state &= L4_VCPU_F_EXCEPTIONS;
-  printk("vcpu->trapno: %lx\n", vcpuh->r.trapno);
   
   /* checking the entry reason */
   if( l4vcpu_is_page_fault_entry( vcpuh ) )
@@ -65,23 +61,18 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   }
   else if( l4vcpu_is_irq_entry( vcpuh ) )
   {
-//    vcpuh->saved_state |= L4_VCPU_F_IRQ;
-    printk("irq entry!\n" );
-    switch( vcpuh->i.label )
-    {
-      case(9000):
-	   printk("Triggered Timer IRQ\n");
-	   break;
-      default:
-	   printk("Unrecognized IRQ\n");
-	   printk("irq: %lx \n", vcpuh->i.label );
-	   bsp_interrupt_handler_dispatch( vcpuh->i.label );
-    }
+    l4rtems_irq_handler( vcpuh );
   }
   else
   {
     //l4vcpu_print_state( vcpuh, "Handler Unknown Entry:");
     printk( "unknown entry reason! \n" );
+#if DEBUG
+    printk("vcpu->trapno: %i\n", vcpuh->r.trapno);
+    printk( "label: %i \n", vcpuh->i.label );
+    printk( "%s\n", l4sys_errtostr(vcpuh->r.flags));
+    enter_kdebug("handler entry");
+#endif
   }
 
 //  vcpu->print_state("resume ");
@@ -93,7 +84,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
 
 
 void
-handleIrq( l4_vcpu_state_t *vcpuh )
+l4rtems_irq_handler( l4_vcpu_state_t *vcpuh )
 {
     printk("irq entry!\n" );
     switch( vcpuh->i.label )

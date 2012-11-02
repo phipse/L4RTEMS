@@ -549,3 +549,11 @@ function to l4vcpu_irq_enable/restore.
 Interrupt labels: Nicht die beiden unteren bits verwenden. Nur wenn
 Absenderrechte interessant sind, dann anschauen: Maskieren, unmaskieren.
 
+
+02/11/2012
+BEWARE: L4 and RTEMS have different calling conventions for function calls! So
+L4 is passing all arguments on the stack and RTEMS awaits some in registers. If
+you don't consider this, you might need a lot of time until your tutor comes up
+with the idea. 
+So I changed the calling conventions of the vcpu exit handler aka
+l4rtems_handler to l4_fastcall.

@@ -4,3 +4,4 @@ l4rtems_inport
 l4rtems_outport
 l4rtems_requestIrq
 l4rtems_detachIrq
+l4sys_errtostr

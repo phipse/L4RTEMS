@@ -135,6 +135,7 @@ l4rtems_requestIrq( unsigned irqNbr )
   err = l4_irq_attach( newIrq, irqNbr, _vcpu_cap );
   if( err.has_error() )
   {
+    printf( "%s\n", l4sys_errtostr( err.has_error() ));
 //    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
     return false;
   }
