@@ -879,7 +879,7 @@ int kbd_init(void)
   for (i = 0 ; i < MAX_NR_CONSOLES ; i++)
     kbd_table[i] = kbd0;
 
-  kbd_init_hw();
+  //kbd_init_hw();
   mark_bh(KEYBOARD_BH);
   return 0;
 }

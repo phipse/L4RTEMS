@@ -7,15 +7,17 @@
 
 #include <l4/util/util.h>
 #include <l4/util/port_io.h>
+#include <contrib/libio-io/l4/io/io.h>
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 #include <l4/sys/irq>
 #include <l4/sys/vcpu.h>
 #include <l4/sys/thread>
 #include <l4/sys/factory>
 #include <l4/re/env>
-#include <l4/re/c/util/cap_alloc.h>
+#include <l4/re/util/cap_alloc>
 #include <l4/util/atomic.h>
 #include <l4/re/c/log.h>
+#include <l4/sys/kdebug.h>
 #include <string.h>
 
 extern sharedvars_t* sharedVariableStruct;
@@ -117,25 +119,33 @@ l4rtems_requestIrq( unsigned irqNbr )
      irqNbr and the capability in a map. */
 
   // request new capability and create IRQ
-  l4_cap_idx_t newIrq = l4re_util_cap_alloc();
-  if( l4_is_invalid_cap( newIrq) )
+  Cap<Irq> newIrq = Util::cap_alloc.alloc<L4::Irq>();
+  if( newIrq.is_valid() )//l4_is_invalid_cap( newIrq) )
   {
 //    printf( "newIrq cap invalid!\n\n" );
+    enter_kdebug( "invalid irq cap" );
     return false;
   }
-
+/*
   l4_msgtag_t err = l4_factory_create_irq( l4re_env()->factory, newIrq );
   if( err.has_error() )
   {
 //    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
+    enter_kdebug( "create_irq failed" );
     return false;
   }
+*/
+  long ret = l4io_request_irq( irqNbr, newIrq.cap() );
+  if( ret )
+    enter_kdebug( "l4io_request_irq err" );
 
   // attach vcpu thread to the IRQ
-  err = l4_irq_attach( newIrq, irqNbr, _vcpu_cap );
+  enter_kdebug( "try attach" );
+  l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
   if( err.has_error() )
   {
-    printf( "%s\n", l4sys_errtostr( err.has_error() ));
+    enter_kdebug( "irq attach failed" ); 
+    l4sys_errtostr( err.has_error() );
 //    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
     return false;
   }

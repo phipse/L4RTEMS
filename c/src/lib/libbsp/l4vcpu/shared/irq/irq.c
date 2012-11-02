@@ -227,10 +227,11 @@ static void compute_i8259_masks_from_prio (void)
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   // RTEMSVCPU: Add interrupt vector to L4Re, as we have a handler now.
+  printk( "requestIrq %i \n", vector );
   if( !l4rtems_requestIrq( vector ) )
     return RTEMS_IO_ERROR;
 //  BSP_irq_enable_at_i8259s(vector);
-
+  printk( "IRQ requested: %i\n", vector );
   return RTEMS_SUCCESSFUL;
 }
 
@@ -239,6 +240,7 @@ rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
   //RTEMSVCPU: as the last interrupt handler was removed and the vector was
   //disabled, remove the interrupt vector from L4Re.
   l4rtems_detachIrq( vector );
+  printk( "IRQ detached: %i\n", vector );
 //  BSP_irq_disable_at_i8259s(vector);
 
   return RTEMS_SUCCESSFUL;
@@ -255,8 +257,9 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
    * must enable slave pic anyway
    */
   //  RTEMSVCPU: use the L4 routines for that.
+  //  why do we do that anyway?
 //  BSP_irq_enable_at_i8259s(2);
-  bsp_interrupt_vector_enable( 2 );
+  //bsp_interrupt_vector_enable( 2 );
 
   return RTEMS_SUCCESSFUL;
 }

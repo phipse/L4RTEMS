@@ -574,5 +574,16 @@ open TODO from above:
 + Fix the IDT setup.
 
 next step TODO:
-+ get more examples to work
++ init keyboard driver
 + get printf working
++ fix the issue with l4vcpu_irq_restore
++ get more examples to work
+
+
+=== keyboard driver issue ===
+We don't need to initialize keyboard hardware. So we can skip that and try to
+grab a l4 capability for the keyboard. 
+During this try I discovered a fault in my l4rtems_requestIrq implementation,
+as I can't attach to the new vector. I am missing l4io_request_irq to get this
+working, and this one needs printf. So the printf issue just got boosted in
+priority.
