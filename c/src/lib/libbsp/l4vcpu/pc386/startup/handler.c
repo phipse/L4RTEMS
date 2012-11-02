@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4thread.h>
@@ -20,9 +20,9 @@ handler_prolog( void )
 { /* handler_prolog: recover the saved host fs & ds */
   fs = sharedVariableStruct->ufs;
   ds = sharedVariableStruct->uds;
-#if !DEBUG
+#if DEBUG
   printk( "fs: %x\n", fs);
-//  enter_kdebug( "handler prolog" );
+  enter_kdebug( "handler prolog" );
 #endif
   asm volatile( 
       " mov %0, %%es \t\n"
@@ -38,7 +38,9 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
 { /* This handler is invoked, if the guest system suffers a page fault or an
      interrupt. The handler checks the entry reason, and replies with an 
      apropriate action. */
+#if DEBUG
   printk("Hello Handler\n");
+#endif
   if( vcpuh == NULL )
     vcpuh = sharedVariableStruct->vcpu;
   handler_prolog();
@@ -86,7 +88,9 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
 void
 l4rtems_irq_handler( l4_vcpu_state_t *vcpuh )
 {
+#if DEBUG
     printk("irq entry!\n" );
+#endif
     switch( vcpuh->i.label )
     {
       case(9000):

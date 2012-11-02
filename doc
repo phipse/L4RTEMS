@@ -36,6 +36,7 @@ results in more specific `undefined reference` errors
       Or, the wrapper needs to be moved to ../l4vcpu/rtems/score/
     The include paths for the wrapper need to be fixed, so it can be cleanly
       included.
+--- DONE ---      
 
 
 08/07/2012
@@ -235,9 +236,9 @@ addres changed and it magically worked. If you initialize with 0 it is moved to
 the .bss segment, if initalized with 1 somewhere else. This is really hacky
 stuff, but it works.
 
-++++ TODO +++++ The wrapper code of the main function needs to be structured.
+++++ TODO ++++ The wrapper code of the main function needs to be structured.
 It's all messy.
-++++ DONE +++++
+---- DONE ----
 
 The execution of the RTEMS_Guest stopps, when RTEMS tries to initialize the
 timer, because the 'inport' and 'outport' routines aren't handled yet. I added
@@ -254,9 +255,12 @@ library in the rtems build. This introduced another phdr into the elf file of
 the hello-sample with the type GNU_STACK. At the moment I simply ignore it and
 it seems to work.
 
-++++ TODO ++++ Find a way to add libraries to RTEMS.
-++++ TODO ++++ Modify wrapper.cc::load_elf() function to load more than one
-phdr.
+++++ TODO ++++ 
+Find a way to add libraries to RTEMS.
+---- Done ---- 
+
+++++ TODO ++++ 
+Modify wrapper.cc::load_elf() function to load more than one phdr.
 
 I have to give the in/out-port thingy a second look, as the pending operation
 tries to send data to a port. I think I need to grab a capability for this port
@@ -326,6 +330,7 @@ Works, but as interrupts are disabled, there is no current use.
 
 ++++ TODO ++++ interrupts.h
   replace the NULL parts in l4vcpu_irq_restore!
+---- DONE ----
 
 
 
@@ -426,6 +431,7 @@ is passed in the sharedVariableStructure.
 vars.
 
 ++++ TODO ++++ Add atomic compare and swap to deal with the shared flag.
+---- DEPRECATED ----
 --> preliminary solution: nobody can write to the buffer, before the buffer 
 is written to the output
 
@@ -498,7 +504,8 @@ l4vcpu/pc386/startup/ and the handler.h into score/cpu/l4vcpu/rtems/l4vcpu.
 
 Well, seems to work, but the handler can't be invoked, as the address
 is currently not read. 
-+++++ TODO: get the handler IP from the loaded elf file.
+++++ TODO: get the handler IP from the loaded elf file.
+---- DEPRECATED!
 
 
 
@@ -523,7 +530,10 @@ Revised the l4rtems_inch function. Now it uses l4_vcon_read to read a whole
 buffsize and returns it char by char, until its own buffer is empty. 
 
 I added the pointer to the l4re environment to the shared structure, in order
-to gain access to capability allocation. TODO see bspstart.c
+to gain access to capability allocation. 
+++++ TODO
+Add l4re_global_env as global variable for the l4re functionality
+---- DONE
 
 
 
@@ -557,3 +567,12 @@ you don't consider this, you might need a lot of time until your tutor comes up
 with the idea. 
 So I changed the calling conventions of the vcpu exit handler aka
 l4rtems_handler to l4_fastcall.
+
+
+==== INTERMEZZO ====
+open TODO from above:
++ Fix the IDT setup.
+
+next step TODO:
++ get more examples to work
++ get printf working

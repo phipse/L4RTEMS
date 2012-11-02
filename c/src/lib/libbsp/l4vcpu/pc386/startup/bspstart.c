@@ -59,9 +59,9 @@ void bsp_start_default( void )
   int pci_init_retval;
   
 
-  // L4RTEMS: initialize the entry_ip from the vcpu
+  // RTEMSVCPU: initialize the entry_ip from the vcpu
+  // set l4re environment variable
   sharedVariableStruct->vcpu->entry_ip = l4rtems_handler;
-  // RTEMSVCPU: TODO provide l4re_env as global variable for the l4re linkage
   l4re_global_env = sharedVariableStruct->l4re_env;
   
   
