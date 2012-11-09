@@ -23,7 +23,7 @@ include_rtems_l4vcpu_HEADERS = rtems/l4vcpu/l4compiler.h rtems/l4vcpu/l4consts.h
 	rtems/l4vcpu/l4ipc-invoke-x86.h rtems/l4vcpu/l4ipc-l42-gcc3-nopic.h \
 	rtems/l4vcpu/l4kdebug.h rtems/l4vcpu/l4thread.h rtems/l4vcpu/l4util.h \
 	rtems/l4vcpu/l4reconsts.h rtems/l4vcpu/l4__kip-32bit.h rtems/l4vcpu/l4kip.h \
-	rtems/l4vcpu/l4reenv.h
+	rtems/l4vcpu/l4reenv.h rtems/l4vcpu/vmm_interface.h
 
 
 noinst_LIBRARIES = libscorecpu.a

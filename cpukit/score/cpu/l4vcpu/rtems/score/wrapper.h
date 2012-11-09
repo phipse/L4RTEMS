@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-#include <rtems/l4vcpu/l4vcpu.h>
-#include <rtems/l4vcpu/l4reenv.h>
+  #include <rtems/l4vcpu/l4vcpu.h>
+  #include <rtems/l4vcpu/l4reenv.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -44,9 +44,11 @@ unsigned long
 load_elf( char *name, unsigned long *initial_sp );
 
 
-bool l4rtems_requestIrq( unsigned irqNbr );
 
-void l4rtems_detachIrq( unsigned irqNbr );
+bool
+l4rtems_serve_requestIrq( unsigned irqNbr );
+void
+l4rtems_serve_detachIrq( unsigned irqNbr );
 
 // programmable periodic timer interrupt
 void l4rtems_timer( unsigned long period );

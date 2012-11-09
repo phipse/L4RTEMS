@@ -148,3 +148,23 @@ $(PROJECT_INCLUDE)/rtems/l4vcpu/l4util.h: rtems/l4vcpu/l4util.h $(PROJECT_INCLUD
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4util.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4util.h
 
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4reconsts.h: rtems/l4vcpu/l4reconsts.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reconsts.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reconsts.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4__kip-32bit.h: rtems/l4vcpu/l4__kip-32bit.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__kip-32bit.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__kip-32bit.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4kip.h: rtems/l4vcpu/l4kip.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kip.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kip.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4reenv.h: rtems/l4vcpu/l4reenv.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reenv.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reenv.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/vmm_interface.h: rtems/l4vcpu/vmm_interface.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/vmm_interface.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/vmm_interface.h
+
