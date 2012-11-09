@@ -587,3 +587,10 @@ During this try I discovered a fault in my l4rtems_requestIrq implementation,
 as I can't attach to the new vector. I am missing l4io_request_irq to get this
 working, and this one needs printf. So the printf issue just got boosted in
 priority.
+
+
+
+09/11/2012
+The error of l4io_request_irq seems to come from the missing IO server. I
+implemented this one, updated wrapper.cfg and modules.list, added a vbus
+configuration, but it still doesn't work.
