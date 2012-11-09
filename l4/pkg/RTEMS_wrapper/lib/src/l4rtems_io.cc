@@ -113,58 +113,7 @@ using namespace L4Re;
 
 
 
-bool
-l4rtems_requestIrq( unsigned irqNbr )
-{ /* Create IRQ object and attach it to the requested irqNbr. Then store the
-     irqNbr and the capability in a map. */
-
-  // request new capability and create IRQ
-  Cap<Irq> newIrq = Util::cap_alloc.alloc<L4::Irq>();
-  if( newIrq.is_valid() )//l4_is_invalid_cap( newIrq) )
-  {
-//    printf( "newIrq cap invalid!\n\n" );
-    enter_kdebug( "invalid irq cap" );
-    return false;
-  }
-/*
-  l4_msgtag_t err = l4_factory_create_irq( l4re_env()->factory, newIrq );
-  if( err.has_error() )
-  {
-//    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
-    enter_kdebug( "create_irq failed" );
-    return false;
-  }
-*/
-  long ret = l4io_request_irq( irqNbr, newIrq.cap() );
-  if( ret )
-    enter_kdebug( "l4io_request_irq err" );
-
-  // attach vcpu thread to the IRQ
-  enter_kdebug( "try attach" );
-  l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
-  if( err.has_error() )
-  {
-    enter_kdebug( "irq attach failed" ); 
-    l4sys_errtostr( err.has_error() );
-//    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
-    return false;
-  }
-  
-  return true; 
-//  return false;
-}
 
 
 
-void
-l4rtems_detachIrq( unsigned irqNbr )
-{
-  // Detach from irqNbr
-  l4_msgtag_t err = l4_irq_detach( irqNbr );
-  if( err.has_error() )
-  {
-//    printk( "detachIrq:: Detatch failed! Flags: %x\n\n", 
-//	err.flags() );
-    return;
-  }
-}
+

@@ -597,3 +597,13 @@ configuration, but it still doesn't work.
 Some testing showed, that the IO server doens't start up properly, when the
 wrapper is started. As I don't know yet how to tell Ned to delay the start, I
 added a second sleep to the wrapper.
+
+The missing dealy was due to a missing initialisation routine, executed by libc
+before main. Due to this we decided to move the attach/detach functionality
+into the wrapper and let the guest execute a vm exit. More specific a the
+instruction 'hlt' with 5 parameters in the cpu registers.
+
+So and now we see, that this is not the way to do it.
+
+So I will port the solution from L4Linux and L4OpenBSD. Buzzword: external
+resolver.

@@ -46,6 +46,7 @@
 #include <uclibc/fcntl.h>
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 #include <l4/RTEMS_wrapper/shared.h>
+#include <contrib/libio-io/l4/io/io.h>
 
 
 using L4Re::chksys;
@@ -259,7 +260,6 @@ main( int argc, char **argv )
 
 
   printf( "Hello Wrapper!\n" );
-  l4_sleep(1000);
   asm volatile (" mov %%fs, %0" : "=r"(fs) :: );
   printf( "fs: %lx\n", fs);
   /* 1st argument must be the RTEMS elf file */
@@ -311,6 +311,8 @@ main( int argc, char **argv )
   multiboot_structure multi = { 1UL << 0, 512, 2048 };
   
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
+
+  l4io_request_irq( 0x1, timerIRQ.cap() );
 
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
@@ -379,3 +381,63 @@ main( int argc, char **argv )
 }
 
 
+
+bool
+l4rtems_requestIrq( unsigned irqNbr )
+{ /* Create IRQ object and attach it to the requested irqNbr. Then store the
+     irqNbr and the capability in a map. */
+
+  // request new capability and create IRQ
+  Cap<Irq> newIrq = Util::cap_alloc.alloc<L4::Irq>();
+  if( newIrq.is_valid() )//l4_is_invalid_cap( newIrq) )
+  {
+//    printf( "newIrq cap invalid!\n\n" );
+    enter_kdebug( "invalid irq cap" );
+    return false;
+  }
+/*
+  l4_msgtag_t err = l4_factory_create_irq( l4re_env()->factory, newIrq );
+  if( err.has_error() )
+  {
+//    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
+    enter_kdebug( "create_irq failed" );
+    return false;
+  }
+*/
+  long ret = l4io_request_irq( irqNbr, newIrq.cap() );
+  if( ret )
+  {
+//    char errstr[30];// = (char* ) malloc (30 * sizeof( char ) );
+//    snprintf( errstr, 30*sizeof(char), "l4io_request_irq err: %li", ret );
+    enter_kdebug(  "l4io_request_irq err" );
+  }
+
+  // attach vcpu thread to the IRQ
+  enter_kdebug( "try attach" );
+  l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
+  if( err.has_error() )
+  {
+    enter_kdebug( "irq attach failed" ); 
+    l4sys_errtostr( err.has_error() );
+//    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
+    return false;
+  }
+  
+  return true; 
+//  return false;
+}
+
+  
+  
+  void
+l4rtems_detachIrq( unsigned irqNbr )
+{
+  // Detach from irqNbr
+  l4_msgtag_t err = l4_irq_detach( irqNbr );
+  if( err.has_error() )
+  {
+//    printk( "detachIrq:: Detatch failed! Flags: %x\n\n", 
+//	err.flags() );
+    return;
+  }
+}
