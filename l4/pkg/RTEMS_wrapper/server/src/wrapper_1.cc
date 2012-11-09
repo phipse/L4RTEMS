@@ -256,8 +256,10 @@ main( int argc, char **argv )
 { /* The main control structure, which sets up the environment for the 
       vcpu task and checks all necessary inputs are provided. At the end it 
       starts the vcpu and goes to sleep. It never exits. */
-  
+
+
   printf( "Hello Wrapper!\n" );
+  l4_sleep(1000);
   asm volatile (" mov %%fs, %0" : "=r"(fs) :: );
   printf( "fs: %lx\n", fs);
   /* 1st argument must be the RTEMS elf file */

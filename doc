@@ -594,3 +594,6 @@ priority.
 The error of l4io_request_irq seems to come from the missing IO server. I
 implemented this one, updated wrapper.cfg and modules.list, added a vbus
 configuration, but it still doesn't work.
+Some testing showed, that the IO server doens't start up properly, when the
+wrapper is started. As I don't know yet how to tell Ned to delay the start, I
+added a second sleep to the wrapper.
