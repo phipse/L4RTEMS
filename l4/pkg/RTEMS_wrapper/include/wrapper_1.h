@@ -31,6 +31,7 @@ typedef struct guestHostShare
   l4_cap_idx_t	    logcap;   // capability for the log to use print
   unsigned long	    ufs, uds; // user/host fs ds
   l4re_env_t*	    l4re_env; // l4re environment pointer
+  unsigned long	    (*external_resolver)(void); //funcpointer external resolver
 } sharedvars_t;
 
 //global vars
@@ -51,9 +52,9 @@ load_elf( char *name, unsigned long *initial_sp );
 
 
 bool
-l4rtems_serve_requestIrq( unsigned irqNbr );
+l4rtems_requestIrq( unsigned irqNbr );
 void
-l4rtems_serve_detachIrq( unsigned irqNbr );
+l4rtems_detachIrq( unsigned irqNbr );
 
 // programmable periodic timer interrupt
 void l4rtems_timer( unsigned long period );

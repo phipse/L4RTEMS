@@ -108,12 +108,4 @@ l4rtems_outport( unsigned int port, unsigned int value, unsigned int size )
   }
 }
 
-using namespace L4;
-using namespace L4Re;
-
-
-
-
-
-
 

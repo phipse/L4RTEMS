@@ -607,3 +607,29 @@ So and now we see, that this is not the way to do it.
 
 So I will port the solution from L4Linux and L4OpenBSD. Buzzword: external
 resolver.
+
+
+
+23/11/2012
+I port the __l4_external_resolver functionality of L4Linux to L4RTEMS. 
+This includes serveral files from l4linux/arch/l4/boot/* and the Makefile-magic
+generating func_list.h. 
+
+This changes the compile process into three steps:
+1. Build libl4rtems.a of RTEMS_wrapper/lib/src/
+2. Build RTEMS and add libl4rtems.a
+3. Build RTEMS_wrapper with the analysis of the RTEMS binary
+
+These three steps are not so nice at the moment and that adds another
+++++ TODO ++++
+  add libl4rtems.a to the buildprocess of RTEMS
+
+On the RTEMS side we got new files: 
+- stringify.h, 
+- l4lib.h
+containing string magic and the L4_EXTERNAL_FUNC macro.
+
+ERRORS:
+- The wrapper Makefile still needs the func_list.h and res.c magic
+- The RTEMS binary seems to be missing the .data.l4externals.* parts
+

@@ -67,6 +67,8 @@ static char timer_stack[8<<10];
 
 static unsigned long fs, ds;
 
+unsigned long __l4_external_resolver(void);
+
 
 /* Multiboot structure to provide lower and upper memory */
 typedef struct multiboot
@@ -321,7 +323,7 @@ main( int argc, char **argv )
   sharedstruct->uds = ds;
   sharedstruct->logcap = L4Re::Env::env()->get_cap<void>( "moes_log" ).cap();
   sharedstruct->l4re_env = l4re_env();
-
+  sharedstruct->external_resolver =  __l4_external_resolver;
 
   // initialize the start registers
   vcpu->r()->ip = entry;
@@ -429,7 +431,7 @@ l4rtems_requestIrq( unsigned irqNbr )
 
   
   
-  void
+void
 l4rtems_detachIrq( unsigned irqNbr )
 {
   // Detach from irqNbr
