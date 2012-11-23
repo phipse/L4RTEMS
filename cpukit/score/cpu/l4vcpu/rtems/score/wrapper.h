@@ -26,6 +26,7 @@ typedef struct guestHostShare
   l4_cap_idx_t	    logcap;   // capability for the log to use print
   unsigned long	    ufs, uds; // user/host fs ds
   l4re_env_t*	    l4re_env; // l4re environment pointer
+  unsigned long	    (*external_resolver)(void); //funcpointer external resolver
 } sharedvars_t;
 
 //global vars

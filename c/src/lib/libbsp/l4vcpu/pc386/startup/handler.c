@@ -6,10 +6,14 @@
 #include <rtems/l4vcpu/l4kdebug.h>
 #include <rtems/score/wrapper.h>
 #include <bsp/irq-generic.h>
+#include "l4lib.h"
 
 #include <stdio.h>
 
+unsigned long __l4_external_resolver;
 
+L4_EXTERNAL_FUNC(l4rtems_requestIrq);
+L4_EXTERNAL_FUNC(l4rtems_detachIrq);
 
 static unsigned long fs, ds;
 static l4_vcpu_state_t *vcpuh;
@@ -47,6 +51,9 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   vcpuh->state &= L4_VCPU_F_EXCEPTIONS;
   
   /* checking the entry reason */
+
+  printk( "Handler: %i \n", vcpuh->r.trapno );
+  printk( "Handler: %x \n", vcpuh->r.ip );
   if( l4vcpu_is_page_fault_entry( vcpuh ) )
   { /* This shouldn't be happening */
     printk("page fault entry\n");
