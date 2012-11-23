@@ -633,3 +633,10 @@ ERRORS:
 - The wrapper Makefile still needs the func_list.h and res.c magic
 - The RTEMS binary seems to be missing the .data.l4externals.* parts
 
+DEBUG:
+- handler.o contains the .data.l4externals.* and .text.l4externals.str sections
+- librtemsbsp.a contains the sections
+- binary at least contains the *_resolve functions (e.g.
+  l4rtems_requestIrq_resolve).
+
+
