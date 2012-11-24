@@ -167,9 +167,14 @@ SECTIONS
   .got            : { *(.got) }
   . = DATA_SEGMENT_RELRO_END (12, .);
   .got.plt        : { *(.got.plt) }
+
+  .data.l4externals.str	    : { KEEP(*(data.l4externals.str)) }
+  .data.l4externals.symtab  : { KEEP(*(data.l4externals.symtab)) }
+  .data.l4externals.jmptbl  : { KEEP(*(data.l4externals.jmptbl)) }
+
   .data           :
   {
-    *(.data .data.* .gnu.linkonce.d.*)
+    *(.data .gnu.linkonce.d.*)
     KEEP (*(.gnu.linkonce.d.*personality*))
     SORT(CONSTRUCTORS)
   }
