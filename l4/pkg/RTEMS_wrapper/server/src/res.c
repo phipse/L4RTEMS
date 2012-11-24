@@ -2,7 +2,7 @@
 #include <string.h>
 #include <l4/sys/compiler.h>
 
-
+#if 0
 #ifdef ARCH_arm
 asm(
 	".global __l4_external_resolver\n"
@@ -16,7 +16,9 @@ asm(
 	"	add sp, sp, #4 \n"
 	"	ldmia sp!, {pc} \n"
    );
-#elif defined(ARCH_x86)
+#endif
+#endif
+//#elif defined(ARCH_x86)
 asm(
 	".global __l4_external_resolver\n"
 	"__l4_external_resolver: \n"
@@ -29,7 +31,7 @@ asm(
 	"	popa\n"
 	"	ret $4\n"
    );
-#else
+#if 0
 asm(
 	".global __l4_external_resolver\n"
 	"__l4_external_resolver: \n"
@@ -75,7 +77,7 @@ asm(
 
 #define EF(func) \
 	void func(void);
-#include <func_list.h>
+#include "func_list.h"
 
 #include <stdio.h>
 #undef EF
@@ -102,7 +104,7 @@ __C__l4_external_resolver(unsigned long jmptblentry, char *funcname)
 
 	if (0) {
 	}
-#include <func_list.h>
+#include "func_list.h"
 	else
 		p = 0;
 

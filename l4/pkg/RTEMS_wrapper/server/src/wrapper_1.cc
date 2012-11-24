@@ -67,7 +67,22 @@ static char timer_stack[8<<10];
 
 static unsigned long fs, ds;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 unsigned long __l4_external_resolver(void);
+
+void do_resolve_error(const char *funcname);
+void do_resolve_error(const char *funcname)
+{
+	printf("Symbol '%s' not found\n", funcname);
+	enter_kdebug("Symbol not found!");
+}
+
+#ifdef __cplusplus
+}
+#endif
 
 
 /* Multiboot structure to provide lower and upper memory */
@@ -443,3 +458,5 @@ l4rtems_detachIrq( unsigned irqNbr )
     return;
   }
 }
+
+
