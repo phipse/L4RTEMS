@@ -53,6 +53,7 @@ extern void bsp_size_memory(void);
 
 extern sharedvars_t *sharedVariableStruct;
 l4re_env_t* l4re_global_env = 0;
+extern unsigned long __l4_external_resolver;
 
 void bsp_start_default( void )
 {
@@ -63,6 +64,7 @@ void bsp_start_default( void )
   // set l4re environment variable
   sharedVariableStruct->vcpu->entry_ip = l4rtems_handler;
   l4re_global_env = sharedVariableStruct->l4re_env;
+  __l4_external_resolver = sharedVariableStruct->external_resolver;
   
   
   /*

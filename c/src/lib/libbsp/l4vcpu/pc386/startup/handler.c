@@ -3,7 +3,6 @@
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4thread.h>
 #include <rtems/l4vcpu/l4util.h>
-#include <rtems/l4vcpu/l4kdebug.h>
 #include <rtems/score/wrapper.h>
 #include <bsp/irq-generic.h>
 #include "l4lib.h"
@@ -26,7 +25,7 @@ handler_prolog( void )
   ds = sharedVariableStruct->uds;
 #if DEBUG
   printk( "fs: %x\n", fs);
-  enter_kdebug( "handler prolog" );
+//  enter_kdebug( "handler prolog" );
 #endif
   asm volatile( 
       " mov %0, %%es \t\n"
@@ -80,7 +79,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
     printk("vcpu->trapno: %i\n", vcpuh->r.trapno);
     printk( "label: %i \n", vcpuh->i.label );
     printk( "%s\n", l4sys_errtostr(vcpuh->r.flags));
-    enter_kdebug("handler entry");
+//    enter_kdebug("handler entry");
 #endif
   }
 
