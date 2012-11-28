@@ -403,9 +403,9 @@ bool
 l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr. Then store the
      irqNbr and the capability in a map. */
-
+  enter_kdebug( " requestIRQ " );
   // request new capability and create IRQ
-  Cap<Irq> newIrq = Util::cap_alloc.alloc<L4::Irq>();
+  Cap<Irq> newIrq = Util::cap_alloc.alloc<Irq>();
   if( newIrq.is_valid() )//l4_is_invalid_cap( newIrq) )
   {
 //    printf( "newIrq cap invalid!\n\n" );
