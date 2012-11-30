@@ -655,11 +655,27 @@ there is still work.
 
 My guess is, the func_list.h stuff isn't 100% working.
 
+
+
 28/11/2012
 gcc with -E flag shows the right behaviour of res.c and func_list.h.
 But l4rtems_requestIrq is never invoked. So the address translation fails.
 Not even C__l4_external_resolver is invoked.
-Yeah, you should initialize __l4_external_resolver variable in RTEMS. Done that now in pc386/startup/bspstart.c.
+Yeah, you should initialize __l4_external_resolver variable in RTEMS. Done that
+now in pc386/startup/bspstart.c.
 
 The transition to the L4-Task world works now. But I get an invalid capability
 from Util::cap_alloc.alloc in l4rtems_requestIrq. 
+
+
+
+30/11/2012
+Well, if you are programming it right, then it works... .
+Valid cap, but bind fails with -17 aka object exists.
+Somebody grabs the 0x1 IRQ from IO before I do. So the IRQ is not available
+anymore.
+
+LESSON LEARNED: Never assume your code isn't doing this'n'that. Check it!
+(Quote Zombieland: Double Tap!)
+I had an old call to l4io_request_irq in my wrapper code. don't know why; maybe
+some tests... .

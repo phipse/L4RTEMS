@@ -329,7 +329,7 @@ main( int argc, char **argv )
   
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
 
-  l4io_request_irq( 0x1, timerIRQ.cap() );
+//  l4io_request_irq( 0x1, timerIRQ.cap() );
 
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
@@ -368,7 +368,7 @@ main( int argc, char **argv )
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
   
-#if 1  
+#if 0  
   // IRQ setup 
   timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
   L4Re::Env::env()->factory()->create_irq( timerIRQ );
@@ -401,32 +401,23 @@ main( int argc, char **argv )
 
 bool
 l4rtems_requestIrq( unsigned irqNbr )
-{ /* Create IRQ object and attach it to the requested irqNbr. Then store the
-     irqNbr and the capability in a map. */
+{ /* Create IRQ object and attach it to the requested irqNbr.*/
   enter_kdebug( " requestIRQ " );
-  // request new capability and create IRQ
+  // request new capability
   Cap<Irq> newIrq = Util::cap_alloc.alloc<Irq>();
-  if( newIrq.is_valid() )//l4_is_invalid_cap( newIrq) )
+  if( !newIrq.is_valid() )
   {
-//    printf( "newIrq cap invalid!\n\n" );
+    printf( "newIrq cap invalid!\n\n" );
     enter_kdebug( "invalid irq cap" );
     return false;
   }
-/*
-  l4_msgtag_t err = l4_factory_create_irq( l4re_env()->factory, newIrq );
-  if( err.has_error() )
-  {
-//    printf( "create_irq failed! Flags: %x \n\n", err.flags() );
-    enter_kdebug( "create_irq failed" );
-    return false;
-  }
-*/
+
   long ret = l4io_request_irq( irqNbr, newIrq.cap() );
   if( ret )
   {
-//    char errstr[30];// = (char* ) malloc (30 * sizeof( char ) );
-//    snprintf( errstr, 30*sizeof(char), "l4io_request_irq err: %li", ret );
+    printf( "l4io request irq failed: %li \n", ret );
     enter_kdebug(  "l4io_request_irq err" );
+    return false;
   }
 
   // attach vcpu thread to the IRQ
@@ -434,9 +425,8 @@ l4rtems_requestIrq( unsigned irqNbr )
   l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
   if( err.has_error() )
   {
+    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
     enter_kdebug( "irq attach failed" ); 
-    l4sys_errtostr( err.has_error() );
-//    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
     return false;
   }
   
@@ -453,9 +443,10 @@ l4rtems_detachIrq( unsigned irqNbr )
   l4_msgtag_t err = l4_irq_detach( irqNbr );
   if( err.has_error() )
   {
-//    printk( "detachIrq:: Detatch failed! Flags: %x\n\n", 
-//	err.flags() );
-    return;
+    printf( "detachIrq:: Detatch failed! Flags: %x\n\n", 
+	err.flags() );
+    enter_kdebug( "detaching failed! " );
+//    l4io_release_irq(irqNbr, //irqcap?
   }
 }
 

@@ -9,7 +9,8 @@ vbus => new System_bus()
   # Scan the hw-root bus for devices that have a compatibility ID (CID)
   # match for a keyboard. And add them with virtual
   # device wrappers to the BUS.
-  ps2 => wrap(hw-root.match("PNP0303"));
+  ps2 => wrap(hw-root.match("PNP0[3F]??"));
+  #ps2 => wrap(hw-root.PS2);
 }
 
 
