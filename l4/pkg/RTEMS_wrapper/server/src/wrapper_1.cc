@@ -155,32 +155,6 @@ l4rtems_timer( unsigned long period = 1000 )
 
 
 
-char inbuffer = 0;
-unsigned inflag = 0;
-
-void
-l4rtems_buffIn( void )
-{
-  printf( "Hello buffIn\n" );
-
-  while( true ) 
-  {
-    if( !inflag )
-    {
-//      scanf( "%c", &inbuffer );
-      inbuffer = 'f';
-      unsigned ret = l4util_xchg32( &inflag, true );
-      printf( "inflag was: %u\n", ret );
-      //printf( "New inflag val: %u\n," *inflag );
-    }
-    else
-    {
-      l4_sleep( 10 );
-    }
-  }
-}
-
-
 l4_umword_t
 load_elf( char *name, l4_umword_t *initial_sp )
 { /* The function loads the elf file by name into the address space of the 
@@ -368,7 +342,7 @@ main( int argc, char **argv )
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
   
-#if 0  
+#if 1  
   // IRQ setup 
   timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
   L4Re::Env::env()->factory()->create_irq( timerIRQ );
