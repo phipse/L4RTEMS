@@ -576,7 +576,7 @@ open TODO from above:
 next step TODO:
 + init keyboard driver
 + get printf working
-+ fix the issue with l4vcpu_irq_restore
++ fix the issue with l4vcpu_irq_restore --> modify saved state
 + get more examples to work
 
 
@@ -678,4 +678,11 @@ anymore.
 LESSON LEARNED: Never assume your code isn't doing this'n'that. Check it!
 (Quote Zombieland: Double Tap!)
 I had an old call to l4io_request_irq in my wrapper code. don't know why; maybe
-some tests... .
+some old tests... .
+
+
+
+10/12/2012
+I tracked an error during opening of a console, to a missing semaphore. It was
+missing due to a excluded termios_initialize. Now it seems to work.
+Just the detachIrq method doesn't work.

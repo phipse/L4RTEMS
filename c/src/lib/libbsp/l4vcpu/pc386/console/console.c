@@ -247,8 +247,7 @@ console_initialize(rtems_device_major_number major,
                    void                      *arg)
 {
   rtems_status_code status;
-  // RTEMSVCPU: ignore this driver for now
- // return RTEMS_SUCCESSFUL;
+  // RTEMSVCPU: driver seems to work
 
   /* Initialize the KBD interface */
   kbd_init();
@@ -256,7 +255,7 @@ console_initialize(rtems_device_major_number major,
   /*
    * Set up TERMIOS
    */
-//  rtems_termios_initialize ();
+  rtems_termios_initialize ();
 
   /*
    *  The video was initialized in the start.s code and does not need
@@ -399,6 +398,7 @@ console_open(rtems_device_major_number major,
       if(status != RTEMS_SUCCESSFUL)
       {
          printk("Error openning console device\n");
+	 printk("status: %i\n", status );
       }
       return status;
     }
