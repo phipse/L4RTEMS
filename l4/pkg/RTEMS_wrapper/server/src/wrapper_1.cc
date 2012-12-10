@@ -164,9 +164,12 @@ load_elf( char *name, l4_umword_t *initial_sp )
   printf("Hello %s \n", name);
   struct stat64 st;
   int fd = open( name, O_RDONLY);
-  int r = fstat64(fd, &st);
+  int r = lstat64( name , &st);
   if( r  == -1 )
+  {
     printf( "fstat failed: %i\n", r);
+    perror( "fstat errno: " );
+  }
   void *e = mmap( 0, st.st_size, PROT_READ | PROT_WRITE | PROT_EXEC, 
       MAP_PRIVATE, fd, 0);
     

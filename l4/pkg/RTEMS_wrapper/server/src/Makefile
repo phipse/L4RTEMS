@@ -14,7 +14,7 @@ include $(L4DIR)/mk/prog.mk
 
 res.o: func_list.h
 
-func_list.h: $(L4DIR)/../../build/bin/x86_686/l4f/myHello.exe
+func_list.h: $(L4DIR)/../../build/bin/x86_686/l4f/myTest.exe
 	$(Q)$(OBJCOPY) -j .data.l4externals.str -O binary $< $@.tmp
 	$(Q)cat $@.tmp
 	$(Q)perl -p -e 's/(.+?)\0/EF($$1)\n/g' $@.tmp > $@

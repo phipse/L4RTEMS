@@ -574,8 +574,8 @@ open TODO from above:
 + Fix the IDT setup.
 
 next step TODO:
-+ init keyboard driver
-+ get printf working
++ init keyboard driver -- done
++ get printf working --> it get's rendered, and we don't have a framebuffer
 + fix the issue with l4vcpu_irq_restore --> modify saved state
 + get more examples to work
 
@@ -690,3 +690,7 @@ Just the detachIrq method doesn't work.
 Fixed detachIrq by introducing a irqNbr -> Capability map on the stack. If I
 put it on the heap I run into memory issues while loading the RTEMS elf-binary.
 
+So I am moving on to another example in the hope of more faults :)
+I choose the base_sp sample.
+And I changed the wrapper source code, so I can use a symbolic link on the
+current RTEMS executable.
