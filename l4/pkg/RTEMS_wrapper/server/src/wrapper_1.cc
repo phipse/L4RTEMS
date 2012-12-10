@@ -372,7 +372,8 @@ main( int argc, char **argv )
   return 0;
 }
 
-
+// Stores the successfully aquired capabilities by IRQ Number
+// Heap storage leads to memory clashes between the elf loader and this.
 //static std::map< unsigned, Cap<Irq> > *irqCaps = new std::map< unsigned, Cap<Irq> >();
 static std::map<unsigned, Cap<Irq> > irqCaps;
 
