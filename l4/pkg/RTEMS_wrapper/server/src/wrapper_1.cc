@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <map>
 
 /* L4 includes */
 #include <l4/sys/task>
@@ -372,17 +373,18 @@ main( int argc, char **argv )
 }
 
 
+//static std::map< unsigned, Cap<Irq> > *irqCaps = new std::map< unsigned, Cap<Irq> >();
+static std::map<unsigned, Cap<Irq> > irqCaps;
+
 
 bool
 l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr.*/
-  enter_kdebug( " requestIRQ " );
   // request new capability
   Cap<Irq> newIrq = Util::cap_alloc.alloc<Irq>();
   if( !newIrq.is_valid() )
   {
     printf( "newIrq cap invalid!\n\n" );
-    enter_kdebug( "invalid irq cap" );
     return false;
   }
 
@@ -390,22 +392,19 @@ l4rtems_requestIrq( unsigned irqNbr )
   if( ret )
   {
     printf( "l4io request irq failed: %li \n", ret );
-    enter_kdebug(  "l4io_request_irq err" );
     return false;
   }
 
   // attach vcpu thread to the IRQ
-  enter_kdebug( "try attach" );
   l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
   if( err.has_error() )
   {
     printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
-    enter_kdebug( "irq attach failed" ); 
     return false;
   }
   
+  irqCaps.insert( std::pair< unsigned, Cap<Irq> >(irqNbr, newIrq) );
   return true; 
-//  return false;
 }
 
   
@@ -413,14 +412,20 @@ l4rtems_requestIrq( unsigned irqNbr )
 void
 l4rtems_detachIrq( unsigned irqNbr )
 {
+  // retrieve the irq capability
+  // NOTE: shouldn't the [] operator do the same?
+  Cap<Irq> oldCap = irqCaps.find(irqNbr)->second;
+  irqCaps.erase( irqNbr );
   // Detach from irqNbr
-  l4_msgtag_t err = l4_irq_detach( irqNbr );
+  l4_msgtag_t err = l4_irq_detach( oldCap.cap() );
   if( err.has_error() )
   {
     printf( "detachIrq:: Detatch failed! Flags: %x\n\n", 
 	err.flags() );
-    enter_kdebug( "detaching failed! " );
-//    l4io_release_irq(irqNbr, //irqcap?
+  }
+  if( l4io_release_irq(irqNbr, oldCap.cap() ) )
+  {
+    printf( "l4io_release_irq error" );
   }
 }
 

@@ -686,3 +686,7 @@ some old tests... .
 I tracked an error during opening of a console, to a missing semaphore. It was
 missing due to a excluded termios_initialize. Now it seems to work.
 Just the detachIrq method doesn't work.
+
+Fixed detachIrq by introducing a irqNbr -> Capability map on the stack. If I
+put it on the heap I run into memory issues while loading the RTEMS elf-binary.
+
