@@ -694,3 +694,18 @@ So I am moving on to another example in the hope of more faults :)
 I choose the base_sp sample.
 And I changed the wrapper source code, so I can use a symbolic link on the
 current RTEMS executable.
+
+
+
+14/12/2012
+Error: init system clock
+  due to failing request on IRQ 0
+    Which makes sense, as we don't give access to the timer to the guest.
+So we have to build our own timer suite to provide communication.
+
+
+
+17/12/2012
+I programmed my own trivial timer thread and adapted the request/detach IRQ
+interface, to provide the timerIRQ to RTEMS.
+

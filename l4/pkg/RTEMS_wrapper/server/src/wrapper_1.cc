@@ -137,14 +137,14 @@ starter( void )
 
 
 void
-l4rtems_timer( unsigned long period = 1000 )
+l4rtems_timer( unsigned long period = 10 )
 { /* This function triggers an IRQ to test the IRQ entry capability of the running 
      rtems guest application. The timer resolution is milliseconds.
      If no parameter is set, the default period is 1ms. */
 
   printf( "Hello timer\n" );
   
-  timerIRQ->attach( 9000, vcpu_cap );
+//  timerIRQ->attach( 0, vcpu_cap );
 //  int cnt = 0;
   while(1)
   {
@@ -385,28 +385,37 @@ bool
 l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr.*/
   // request new capability
-  Cap<Irq> newIrq = Util::cap_alloc.alloc<Irq>();
-  if( !newIrq.is_valid() )
+  Cap<Irq> newIrq; 
+  if( irqNbr == 0 )
   {
-    printf( "newIrq cap invalid!\n\n" );
-    return false;
+    timerIRQ->attach( 0, vcpu_cap );
+    newIrq = timerIRQ;
+  }
+  else 
+  {
+    newIrq = Util::cap_alloc.alloc<Irq>();
+    if( !newIrq.is_valid() )
+    {
+      printf( "newIrq cap invalid!\n\n" );
+      return false;
+    }
+
+    long ret = l4io_request_irq( irqNbr, newIrq.cap() );
+    if( ret )
+    {
+      printf( "l4io request irq failed: %li \n", ret );
+      return false;
+    }
+
+    // attach vcpu thread to the IRQ
+    l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
+    if( err.has_error() )
+    {
+      printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
+      return false;
+    }
   }
 
-  long ret = l4io_request_irq( irqNbr, newIrq.cap() );
-  if( ret )
-  {
-    printf( "l4io request irq failed: %li \n", ret );
-    return false;
-  }
-
-  // attach vcpu thread to the IRQ
-  l4_msgtag_t err = l4_irq_attach( newIrq.cap(), irqNbr, _vcpu_cap );
-  if( err.has_error() )
-  {
-    printf( "IRQ attach failed! Flags: %x \n\n", err.flags() );
-    return false;
-  }
-  
   irqCaps.insert( std::pair< unsigned, Cap<Irq> >(irqNbr, newIrq) );
   return true; 
 }
@@ -421,15 +430,22 @@ l4rtems_detachIrq( unsigned irqNbr )
   Cap<Irq> oldCap = irqCaps.find(irqNbr)->second;
   irqCaps.erase( irqNbr );
   // Detach from irqNbr
-  l4_msgtag_t err = l4_irq_detach( oldCap.cap() );
-  if( err.has_error() )
+  if( irqNbr == 0 )
   {
-    printf( "detachIrq:: Detatch failed! Flags: %x\n\n", 
-	err.flags() );
+    oldCap->detach();
   }
-  if( l4io_release_irq(irqNbr, oldCap.cap() ) )
+  else
   {
-    printf( "l4io_release_irq error" );
+    l4_msgtag_t err = l4_irq_detach( oldCap.cap() );
+    if( err.has_error() )
+    {
+      printf( "detachIrq:: Detatch failed! Flags: %x\n\n", 
+	  err.flags() );
+    }
+    if( l4io_release_irq(irqNbr, oldCap.cap() ) )
+    {
+      printf( "l4io_release_irq error" );
+    }
   }
 }
 
