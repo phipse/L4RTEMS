@@ -49,6 +49,8 @@
 #include <l4/RTEMS_wrapper/shared.h>
 #include <contrib/libio-io/l4/io/io.h>
 
+#include <l4/RTEMS_wrapper/timer.h>
+
 
 using L4Re::chksys;
 using L4Re::chkcap;
@@ -58,13 +60,11 @@ using namespace L4Re;
 
 static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
-static L4::Cap<L4::Irq> timerIRQ;
 static L4::Cap<L4::Thread> vcpu_cap;
 static l4_vcpu_state_t *vcpuh;
 
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];
-static char timer_stack[8<<10];
 
 static unsigned long fs, ds;
 
@@ -132,26 +132,6 @@ starter( void )
   printf("sleep forever\n");
   l4_sleep_forever();
 
-}
-
-
-
-void
-l4rtems_timer( unsigned long period = 10 )
-{ /* This function triggers an IRQ to test the IRQ entry capability of the running 
-     rtems guest application. The timer resolution is milliseconds.
-     If no parameter is set, the default period is 1ms. */
-
-  printf( "Hello timer\n" );
-  
-//  timerIRQ->attach( 0, vcpu_cap );
-//  int cnt = 0;
-  while(1)
-  {
-    timerIRQ->trigger();
-//    printf("timer triggered: %i \n", ++cnt );
-    l4_sleep( period );
-  }
 }
 
 
@@ -307,8 +287,6 @@ main( int argc, char **argv )
   
   vcpuh = reinterpret_cast<l4_vcpu_state_t*> (vcpu);
 
-//  l4io_request_irq( 0x1, timerIRQ.cap() );
-
   // create and fill shared variables structure
   sharedvars_t *sharedstruct = new sharedvars_t();
   sharedstruct->vcpu = vcpuh;
@@ -346,30 +324,6 @@ main( int argc, char **argv )
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
   
-#if 1  
-  // IRQ setup 
-  timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
-  L4Re::Env::env()->factory()->create_irq( timerIRQ );
-  
-  // create timer thread
-  kumem = (l4_addr_t)l4re_env()->first_free_utcb;
-  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
-  l4_utcb_t *utcb_time = (l4_utcb_t *)kumem;
-
-  L4::Thread::Attr attr_time;
-  attr_time.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
-  attr_time.exc_handler( L4Re::Env::env()->main_thread() );
-  attr_time.bind( utcb_time, L4Re::This_task);
-
-  L4::Cap<L4::Thread> timer;
-  timer->control( attr_time );
-  timer->ex_regs( (l4_umword_t) l4rtems_timer,
-		  (l4_umword_t) timer_stack + sizeof(timer_stack),
-		  0 );
-  L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(4) ); 
-#endif
-  
-  
   
   l4_sleep_forever(); 
   return 0;
@@ -380,7 +334,6 @@ main( int argc, char **argv )
 //static std::map< unsigned, Cap<Irq> > *irqCaps = new std::map< unsigned, Cap<Irq> >();
 static std::map<unsigned, Cap<Irq> > irqCaps;
 
-
 bool
 l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr.*/
@@ -388,6 +341,9 @@ l4rtems_requestIrq( unsigned irqNbr )
   Cap<Irq> newIrq; 
   if( irqNbr == 0 )
   {
+    if( !l4rtems_timerIsInit() ) 
+      l4rtems_timerInit( vcpu_cap );
+
     timerIRQ->attach( 0, vcpu_cap );
     newIrq = timerIRQ;
   }
@@ -448,5 +404,3 @@ l4rtems_detachIrq( unsigned irqNbr )
     }
   }
 }
-
-

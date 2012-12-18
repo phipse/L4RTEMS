@@ -709,3 +709,10 @@ So we have to build our own timer suite to provide communication.
 I programmed my own trivial timer thread and adapted the request/detach IRQ
 interface, to provide the timerIRQ to RTEMS.
 
+18/12/2012
+I rewrote the timer interface, so there is a new header file timer.h in
+RTEMS_wrapper/include/ and the corresponding source file timer.cc is in
+RTEMS_wrapper/server/src. The functions in the src file share a global struct,
+which is implemented as a singelton. Just some sanity is missing here. 
+
+++++ TODO: add the sanity checks to the timer functions!
