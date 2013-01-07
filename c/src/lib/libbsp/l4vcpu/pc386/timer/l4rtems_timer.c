@@ -84,5 +84,6 @@ l4rtems_timerInit( void )
   Ttimer_val = 0;
   while(Ttimer_val == 0)
     continue;
+  printk( "Timer initialized!" );
   Ttimer_val = 0;
 }

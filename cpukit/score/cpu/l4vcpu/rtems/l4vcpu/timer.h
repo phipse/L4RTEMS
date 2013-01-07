@@ -17,10 +17,6 @@ void l4rtems_timerOff();
 void l4rtems_setTimerPeriod( unsigned long per );
 
 
-L4_EXTERNAL_FUNC(l4rtems_timerIsOn);
-L4_EXTERNAL_FUNC(l4rtems_timerOn);
-L4_EXTERNAL_FUNC(l4rtems_timerOff);
-L4_EXTERNAL_FUNC(l4rtems_setTimerPeriod);
 
 #ifdef __cplusplus
 }
