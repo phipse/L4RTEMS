@@ -7,13 +7,36 @@
 #include <l4/sys/factory>
 #include <l4/sys/scheduler>
 
-timerVars tv;
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+static timerVars tv;
 
 bool
 l4rtems_timerIsInit()
 {
   return tv.init;
 }
+
+
+  
+static void 
+l4rtems_timer( )
+{ /* This function triggers an IRQ to test the IRQ entry capability of the running 
+     rtems guest application. The timer resolution is milliseconds.
+     If no parameter is set, the default period is 1ms. */
+
+  printf( "Hello timer\n" );
+  
+  while(1)
+  {
+    timerIRQ->trigger();
+    l4_sleep( tv.period );
+  }
+}
+
 
 
 void
@@ -53,7 +76,7 @@ l4rtems_timerIsOn()
 void
 l4rtems_timerOn()
 {
-  // schedule timer thread;
+  // schedule timer thread
   tv.timerIsOn = true;
   L4Re::Env::env()->scheduler()->run_thread( tv.timer, l4_sched_param(4) ); 
 }
@@ -64,26 +87,10 @@ l4rtems_timerOff()
 {
   // deschedule timer thread;
   tv.timerIsOn = false;
-  // How to stop the thread?
-//  L4Re::Env::env()->scheduler()->run_thread( timer, l4_sched_param(4) ); 
+  // How to stop/pause the thread?
+
 }
 
-
-
-void 
-l4rtems_timer( )
-{ /* This function triggers an IRQ to test the IRQ entry capability of the running 
-     rtems guest application. The timer resolution is milliseconds.
-     If no parameter is set, the default period is 1ms. */
-
-  printf( "Hello timer\n" );
-  
-  while(1)
-  {
-    timerIRQ->trigger();
-    l4_sleep( tv.period );
-  }
-}
 
 
 void
@@ -91,3 +98,8 @@ l4rtems_setTimerPeriod( unsigned long per )
 {
   tv.period = per;
 }
+
+
+#ifdef __cplusplus
+}
+#endif

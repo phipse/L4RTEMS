@@ -716,3 +716,16 @@ RTEMS_wrapper/server/src. The functions in the src file share a global struct,
 which is implemented as a singelton. Just some sanity is missing here. 
 
 ++++ TODO: add the sanity checks to the timer functions!
+
+
+07/12/2012
+After some reading in l4vcpu/pc386/timer/timer.c, I wrote a l4rtems_timer.c,
+which implements an initialization routine to tailor the timer into the
+interrupt descriptor table. Additionally there are functions, calling the my
+previously written L4Re routines in the RTEMS_wrapper package.
+The timer.h file from L4Re got placed in cpukit/score/cpu/l4vcpu/rtems/l4vcpu/
+and provides function headers. 
+L4_EXTERNAL_FUNC is used, to tailor guest and host.
+
+So far it compiles, but I haven't looked, where it stops executing. That's
+next.
