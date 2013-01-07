@@ -51,9 +51,6 @@
    attached to this interface */
 #undef IDE_USE_SECONDARY_INTERFACE
 
-/* if using 16 bit mode assembler support */
-#undef NEW_GAS
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 

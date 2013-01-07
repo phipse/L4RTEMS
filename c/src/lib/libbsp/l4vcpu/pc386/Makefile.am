@@ -62,7 +62,7 @@ libbsp_a_SOURCES =
 
 # clock
 libbsp_a_SOURCES += clock/ckinit.c clock/todcfg.c ../../shared/tod.c \
-    ../../../shared/clockdrv_shell.h
+    ../../../shared/clockdrv_shell.h clock/l4rtems_ckinit.c
 
 include_rtemsdir = $(includedir)/rtems
 include_rtems_HEADERS = console/keyboard.h console/kd.h console/ps2_drv.h
@@ -103,10 +103,11 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c ../../shared/bsppost.c \
     ../../shared/src/irq-info.c \
     ../../shared/src/irq-shell.c \
     ../../shared/src/irq-server.c \
-    startup/handler.c
+    startup/handler.c startup/l4lib.h
 
 # timer
-libbsp_a_SOURCES += timer/timer.c timer/timerisr.S
+libbsp_a_SOURCES += timer/timer.c timer/timerisr.S \
+	timer/l4rtems_timer.c timer/l4rtems_timerisr.S
 
 # ide
 libbsp_a_SOURCES += ide/idecfg.c ide/ide.c

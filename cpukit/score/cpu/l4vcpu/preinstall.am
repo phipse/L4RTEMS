@@ -164,7 +164,27 @@ $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reenv.h: rtems/l4vcpu/l4reenv.h $(PROJECT_INCL
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reenv.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4reenv.h
 
-$(PROJECT_INCLUDE)/rtems/l4vcpu/vmm_interface.h: rtems/l4vcpu/vmm_interface.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/vmm_interface.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/vmm_interface.h
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4irq.h: rtems/l4vcpu/l4irq.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4irq.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4irq.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4kernel_object.h: rtems/l4vcpu/l4kernel_object.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kernel_object.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4kernel_object.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4__kernel_object_impl.h: rtems/l4vcpu/l4__kernel_object_impl.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__kernel_object_impl.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4__kernel_object_impl.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4syscall-invoke.h: rtems/l4vcpu/l4syscall-invoke.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4syscall-invoke.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4syscall-invoke.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h: rtems/l4vcpu/timer.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h: rtems/l4vcpu/handler.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h
 
