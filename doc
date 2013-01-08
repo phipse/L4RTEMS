@@ -729,3 +729,23 @@ L4_EXTERNAL_FUNC is used, to tailor guest and host.
 
 So far it compiles, but I haven't looked, where it stops executing. That's
 next.
+
+
+08/12/2012
+Adam suggested to look at the l4linux timer implementation. There the timer
+thread is a timer server and is called via IPC. The server waits for an IPC for
+a predefined period of time. If this times out the timer IRQ is triggered and
+the server waits again for the next timeout. 
+OR
+If the server recieves an IPC different from the timeout, it checks the
+protocol and either starts the timer or stops it, by setting the timeout to a
+value different to L4_IPC_NEVER or the very same.
+This describes the server loop. Besides there are functions providing the
+interface to start and stop the server, which emit an IPC to the server with
+the expected values.
+Additionaly there is a function to set the timer mode and an init routine for
+aquireing the IRQ_cap and starting the timer thread.
+
+This design allows starting and stopping of the timer and different timer
+modes. Compared to my current timer for RTEMS, I am missing these three things.
+Also the server design is better than my monolithic aproach.
