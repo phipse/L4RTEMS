@@ -744,8 +744,14 @@ This describes the server loop. Besides there are functions providing the
 interface to start and stop the server, which emit an IPC to the server with
 the expected values.
 Additionaly there is a function to set the timer mode and an init routine for
-aquireing the IRQ_cap and starting the timer thread.
+aquiring the IRQ_cap and starting the timer thread.
 
 This design allows starting and stopping of the timer and different timer
 modes. Compared to my current timer for RTEMS, I am missing these three things.
 Also the server design is better than my monolithic aproach.
+
+
+14/12/2012
+Well C++11 support seems to be an issue in L4. Strongly typed 'enum class'
+constructs seem to break the assumption of 'int'-opcodes/protocol codes for
+IPCs. So my timer implementation isn't quite working yet. 
