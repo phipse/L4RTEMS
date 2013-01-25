@@ -5,7 +5,10 @@ TARGET		= $(PKGNAME)
 
 # list your .c or .cc files here
 SRC_C		= res.c
-SRC_CC          = wrapper_1.cc timer.cc 
+SRC_CC          = wrapper_1.cc timer_IPC.cc 
+
+# we require C++11
+CXXFLAGS += -std=c++11
 
 # list requirements of your program here
 REQUIRES_LIBS   = libvcpu stdlibs libstdc++ libio-io 

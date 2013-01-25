@@ -49,7 +49,7 @@
 #include <l4/RTEMS_wrapper/shared.h>
 #include <contrib/libio-io/l4/io/io.h>
 
-#include <l4/RTEMS_wrapper/timer.h>
+#include <l4/RTEMS_wrapper/timer_IPC.h>
 
 
 using L4Re::chksys;
@@ -334,18 +334,25 @@ main( int argc, char **argv )
 //static std::map< unsigned, Cap<Irq> > *irqCaps = new std::map< unsigned, Cap<Irq> >();
 static std::map<unsigned, Cap<Irq> > irqCaps;
 
-bool
+l4_fastcall bool
 l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr.*/
   // request new capability
+
+  static bool firstTimer = true; 
   Cap<Irq> newIrq; 
+  printf("requestedNbr: %i\n", irqNbr );
+  enter_kdebug("requestIRQ");
   if( irqNbr == 0 )
   {
-    if( !l4rtems_timerIsInit() ) 
-      l4rtems_timerInit( vcpu_cap );
-
-    timerIRQ->attach( 0, vcpu_cap );
-    newIrq = timerIRQ;
+    printf( "0 requested\n");
+    if( firstTimer ) 
+    {
+      newIrq = timer_init(vcpu_cap);
+      firstTimer = false;
+      newIrq->attach( irqNbr, vcpu_cap );
+      l4rtems_timer_start( 10, 0 );
+    }
   }
   else 
   {
@@ -378,7 +385,7 @@ l4rtems_requestIrq( unsigned irqNbr )
 
   
   
-void
+l4_fastcall void
 l4rtems_detachIrq( unsigned irqNbr )
 {
   // retrieve the irq capability
@@ -404,3 +411,4 @@ l4rtems_detachIrq( unsigned irqNbr )
     }
   }
 }
+

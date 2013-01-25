@@ -51,9 +51,9 @@ load_elf( char *name, unsigned long *initial_sp );
 
 
 
-bool
+l4_fastcall bool
 l4rtems_requestIrq( unsigned irqNbr );
-void
+l4_fastcall void
 l4rtems_detachIrq( unsigned irqNbr );
 
 // programmable periodic timer interrupt

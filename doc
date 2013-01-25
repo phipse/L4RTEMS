@@ -755,3 +755,16 @@ Also the server design is better than my monolithic aproach.
 Well C++11 support seems to be an issue in L4. Strongly typed 'enum class'
 constructs seem to break the assumption of 'int'-opcodes/protocol codes for
 IPCs. So my timer implementation isn't quite working yet. 
+
+
+
+25/01/2013
+I implemented a Timer-server derived from L4::Server<Hooks> and custom made
+Hooks for the server. A periodic timeout is implemented via the timeout_hook
+and two additional functions are provided to provide an IPC interface for
+starting and stopping the timer.
+The function headers are passed to RTEMS in a header file and the function
+definitions are accessed via L4_EXTERNAL_FUNC.
+
+At the moment, RTEMS grabs the IRQ0 in the clock/ckinit.c file, which doesn't
+start the timer.
