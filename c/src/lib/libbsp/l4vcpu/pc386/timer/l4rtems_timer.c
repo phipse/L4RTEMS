@@ -10,9 +10,14 @@
 #include <rtems/l4vcpu/timer.h>
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <bsp.h>
 #include <bsp/irq.h>
 #include <libcpu/cpuModel.h>
+#include <rtems/score/wrapper.h>
+
+
+
 
 volatile uint32_t         Ttimer_val;
 extern void l4rtems_timerisr( void );
@@ -20,19 +25,19 @@ extern void l4rtems_timerisr( void );
 static int
 timerIsOn( const rtems_raw_irq_connect_data* unused )
 {
-  return l4rtems_timerIsOn();
+  return false;
 }
 
 static void
-timerOn( const rtems_raw_irq_connect_data* unused ) 
+timerOn( const rtems_raw_irq_connect_data* used ) 
 {
-  l4rtems_timerOn();
+  l4rtems_timer_start( 10ULL, Ttimer_val );
 }
 
 static void
 timerOff( const rtems_raw_irq_connect_data* unused )
 {
-  l4rtems_timerOff();
+  l4rtems_timer_stop();
 }
 
 
@@ -59,6 +64,7 @@ l4rtems_timer_exit( void )
 void 
 l4rtems_timerInit( void )
 {
+  printk( "Timer init called\n");
   if( !init )
   {
     init = true;
@@ -78,6 +84,7 @@ l4rtems_timerInit( void )
       printk("raw handler connection failed\n");
       rtems_fatal_error_occurred(1);
     }
+    BSP_irq_enable_at_i8259s(raw_irq_data.idtIndex - BSP_IRQ_VECTOR_BASE);
   }
 
   /* wait for ISR to be called at least once */
@@ -86,4 +93,13 @@ l4rtems_timerInit( void )
     continue;
   printk( "Timer initialized!" );
   Ttimer_val = 0;
+}
+
+
+/*
+ *  loop which waits at least timeToWait ms
+ */
+void Wait_X_ms( unsigned int timeToWait)
+{
+  usleep(timeToWait);
 }

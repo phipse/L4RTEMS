@@ -67,8 +67,9 @@ typedef unsigned short rtems_i8259_masks;
 
 extern  rtems_i8259_masks i8259s_cache;
 
-#if 0
-// RTEMSVCPU: No PIC to handle
+#if 1
+// RTEMSVCPU: No PIC to handle -- but we need at least enable and disable for
+// now as we want to touch as less code as possible
 /*-------------------------------------------------------------------------+
 | Function Prototypes.
 +--------------------------------------------------------------------------*/
@@ -95,11 +96,11 @@ int BSP_irq_enable_at_i8259s		(const rtems_irq_number irqLine);
  * writting raw handlers as this is automagically done for rtems managed
  * handlers.
  */
-int BSP_irq_ack_at_i8259s           	(const rtems_irq_number irqLine);
+//int BSP_irq_ack_at_i8259s           	(const rtems_irq_number irqLine);
 /*
  * function to check if a particular irq is enabled at 8259 level. After calling
  */
-int BSP_irq_enabled_at_i8259s        	(const rtems_irq_number irqLine);
+//int BSP_irq_enabled_at_i8259s        	(const rtems_irq_number irqLine);
 #endif /* 0 */
 #ifdef __cplusplus
 }

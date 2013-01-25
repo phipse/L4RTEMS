@@ -106,7 +106,7 @@ libbsp_a_SOURCES += ../../shared/bsplibc.c ../../shared/bsppost.c \
     startup/handler.c startup/l4lib.h
 
 # timer
-libbsp_a_SOURCES += timer/timer.c timer/timerisr.S \
+libbsp_a_SOURCES += \ # timer/timer.c timer/timerisr.S \
 	timer/l4rtems_timer.c timer/l4rtems_timerisr.S
 
 # ide

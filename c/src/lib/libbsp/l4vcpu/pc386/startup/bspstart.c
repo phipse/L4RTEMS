@@ -75,7 +75,8 @@ void bsp_start_default( void )
   /*
    * Calibrate variable for 1ms-loop (see timer.c)
    */
-  Calibrate_loop_1ms();
+// RTEMSVCPU: New timer, no need to calibrate the software
+//  Calibrate_loop_1ms();
 
   /*
    * Init rtems interrupt management

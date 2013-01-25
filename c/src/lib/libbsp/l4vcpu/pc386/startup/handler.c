@@ -13,10 +13,8 @@ unsigned long __l4_external_resolver;
 
 L4_EXTERNAL_FUNC(l4rtems_requestIrq);
 L4_EXTERNAL_FUNC(l4rtems_detachIrq);
-L4_EXTERNAL_FUNC(l4rtems_timerIsOn);
-L4_EXTERNAL_FUNC(l4rtems_timerOn);
-L4_EXTERNAL_FUNC(l4rtems_timerOff);
-L4_EXTERNAL_FUNC(l4rtems_setTimerPeriod);
+L4_EXTERNAL_FUNC(l4rtems_timer_start);
+L4_EXTERNAL_FUNC(l4rtems_timer_stop);
 
 static unsigned long fs, ds;
 static l4_vcpu_state_t *vcpuh;

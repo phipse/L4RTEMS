@@ -26,6 +26,7 @@
 
 //RTEMSVCPU:
 #include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4kdebug.h>
 
 /*
  * pointer to the mask representing the additionnal irq vectors
@@ -113,6 +114,7 @@ int BSP_irq_disable_at_i8259s    (const rtems_irq_number irqLine)
 int BSP_irq_enable_at_i8259s    (const rtems_irq_number irqLine)
 {
   //RTEMSVCPU: handle calls from anywhere
+  enter_kdebug("which irqLine?");
   bsp_interrupt_vector_enable( irqLine );
   return 0;
 #if 0
@@ -223,13 +225,12 @@ static void compute_i8259_masks_from_prio (void)
   rtems_interrupt_enable(level);
 }
 
-//#include <rtems/l4vcpu/l4kdebug.h>
 //RTEMSVCPU: use this functions as interface to the L4Re wrapper
 rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   // RTEMSVCPU: Add interrupt vector to L4Re, as we have a handler now.
   printk( "requestIrq %i \n", vector );
-//  enter_kdebug( "requestIrq" );
+  enter_kdebug( "rtems_requestIrq" );
   if( !l4rtems_requestIrq( vector ) )
     return RTEMS_IO_ERROR;
 //  BSP_irq_enable_at_i8259s(vector);
@@ -261,7 +262,7 @@ rtems_status_code bsp_interrupt_facility_initialize(void)
   //  RTEMSVCPU: use the L4 routines for that.
   //  why do we do that anyway?
 //  BSP_irq_enable_at_i8259s(2);
-  //bsp_interrupt_vector_enable( 2 );
+//  bsp_interrupt_vector_enable( 2 );
 
   return RTEMS_SUCCESSFUL;
 }

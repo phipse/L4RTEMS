@@ -225,6 +225,7 @@ static void clockOn(
   const rtems_irq_connect_data* unused
 )
 {
+  printk( "clockOn called\n");
   pc386_isrs_per_tick        = 1;
   pc386_microseconds_per_isr = rtems_configuration_get_microseconds_per_tick();
 
@@ -318,6 +319,7 @@ void Clock_driver_support_initialize_hardware(void)
     Clock_driver_nanoseconds_since_last_tick
   );
 
+  printk( "Clockliclockliclocki\n");
   if (!BSP_install_rtems_irq_handler (&clockIrqData)) {
     printk("Unable to initialize system clock\n");
     rtems_fatal_error_occurred(1);

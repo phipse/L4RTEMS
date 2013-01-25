@@ -510,7 +510,7 @@ retry:
   printk("slowLoop1ms = %u, fastLoop1ms = %u\n", slowLoop1ms, fastLoop1ms);
 #endif
   rtems_interrupt_enable(level);
-#endif
+#endif //if 0
 }
 
 /*
