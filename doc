@@ -768,3 +768,7 @@ definitions are accessed via L4_EXTERNAL_FUNC.
 
 At the moment, RTEMS grabs the IRQ0 in the clock/ckinit.c file, which doesn't
 start the timer.
+
+Well and the thread setup for the timer, shouldn't be done from the RTEMS
+path of execution, seriously.
+
