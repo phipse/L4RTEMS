@@ -772,3 +772,13 @@ start the timer.
 Well and the thread setup for the timer, shouldn't be done from the RTEMS
 path of execution, seriously.
 
+
+
+26/01/2013
+Now I got what I was doing wrong. I didn't aquire the timer_thread_cap and
+didn't create a new thread with it in the factory. So there was no new thread,
+that can be switched to and therefore the execution registers were just
+replaced in the current thread. 
+Right now I have to get a clue, what RTEMS is doing with the load of interrupt
+handling and clock and timer device code. As the i386 bsp is using deprecated
+functionality, I have to go down the rabit hole and see where it all ends.
