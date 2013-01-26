@@ -13,6 +13,8 @@
 #include <l4/cxx/ipc_stream>
 #include <l4/re/cap_alloc>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/error_helper>
+#include <l4/util/util.h>
 #include <l4/sys/ipc.h>
 
 #include <cstdio>
@@ -90,7 +92,6 @@ L4rtems_timer::~L4rtems_timer()
 {}
 
 L4::Cap<L4::Thread> vcpu_cap;
-L4::Cap<L4::Irq> timerIRQ;				// timer IRQ cap
 static L4rtems_timer *timer;
 
 
@@ -155,6 +156,9 @@ int L4rtems_timer::dispatch( unsigned long obj, L4::Ipc::Iostream &ios )
     return -L4_EBADPROTO;
 }
 
+
+L4::Cap<L4::Irq> timerIRQ;
+
 void
 timer_loop( void )
 {
@@ -164,34 +168,40 @@ timer_loop( void )
 }
 
 
-L4::Cap<L4::Irq>
-timer_init( L4::Cap<L4::Thread> guest_cap )
+void
+timer_init( L4::Cap<L4::Thread> guest_cap, L4::Cap<L4::Irq> irq_cap )
 {
+  printf( "hello timer_init\n");
   vcpu_cap = guest_cap;
-  static L4::Thread::Attr attr_time;
+  timerIRQ = irq_cap;
   static char timer_stack[8<<10];
+
+  // create new thread
+  timer_thread_cap = L4Re::Util::cap_alloc.alloc<L4::Thread>(); 
+  l4_touch_rw(timer_stack, sizeof(timer_stack));
+  L4Re::Env::env()->factory()->create_thread(timer_thread_cap);
   
-  // create new IRQ
-  timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
-  L4Re::Env::env()->factory()->create_irq( timerIRQ );
-  
-  // create timer thread
+  // grab utcb for timer thread
   l4_addr_t kumem = (l4_addr_t)l4re_env()->first_free_utcb;
   l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
   l4_utcb_t *utcb_time = (l4_utcb_t *)kumem;
 
+  static L4::Thread::Attr attr_time;
   attr_time.pager( L4::cap_reinterpret_cast<L4::Thread>( L4Re::Env::env()->rm() ) );
   attr_time.exc_handler( L4Re::Env::env()->main_thread() );
   attr_time.bind( utcb_time, L4Re::This_task);
 
+  printf( "setting control and ex_regs\n");
   timer_thread_cap->control( attr_time );
+  printf( "setting attr\n" );
   timer_thread_cap->ex_regs( (l4_umword_t) timer_loop, // call server for looping
 		  (l4_umword_t) timer_stack + sizeof(timer_stack),
 		  0 );
   
   
+  printf( "scheduling timer Thread\n" );
   L4Re::Env::env()->scheduler()->run_thread( timer_thread_cap, l4_sched_param(4) ); 
-  return timerIRQ;
+  printf( "timer thread scheduled\n" );
 }
 
 
@@ -212,7 +222,10 @@ l4rtems_timer_start(  //l4_cap_idx_t timer_cap,   // timer thread cap
   ios.put(Timer_ops::L4RTEMS_TIMER_START);
   ios << first;
   ios << period;
+  printf( "calling with %lli, %lli\n", first, period );
+  printf( "timer_thread_cap: %i\n", timer_thread_cap.is_valid() );
   l4_msgtag_t msg = ios.call( timer_thread_cap.cap(), static_cast<std::underlying_type<Protos>::type>(Protos::L4RTEMS_PROTO_TIMER) );
+  printf( "ios call returned\n");
 
   if( l4_ipc_error( msg, l4_utcb() ) )
     printf( "ERROR: while starting timer %li\n", l4_error(msg) );

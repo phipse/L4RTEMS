@@ -3,8 +3,8 @@
 
 static L4::Cap<L4::Thread> timer_thread_cap;
 
-L4::Cap<L4::Irq>
-timer_init( L4::Cap<L4::Thread> guest_cap );
+void
+timer_init( L4::Cap<L4::Thread> guest_cap, L4::Cap<L4::Irq> irq_cap );
 
 
 #ifdef __cplusplus

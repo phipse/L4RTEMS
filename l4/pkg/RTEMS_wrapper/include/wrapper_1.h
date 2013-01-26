@@ -57,7 +57,12 @@ l4_fastcall void
 l4rtems_detachIrq( unsigned irqNbr );
 
 // programmable periodic timer interrupt
-void l4rtems_timer( unsigned long period );
+void 
+l4rtems_timer( unsigned long period );
+
+  
+void
+startTimerService( void );
 
 
 // magic size numbers: 0 -> byte, 1 -> word, 2 -> long

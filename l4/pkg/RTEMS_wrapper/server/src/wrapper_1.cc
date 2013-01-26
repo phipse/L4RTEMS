@@ -226,6 +226,23 @@ load_elf( char *name, l4_umword_t *initial_sp )
 }
 
 
+// Stores the successfully aquired capabilities by IRQ Number
+// Heap storage leads to memory clashes between the elf loader and this.
+//static std::map< unsigned, Cap<Irq> > *irqCaps = new std::map< unsigned, Cap<Irq> >();
+static std::map<unsigned, Cap<Irq> > irqCaps;
+
+void
+startTimerService( void )
+{
+  L4::Cap<L4::Irq> timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
+  L4Re::Env::env()->factory()->create_irq( timerIRQ );
+
+  timer_init(vcpu_cap, timerIRQ );
+  timerIRQ->attach( 0, vcpu_cap );
+  // 0 = irqNbr
+  irqCaps.insert( std::pair< unsigned, Cap<Irq> >(0, timerIRQ) );
+}
+
 
 int
 main( int argc, char **argv )
@@ -323,36 +340,31 @@ main( int argc, char **argv )
 			     (l4_umword_t) thread_stack + sizeof(thread_stack),
 			     0 ) );
   chksys( L4Re::Env::env()->scheduler()->run_thread( vcpu_cap, l4_sched_param(2) ) );
+
+
+  startTimerService();
+  
   
   
   l4_sleep_forever(); 
   return 0;
 }
 
-// Stores the successfully aquired capabilities by IRQ Number
-// Heap storage leads to memory clashes between the elf loader and this.
-//static std::map< unsigned, Cap<Irq> > *irqCaps = new std::map< unsigned, Cap<Irq> >();
-static std::map<unsigned, Cap<Irq> > irqCaps;
 
 l4_fastcall bool
 l4rtems_requestIrq( unsigned irqNbr )
 { /* Create IRQ object and attach it to the requested irqNbr.*/
   // request new capability
 
-  static bool firstTimer = true; 
   Cap<Irq> newIrq; 
   printf("requestedNbr: %i\n", irqNbr );
   enter_kdebug("requestIRQ");
   if( irqNbr == 0 )
   {
     printf( "0 requested\n");
-    if( firstTimer ) 
-    {
-      newIrq = timer_init(vcpu_cap);
-      firstTimer = false;
-      newIrq->attach( irqNbr, vcpu_cap );
-      l4rtems_timer_start( 10, 0 );
-    }
+    l4rtems_timer_start( 10, 0xFFFF  );
+    printf( "timer start returned\n");
+    return true;
   }
   else 
   {
