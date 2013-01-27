@@ -782,3 +782,13 @@ replaced in the current thread.
 Right now I have to get a clue, what RTEMS is doing with the load of interrupt
 handling and clock and timer device code. As the i386 bsp is using deprecated
 functionality, I have to go down the rabit hole and see where it all ends.
+
+
+
+27/01/2013
+After following the chain of function calls from the driver initialization I
+wrote a new clock initialization routine, which doesn't use the deprecated
+BSP_install_rtems_irq_handler function anymore. This skips one function call
+and the l4rtems_timer gets initialized successfully.
+
+Now some video code is generating pagefaults.

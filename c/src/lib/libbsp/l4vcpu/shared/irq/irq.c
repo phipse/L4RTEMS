@@ -230,7 +230,7 @@ rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
 {
   // RTEMSVCPU: Add interrupt vector to L4Re, as we have a handler now.
   printk( "requestIrq %i \n", vector );
-  enter_kdebug( "rtems_requestIrq" );
+//  enter_kdebug( "rtems_requestIrq" );
   if( !l4rtems_requestIrq( vector ) )
     return RTEMS_IO_ERROR;
 //  BSP_irq_enable_at_i8259s(vector);

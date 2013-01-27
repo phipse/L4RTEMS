@@ -26,23 +26,10 @@
 #include <bspopts.h>
 #include <libcpu/cpuModel.h>
 
-#define CLOCK_VECTOR 0
-
 volatile uint32_t pc386_microseconds_per_isr;
 volatile uint32_t pc386_isrs_per_tick;
 uint32_t pc386_clock_click_count;
 
-/*
- * Roughly the number of cycles per tick and per nanosecond. Note that these
- * will be wildly inaccurate if the chip speed changes due to power saving
- * or thermal modes.
- *
- * NOTE: These are only used when the TSC method is used.
- */
-uint64_t pc586_tsc_per_tick;
-uint64_t pc586_nanoseconds_per_tick;
-
-uint64_t pc586_tsc_at_tick;
 
 /* this driver may need to count ISRs per tick */
 #define CLOCK_DRIVER_ISRS_PER_TICK pc386_isrs_per_tick
@@ -52,14 +39,6 @@ uint64_t pc586_tsc_at_tick;
 extern volatile uint32_t Clock_driver_isrs;
 #endif
 
-// RTEMSVCPU: don't need this
-#define READ_8254( _lsb, _msb )                               \
-  do { outport_byte(TIMER_MODE, TIMER_SEL0|TIMER_LATCH);      \
-     inport_byte(TIMER_CNTR0, _lsb);                          \
-     inport_byte(TIMER_CNTR0, _msb);                          \
-  } while (0)
-
-
 /*
  *  Hooks which get swapped based upon which nanoseconds since last
  *  tick method is preferred.
@@ -67,24 +46,6 @@ extern volatile uint32_t Clock_driver_isrs;
 void     (*Clock_driver_support_at_tick)(void) = NULL;
 uint32_t (*Clock_driver_nanoseconds_since_last_tick)(void) = NULL;
 
-/*
- *  What do we do at each clock tick?
- */
-void Clock_driver_support_at_tick_tsc(void)
-{
-#ifdef CLOCK_DRIVER_ISRS_PER_TICK
-  /*
-   *  The driver is multiple ISRs per clock tick.
-  */
-  if (!Clock_driver_isrs)
-    pc586_tsc_at_tick = rdtsc();
-#else
-  /*
-   *  The driver is one ISR per clock tick.
-   */
-  pc586_tsc_at_tick = rdtsc();
-#endif
-}
 
 void Clock_driver_support_at_tick_empty(void)
 {
@@ -96,7 +57,7 @@ void Clock_driver_support_at_tick_empty(void)
   } while(0)
 
 extern volatile uint32_t Clock_driver_isrs;
-
+#if 0
 uint32_t bsp_clock_nanoseconds_since_last_tick_tsc(void)
 {
   /******
@@ -176,174 +137,32 @@ uint32_t bsp_clock_nanoseconds_since_last_tick_i8254(void)
 
 }
 
-/*
- * Calibrate CPU cycles per tick. Interrupts should be disabled.
- */
-static void calibrate_tsc(void)
-{
-  uint64_t              begin_time;
-  uint8_t               then_lsb, then_msb, now_lsb, now_msb;
-  uint32_t              i;
+#endif //if 0
 
-  pc586_nanoseconds_per_tick =
-    rtems_configuration_get_microseconds_per_tick() * 1000;
-
-  /*
-   * We just reset the timer, so we know we're at the beginning of a tick.
-   */
-
-  /*
-   * Count cycles. Watching the timer introduces a several microsecond
-   * uncertaintity, so let it cook for a while and divide by the number of
-   * ticks actually executed.
-   */
-
-  begin_time = rdtsc();
-
-  for (i = rtems_clock_get_ticks_per_second() * pc386_isrs_per_tick;
-       i != 0; --i ) {
-    /* We know we've just completed a tick when timer goes from low to high */
-    then_lsb = then_msb = 0xff;
-    do {
-      READ_8254(now_lsb, now_msb);
-      if ((then_msb < now_msb) ||
-          ((then_msb == now_msb) && (then_lsb < now_lsb)))
-        break;
-      then_lsb = now_lsb;
-      then_msb = now_msb;
-    } while (1);
-  }
-
-  pc586_tsc_per_tick = rdtsc() - begin_time;
-
-  /* Initialize "previous tick" counters */
-  pc586_tsc_at_tick = rdtsc();
-
-#if 0
-  printk( "CPU clock at %u MHz\n", (uint32_t)(pc586_tsc_per_tick / 1000000));
-#endif
-
-  pc586_tsc_per_tick /= rtems_clock_get_ticks_per_second();
-}
-
-static void clockOn(
-  const rtems_irq_connect_data* unused
-)
-{
-  // we don't need to configure the timer, as it is already done by the
-  // wrapper, don't we?
-  // enable the trigger command in the timer  ? 
-  //
-  pc386_isrs_per_tick        = 1;
-  pc386_microseconds_per_isr = rtems_configuration_get_microseconds_per_tick();
-
-  while (US_TO_TICK(pc386_microseconds_per_isr) > 65535) {
-    pc386_isrs_per_tick  *= 10;
-    pc386_microseconds_per_isr /= 10;
-  }
-  pc386_clock_click_count = US_TO_TICK(pc386_microseconds_per_isr);
-
-  #if 0
-    printk( "configured usecs per tick=%d \n",
-      rtems_configuration_get_microseconds_per_tick() );
-    printk( "Microseconds per ISR =%d\n", pc386_microseconds_per_isr );
-    printk( "final ISRs per=%d\n", pc386_isrs_per_tick );
-    printk( "final timer counts=%d\n", pc386_clock_click_count );
-  #endif
-
-  outport_byte(TIMER_MODE, TIMER_SEL0|TIMER_16BIT|TIMER_RATEGEN);
-  outport_byte(TIMER_CNTR0, pc386_clock_click_count >> 0 & 0xff);
-  outport_byte(TIMER_CNTR0, pc386_clock_click_count >> 8 & 0xff);
-
-  /*
-   * Now calibrate cycles per tick. Do this every time we
-   * turn the clock on in case the CPU clock speed has changed.
-   */
-  if ( x86_has_tsc() )
-    calibrate_tsc();
-}
-
-void clockOff(const rtems_irq_connect_data* unused)
-{
-  // just disable the trigger of the timer  ?
-  //
-  /* reset timer mode to standard (BIOS) value */
-  outport_byte(TIMER_MODE, TIMER_SEL0 | TIMER_16BIT | TIMER_RATEGEN);
-  outport_byte(TIMER_CNTR0, 0);
-  outport_byte(TIMER_CNTR0, 0);
-} /* Clock_exit */
-
-int clockIsOn(const rtems_irq_connect_data* unused)
-{
-
-  // L4_EXTERNAL_FUNC( l4rtems_timerIsOn? )
-  // return l4rtems_timerIsOn();
-  //
-  return ((i8259s_cache & 0x1) == 0);
-}
-
-/* a bit of a hack since the ISR models do not match */
-rtems_isr Clock_isr(
-  rtems_vector_number vector
-);
-static rtems_irq_connect_data clockIrqData = {
-  BSP_PERIODIC_TIMER,
-  (void *)Clock_isr,
-  0,
-  clockOn,
-  clockOff,
-  clockIsOn
-};
+extern void l4rtems_timerisr( void );
 
 void Clock_driver_support_initialize_hardware(void)
 { // just aquire the IRQ and use the 8254 behaviour. No TSC support for now!
-
-  bool use_tsc = false;
-  bool use_8254 = false;
-
-  #if (CLOCK_DRIVER_USE_TSC == 1)
-    use_tsc = true;
-  #endif
-
-  #if (CLOCK_DRIVER_USE_8254 == 1)
-    use_8254 = true;
-  #endif
-
-  if ( !use_tsc && !use_8254 ) {
-    if ( x86_has_tsc() ) use_tsc  = true;
-    else                 use_8254 = true;
-  }
-
-  if ( use_8254 ) {
-    /* printk( "Use 8254\n" ); */
-    Clock_driver_support_at_tick = Clock_driver_support_at_tick_empty;
-    Clock_driver_nanoseconds_since_last_tick =
-      bsp_clock_nanoseconds_since_last_tick_i8254;
-  } else {
-    /* printk( "Use TSC\n" ); */
-    Clock_driver_support_at_tick = Clock_driver_support_at_tick_tsc;
-    Clock_driver_nanoseconds_since_last_tick =
-      bsp_clock_nanoseconds_since_last_tick_tsc;
-  }
-
-  /* Shell installs nanosecond handler before calling
-   * Clock_driver_support_initialize_hardware() :-(
-   * so we do it again now that we're ready.
-   */
-  rtems_clock_set_nanoseconds_extension(
-    Clock_driver_nanoseconds_since_last_tick
-  );
-
-  if (!BSP_install_rtems_irq_handler (&clockIrqData)) {
-    printk("Unable to initialize system clock\n");
+  
+  // use l4rtems_timer as clock device
+  rtems_status_code sc = rtems_interrupt_handler_install( BSP_PERIODIC_TIMER,
+							"l4rtems_timer",
+							RTEMS_INTERRUPT_UNIQUE,
+							l4rtems_timerisr, 
+							0 );
+  if( sc != RTEMS_SUCCESSFUL )
+  {
+    printk( "Unable to install l4rtems_timer interrupt handler\n" );
     rtems_fatal_error_occurred(1);
   }
+  printk( "Successfully installed l4rtems_timer interrupt handler\n" );
+
 
 }
 
 #define Clock_driver_support_shutdown_hardware() \
   do { \
-    BSP_remove_rtems_irq_handler (&clockIrqData); \
+    rtems_interrupt_handler_remove( BSP_PERIODIC_TIMER, l4rtems_timerisr, 0); \
   } while (0)
 
 #include "../../../shared/clockdrv_shell.h"

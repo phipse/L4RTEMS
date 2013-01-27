@@ -84,7 +84,6 @@ l4rtems_timerInit( void )
       printk("raw handler connection failed\n");
       rtems_fatal_error_occurred(1);
     }
-    BSP_irq_enable_at_i8259s(raw_irq_data.idtIndex - BSP_IRQ_VECTOR_BASE);
   }
 
   /* wait for ISR to be called at least once */
