@@ -800,4 +800,9 @@ the framebuffer - is null.
 
 
 28/01/2013
-l4_vcon_read/write are now used from within RTEMS.
+l4_vcon_read/write are now used from within RTEMS, via l4rtems_inch/outch.
+l4rtems_outch is buffered, to provide less congestion on vcon.
+
+Additionally I implemented l4rtems_console.c, which provides the driver entry
+points to the RTEMS console driver. Mostly just stubs for now, as I haven't
+thought about the L4 side yet.
