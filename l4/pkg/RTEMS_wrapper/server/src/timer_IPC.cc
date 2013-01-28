@@ -16,6 +16,7 @@
 #include <l4/re/error_helper>
 #include <l4/util/util.h>
 #include <l4/sys/ipc.h>
+#include <l4/util/rdtsc.h>
 
 #include <cstdio>
 #include <type_traits>
@@ -60,7 +61,7 @@ class L4rtems_timer : public L4::Server<Timer_hooks>
     L4::Cap<void> goal_thread_cap;			// vcpu thread cap
     l4_umword_t proto;					// proto recieve 
     l4_msgtag_t msg;					// msg recieve
-    unsigned long next_timeout;				// next timeout
+    unsigned long long next_timeout;			// next timeout
     l4_cpu_time_t period_length;			// period length
     l4_utcb_t *own_utcb;	  			// own UTCB pointer
 
@@ -112,7 +113,7 @@ int L4rtems_timer::dispatch( unsigned long obj, L4::Ipc::Iostream &ios )
 
       next_timeout += period_length;
       _timeout = l4_timeout( L4_IPC_TIMEOUT_0, 
-	  l4_timeout_abs_u(next_timeout, 1, own_utcb) );
+	  l4_timeout_abs(next_timeout, 1) );
       return L4_EOK;
     }
     //	2.2. if timer not running set timout to NEVER
@@ -131,6 +132,7 @@ int L4rtems_timer::dispatch( unsigned long obj, L4::Ipc::Iostream &ios )
   // 3. check the protocol
   else if( l4_error( msg ) == static_cast<std::underlying_type<Protos>::type>(Protos::L4RTEMS_PROTO_TIMER) )
   {
+    printf( "Proto == proto_timer\n");
     // 4. check the operation code
     ios.get( msg_op );
     current_state = msg_op;
@@ -138,13 +140,26 @@ int L4rtems_timer::dispatch( unsigned long obj, L4::Ipc::Iostream &ios )
     {
       //	4.1.  start operation: get the timer period and start the timer
       case Timer_ops::L4RTEMS_TIMER_START:
+	printf( "msg_ops Timer Start\n");
+	printf( "timeout prev: %x \n", _timeout);
 	ios >> next_timeout;
 	ios >> period_length;
+	next_timeout = l4re_kip()->clock + 5000; // micro sec
+
+	printf( "current time: %llu\n", l4re_kip()->clock );
+	printf( "next timeout: %llu\n", next_timeout );
+
 	_timeout = l4_timeout( L4_IPC_TIMEOUT_0,
-	    l4_timeout_abs_u( next_timeout, 1, own_utcb) );
+	    l4_timeout_abs( next_timeout, 1) );
+
+	printf( "_timeout: %i\n",_timeout.p.rcv.t );
 	return L4_EOK;
 	//	4.2.  stop operation: set timeout to NEVER
       case Timer_ops::L4RTEMS_TIMER_STOP:
+	printf( "msg_ops Timer Stop\n");
+	printf( "current time: %llu\n", l4re_kip()->clock );
+	printf( "_timeout: %i\n",_timeout.p.rcv.t );
+
 	_timeout = L4_IPC_NEVER;
 	return L4_EOK;
 	//	4.3.  other: send error msg
