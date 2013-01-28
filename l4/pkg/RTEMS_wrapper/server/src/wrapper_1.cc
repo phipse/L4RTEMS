@@ -358,7 +358,7 @@ l4rtems_requestIrq( unsigned irqNbr )
 
   Cap<Irq> newIrq; 
   printf("requestedNbr: %i\n", irqNbr );
-  enter_kdebug("requestIRQ");
+//  enter_kdebug("requestIRQ");
   if( irqNbr == 0 )
   {
     printf( "0 requested\n");
