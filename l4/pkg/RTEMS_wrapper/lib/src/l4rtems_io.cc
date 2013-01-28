@@ -20,6 +20,7 @@
 #include <l4/sys/kdebug.h>
 #include <string.h>
 
+#if 0
 extern sharedvars_t* sharedVariableStruct;
 
 void
@@ -76,6 +77,7 @@ l4rtems_inch( void )
   return buff[charptr++];
 
 }
+#endif // #if 0
 
 
 

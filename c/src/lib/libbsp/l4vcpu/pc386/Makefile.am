@@ -69,7 +69,8 @@ include_rtems_HEADERS = console/keyboard.h console/kd.h console/ps2_drv.h
 
 include_HEADERS += ../../l4vcpu/shared/comm/i386_io.h
 # console
-libbsp_a_SOURCES += console/console.c console/inch.c console/outch.c \
+libbsp_a_SOURCES += console/console.c console/l4rtems_inoutchar.c \
+	console/inch.c console/outch.c \
     console/defkeymap.c console/fb_vga.c console/keyboard.c \
     console/pc_keyb.c console/ps2_mouse.c \
     console/vgainit.c console/vt.c console/videoAsm.S \

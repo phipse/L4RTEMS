@@ -792,3 +792,12 @@ BSP_install_rtems_irq_handler function anymore. This skips one function call
 and the l4rtems_timer gets initialized successfully.
 
 Now some video code is generating pagefaults.
+The init sequence of the keyboard wants to write via console_write, which in
+turn calls rtems_termios_write or - in our case - ibmpc_console_write. This
+calls _IBMPC_outch calling videoPutChar, which pagefaults, as a pointer - to
+the framebuffer - is null.
+
+
+
+28/01/2013
+l4_vcon_read/write are now used from within RTEMS.

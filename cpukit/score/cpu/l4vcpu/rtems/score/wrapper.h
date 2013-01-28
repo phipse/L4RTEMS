@@ -33,10 +33,10 @@ typedef struct guestHostShare
 //global vars
 static l4_cap_idx_t _vcpu_cap;
 
-void
+l4_fastcall void
 l4rtems_outch( char c );
 
-int
+l4_fastcall int
 l4rtems_inch( void );
 
 void
