@@ -11,6 +11,18 @@ timer_init( L4::Cap<L4::Thread> guest_cap, L4::Cap<L4::Irq> irq_cap );
 extern "C" {
 #endif //__cplusplus
 
+enum class Protos : long
+{
+  L4RTEMS_PROTO_TIMER = 31L,
+};
+
+
+enum class Timer_ops
+{
+  L4RTEMS_TIMER_START = 119UL,
+  L4RTEMS_TIMER_STOP = 120UL,
+};
+
 typedef unsigned long long l4rtems_timer_t;
 
 l4_fastcall void 

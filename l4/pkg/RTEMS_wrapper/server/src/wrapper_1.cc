@@ -238,7 +238,8 @@ startTimerService( void )
   L4Re::Env::env()->factory()->create_irq( timerIRQ );
 
   timer_init(vcpu_cap, timerIRQ );
-  timerIRQ->attach( 0, vcpu_cap );
+  if( l4_error( timerIRQ->attach( 0, vcpu_cap ) ) )
+      printf( "error attaching timerIRQ\n");
   // 0 = irqNbr
   irqCaps.insert( std::pair< unsigned, Cap<Irq> >(0, timerIRQ) );
 }
@@ -250,7 +251,14 @@ main( int argc, char **argv )
       vcpu task and checks all necessary inputs are provided. At the end it 
       starts the vcpu and goes to sleep. It never exits. */
 
+/*  startTimerService();
+  l4rtems_requestIrq(0);
 
+  while( true ) {
+    l4_sleep(1000);
+    printf( "Current Time: %llu\n", l4re_kip()->clock );
+  }
+*/
   printf( "Hello Wrapper!\n" );
   asm volatile (" mov %%fs, %0" : "=r"(fs) :: );
   printf( "fs: %lx\n", fs);
@@ -284,6 +292,9 @@ main( int argc, char **argv )
   l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
   l4_utcb_t *vcpu_utcb = (l4_utcb_t *)kumem;
   vcpu = L4vcpu::Vcpu::cast(kumem + L4_UTCB_OFFSET);
+  l4re_env()->first_free_utcb += L4_UTCB_OFFSET;
+  printf( "vcpu utcb: %p\n", vcpu_utcb );
+  printf( "vcpu: %p\n", vcpu );
 
   // set entry IP + SP
   vcpu->entry_sp((l4_umword_t)hdl_stack + sizeof(hdl_stack));
@@ -361,9 +372,9 @@ l4rtems_requestIrq( unsigned irqNbr )
 //  enter_kdebug("requestIRQ");
   if( irqNbr == 0 )
   {
-    printf( "0 requested\n");
-    l4rtems_timer_start( 10, 0xFFFF  );
+    l4rtems_timer_start( 101,0xF  );
     printf( "timer start returned\n");
+    printf( "current time: %llu\n", l4re_kip()->clock );
     return true;
   }
   else 
@@ -407,6 +418,8 @@ l4rtems_detachIrq( unsigned irqNbr )
   // Detach from irqNbr
   if( irqNbr == 0 )
   {
+    l4_sleep(1000);
+    l4rtems_timer_stop();
     oldCap->detach();
   }
   else

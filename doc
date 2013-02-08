@@ -806,3 +806,35 @@ l4rtems_outch is buffered, to provide less congestion on vcon.
 Additionally I implemented l4rtems_console.c, which provides the driver entry
 points to the RTEMS console driver. Mostly just stubs for now, as I haven't
 thought about the L4 side yet.
+
+31/01/2013
+Test the timer mechanism seperatly.
+
+
+
+01/02/2013
+So after learning that some modularized components are made to be stacked
+together, I had to rewrite the L4rtems_timer implementation. 
+Now I have a L4rtems_timer class derived from Server_object, implementing a
+dispatch function and an error handling function.
+A Basic_registry is modified such it is only handling the L4rtems_timer server
+object.
+So every call to the server is directed to the registry, is passed on to the
+timer.
+
+But there are some utcb issues to be resolved at the moment.
+
+
+
+08/02/2013
+Learned some more about utcb and the vcpu control registers. The utcb issue is
+solved now. The L4rtems_timer_server was instatiated from the wrapper thread.
+This thread goes to sleep, after it has done the setup. When the timer now
+looks for messages in the utcb it looks in this one and should be looking in
+the one of the timer thread. So all I had to do was instantiate the server from
+the thread, which is calling the server.loop().
+
+But as the timer thread has it's own utcb and therefore it's own capability
+table. So I need to do an IPC to pass the timerIRQ from the wrapper's setup to
+the timer thread, after it is created.
+But I need a special setup_wait functionality to pass capabilities via IPC.
