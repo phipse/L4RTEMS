@@ -37,11 +37,10 @@ class L4rtems_timer : public L4::Server_object
     l4_umword_t proto;					// proto recieve 
     unsigned long long next_timeout;			// next timeout
     l4_cpu_time_t period_length;			// period length
-    l4_utcb_t *own_utcb;	  			// own UTCB pointer
-
+    L4::Cap<L4::Thread> vcpu_c;
 
   public:
-    L4rtems_timer();
+    L4rtems_timer( L4::Cap<L4::Irq> tIRQ);
     ~L4rtems_timer();
 
     int retimeout( l4_msgtag_t tag, L4::Ipc::Iostream const &ios );
@@ -50,12 +49,13 @@ class L4rtems_timer : public L4::Server_object
 
 
 
-L4rtems_timer::L4rtems_timer()
+L4rtems_timer::L4rtems_timer( L4::Cap<L4::Irq> tIRQ)
 {
   current_state = Timer_ops::L4RTEMS_TIMER_STOP;
-  own_utcb = l4_utcb();
   next_timeout = 0;
   period_length = 0;
+  timerIRQ = tIRQ;
+  
 }
 
 L4rtems_timer::~L4rtems_timer()
@@ -73,9 +73,6 @@ class Timer_hooks :
   protected:
   public:
     l4_timeout_t timeout() { 
-	//printf( " timout(): %lu\n", l4_utcb_br()->br[1] );
-	//printf( " timout_t: %x, %p\n", _timeout, &_timeout);
-	//printf( "this: %p, utcb: %p \n", this, l4_utcb() );
 	return _timeout; }
     void error( l4_msgtag_t tag, L4::Ipc::Iostream const &ios )
     {
@@ -100,17 +97,16 @@ static L4rtems_timer_registry timer_registry;
 int
 L4rtems_timer::retimeout(l4_msgtag_t tag, L4::Ipc::Iostream const & )
 {
-  printf( "retimeout\n");
+//  printf( "retimeout\n");
   
   // 2. check if timeout occurred
-  if( l4_ipc_error( tag, own_utcb ) == L4_IPC_RETIMEOUT ) // receive timeout
+  if( l4_ipc_error( tag, l4_utcb() ) == L4_IPC_RETIMEOUT ) // receive timeout
   {
     //	2.1. if timer running set next timeout point and wait again
     if( current_state == Timer_ops::L4RTEMS_TIMER_START )
     {
-//      printf( "timerIRQ valid: %i \n", timerIRQ.is_valid() );
-      int long err =  l4_error( l4_irq_trigger(timerIRQ.cap()) ); 
-      if(err )
+      int long err =  l4_ipc_error( this->timerIRQ->trigger(), l4_utcb() ); 
+      if( err )
 	printf( "IRQ trigger failed!\n %s\n", l4sys_errtostr(err) );
 
       next_timeout += period_length;
@@ -139,6 +135,8 @@ L4rtems_timer::retimeout(l4_msgtag_t tag, L4::Ipc::Iostream const & )
   
 }
 
+
+
 int L4rtems_timer::dispatch( unsigned long , L4::Ipc::Iostream &ios )
 {
   printf( "dispatching\n");
@@ -150,11 +148,8 @@ int L4rtems_timer::dispatch( unsigned long , L4::Ipc::Iostream &ios )
   // 3. check the protocol
   if( l4_error( msg ) == static_cast<std::underlying_type<Protos>::type>(Protos::L4RTEMS_PROTO_TIMER) )
   {
-    printf( "Proto == proto_timer\n");
     // 4. check the operation code
     ios.get( msg_op );
-    printf( "msg_op: %i\n", msg_op );
-    
     current_state = msg_op;
     
     switch( msg_op )
@@ -162,26 +157,23 @@ int L4rtems_timer::dispatch( unsigned long , L4::Ipc::Iostream &ios )
       //	4.1.  start operation: get the timer period and start the timer
       case Timer_ops::L4RTEMS_TIMER_START:
 	printf( "msg_ops Timer Start\n");
-//	printf( "timeout prev: %x \n", _timeout);
 	ios >> next_timeout;
 	ios >> period_length;
 	next_timeout = l4re_kip()->clock + 10000; // micro sec
 
-	printf( "current time: %llu\n", l4re_kip()->clock );
-	printf( "next timeout: %llu\n", next_timeout );
+//	printf( "current time: %llu\n", l4re_kip()->clock );
+//	printf( "next timeout: %llu\n", next_timeout );
 	
 
 	_timeout = l4_timeout( L4_IPC_TIMEOUT_0,
 	    l4_timeout_abs( next_timeout, 1) );
 
-//	printf( "_timeout: %x\n",_timeout );
-//	printf( "utcb br[1]: %lu \n", l4_utcb_br()->br[1] ); // br0 is 0
 	return L4_EOK;
 	//	4.2.  stop operation: set timeout to NEVER
       case Timer_ops::L4RTEMS_TIMER_STOP:
 	printf( "msg_ops Timer Stop\n");
-	printf( "current time: %llu\n", l4re_kip()->clock );
-	printf( "_timeout: %i\n",_timeout.p.rcv.t );
+//	printf( "current time: %llu\n", l4re_kip()->clock );
+//	printf( "_timeout: %i\n",_timeout.p.rcv.t );
 
 	_timeout = L4_IPC_NEVER;
 	return L4_EOK;
@@ -210,15 +202,10 @@ l4rtems_timer_start(  //l4_cap_idx_t timer_cap,   // timer thread cap
 {
   // build an IPC with the start op and the period length
   L4::Ipc::Iostream ios(l4_utcb());
-//  printf( "ti start: %i, utcb: %p\n", Timer_ops::L4RTEMS_TIMER_START, l4_utcb() );
   ios.put(Timer_ops::L4RTEMS_TIMER_START);
   ios << first;
   ios << period;
-//  printf( "calling with %lli, %lli\n", first, period );
-//  printf( "timer_thread_cap valid: %i\n", timer_thread_cap.is_valid() );
   l4_msgtag_t msg = ios.call( timer_thread_cap.cap(), static_cast<std::underlying_type<Protos>::type>(Protos::L4RTEMS_PROTO_TIMER) );
-//  enter_kdebug( "ios call" );
-//  printf( "ios call returned\n");
 
   if( l4_ipc_error( msg, l4_utcb() ) )
     printf( "ERROR: while starting timer %li\n", l4_error(msg) );
@@ -253,7 +240,7 @@ timer_loop( void )
 {
   printf(" Hello Timer Loop\n " );
   timer_server = new L4::Server<Timer_hooks>( l4_utcb() ); 
-  timer = new L4rtems_timer();
+  timer = new L4rtems_timer( timerIRQ );
   timer_server->loop( timer_registry );
 }
 
@@ -281,16 +268,10 @@ timer_init( L4::Cap<L4::Thread> guest_cap, L4::Cap<L4::Irq> irq_cap )
   attr_time.exc_handler( L4Re::Env::env()->main_thread() );
   attr_time.bind( utcb_time, L4Re::This_task);
 
-//  printf( "setting control and ex_regs\n");
   timer_thread_cap->control( attr_time );
-//  printf( "setting attr\n" );
   timer_thread_cap->ex_regs( (l4_umword_t) timer_loop, // call server for looping
 		  (l4_umword_t) timer_stack + sizeof(timer_stack),
 		  0 );
   
-  
-//  printf( "scheduling timer Thread\n" );
   L4Re::Env::env()->scheduler()->run_thread( timer_thread_cap, l4_sched_param(4) ); 
-//  printf( "timer thread scheduled\n" );
-//  send timerIRQ capability to server.
 }
