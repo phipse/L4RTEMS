@@ -235,17 +235,15 @@ void
 startTimerService( void )
 {
   L4::Cap<L4::Irq> timerIRQ = L4Re::Util::cap_alloc.alloc<L4::Irq>();
-  L4Re::Env::env()->factory()->create_irq( timerIRQ );
+  if( l4_msgtag_has_error(L4Re::Env::env()->factory()->create_irq( timerIRQ )) )
+    printf( "	  factory irq create foo\n" );
   if( !timerIRQ.is_valid() ) 
   {
     printf( "timerIRQ cap is not valid! aborting!\n" );
     return;
   }
-  
-  if( l4_error( timerIRQ->attach( 0, vcpu_cap ) ) )
-    printf( "error attaching timerIRQ\n");
-  // 0 = irqNbr
   timer_init(vcpu_cap, timerIRQ );
+  // 0 = irqNbr
   irqCaps.insert( std::pair< unsigned, Cap<Irq> >(0, timerIRQ) );
 }
 
@@ -374,9 +372,12 @@ l4rtems_requestIrq( unsigned irqNbr )
 
   Cap<Irq> newIrq; 
   printf("requestedNbr: %i\n", irqNbr );
-//  enter_kdebug("requestIRQ");
+  enter_kdebug("requestIRQ");
   if( irqNbr == 0 )
   {
+    Cap<Irq> timerIRQ = irqCaps.find(irqNbr)->second;
+    if( l4_msgtag_has_error( timerIRQ->attach( 0, vcpu_cap ) ) )
+      printf( "error attaching timerIRQ\n");
     l4rtems_timer_start( 1000, 0xF  );
     printf( "timer start returned\n");
     printf( "current time: %llu\n", l4re_kip()->clock );
@@ -423,9 +424,8 @@ l4rtems_detachIrq( unsigned irqNbr )
   // Detach from irqNbr
   if( irqNbr == 0 )
   {
-    l4_sleep(1000);
     l4rtems_timer_stop();
-    oldCap->detach();
+    //oldCap->detach();
   }
   else
   {

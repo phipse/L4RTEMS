@@ -7,7 +7,7 @@
 
 #include <l4/util/util.h>
 #include <l4/util/port_io.h>
-#include <contrib/libio-io/l4/io/io.h>
+//#include <contrib/libio-io/l4/io/io.h>
 #include <l4/RTEMS_wrapper/wrapper_1.h>
 #include <l4/sys/irq>
 #include <l4/sys/vcpu.h>

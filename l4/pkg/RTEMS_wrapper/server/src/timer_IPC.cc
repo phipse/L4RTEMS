@@ -139,11 +139,11 @@ L4rtems_timer::retimeout(l4_msgtag_t tag, L4::Ipc::Iostream const & )
 
 int L4rtems_timer::dispatch( unsigned long , L4::Ipc::Iostream &ios )
 {
-  printf( "dispatching\n");
-  printf( "l4utcb: %p\n" , l4_utcb() );
+//  printf( "dispatching\n");
+//  printf( "l4utcb: %p\n" , l4_utcb() );
   Timer_ops msg_op;
   l4_msgtag_t msg;
-  enter_kdebug("dispatch");
+//  enter_kdebug("dispatch");
   ios >> msg;
   // 3. check the protocol
   if( l4_error( msg ) == static_cast<std::underlying_type<Protos>::type>(Protos::L4RTEMS_PROTO_TIMER) )

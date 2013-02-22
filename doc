@@ -840,8 +840,22 @@ the timer thread, after it is created.
 But I need a special setup_wait functionality to pass capabilities via IPC.
 
 
+
 20/02/2013
 Wrong assumption. The cap-table ist stored process wise, not thread wise. So
 the error I was seeing was in fact no error. It was the lable of the stream, as
 l4_error is checking the msgtag and if no error is found, it returns the ipc
 label. So I use l4_ipc_error now and it works as it should.
+
+
+
+22/02/2013
+One Error is nice, but if you have three errors working together, then it gets
+nasty. So first the right thread should call the l4_irq_attach, second the
+interrupts on the vcpu should be enabled, and third you should serve all
+pending interrupts BEFORE your detach from the interrupt line.
+Finally the interrupt 0 is delivered to the vcpu and is recieved by RTEMS. 
+
+TODO: - fix interrupt enable after startup
+      - trace why RTEMS doesn't know about the vector number.
+
