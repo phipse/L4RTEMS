@@ -3,7 +3,7 @@
  *  Maintainer: Philipp Eppelt
  *  Contact: philipp.eppelt@mailbox.tu-dresden.de
  *
- *  Purpose: RTEMS timer interface for the l4re timer.
+ *  Purpose: RTEMS timer interface for the l4rtems_timer.
  */
 
 

@@ -58,6 +58,19 @@ l4rtems_timer( unsigned long period );
 
 // communication interface with the l4rtems_timer server
 typedef unsigned long long l4rtems_timer_t;
+
+/*enum Protos 
+{
+  L4RTEMS_PROTO_TIMER = 31L,
+};
+
+
+enum Timer_ops
+{
+  L4RTEMS_TIMER_START = 100UL,
+  L4RTEMS_TIMER_STOP = 120UL,
+};*/
+
 void l4rtems_timer_start( l4rtems_timer_t period, l4rtems_timer_t first );
 void l4rtems_timer_stop( void );
 

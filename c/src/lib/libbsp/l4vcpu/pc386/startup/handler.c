@@ -1,4 +1,5 @@
 #define DEBUG 0
+#define INFO  0
 
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4thread.h>
@@ -80,7 +81,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
 #if DEBUG
     printk("vcpu->trapno: %i\n", vcpuh->r.trapno);
     printk( "label: %i \n", vcpuh->i.label );
-    printk( "%s\n", l4sys_errtostr(vcpuh->r.flags));
+//    printk( "%s\n", l4sys_errtostr(vcpuh->r.flags));
 //    enter_kdebug("handler entry");
 #endif
   }
@@ -101,12 +102,10 @@ l4rtems_irq_handler( l4_vcpu_state_t *vcpuh )
 #endif
     switch( vcpuh->i.label )
     {
-      case(9000):
-	   printk("Triggered Timer IRQ\n");
-	   break;
       default:
-	   printk("Unrecognized IRQ\n");
-	   printk("irq: %lx \n", vcpuh->i.label );
+#if INFO
+	   printk("> INFO:Passing IRQ %i on to RTEMS\n", vcpuh->i.label);
+#endif
 	   bsp_interrupt_handler_dispatch( vcpuh->i.label );
     }
 }
