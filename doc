@@ -859,3 +859,6 @@ Finally the interrupt 0 is delivered to the vcpu and is recieved by RTEMS.
 TODO: - fix interrupt enable after startup
       - trace why RTEMS doesn't know about the vector number.
 
+The second TODO occurs, because the interrupt handler table gets cleaned up,
+before the interruts are enabled. So fix the first one and it should work.
+
