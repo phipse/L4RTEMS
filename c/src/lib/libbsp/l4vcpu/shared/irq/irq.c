@@ -26,7 +26,7 @@
 
 //RTEMSVCPU:
 #include <rtems/score/wrapper.h>
-#include <rtems/l4vcpu/l4kdebug.h>
+//#include <rtems/l4vcpu/l4kdebug.h>
 
 /*
  * pointer to the mask representing the additionnal irq vectors
@@ -114,7 +114,7 @@ int BSP_irq_disable_at_i8259s    (const rtems_irq_number irqLine)
 int BSP_irq_enable_at_i8259s    (const rtems_irq_number irqLine)
 {
   //RTEMSVCPU: handle calls from anywhere
-  enter_kdebug("which irqLine?");
+//  enter_kdebug("which irqLine?");
   bsp_interrupt_vector_enable( irqLine );
   return 0;
 #if 0

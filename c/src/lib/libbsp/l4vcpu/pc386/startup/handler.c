@@ -54,8 +54,8 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   
   /* checking the entry reason */
 
-  printk( "Handler: %i \n", vcpuh->r.trapno );
-  printk( "Handler: %x \n", vcpuh->r.ip );
+//  printk( "Handler: %i \n", vcpuh->r.trapno );
+//  printk( "Handler: %x \n", vcpuh->r.ip );
   if( l4vcpu_is_page_fault_entry( vcpuh ) )
   { /* This shouldn't be happening */
     printk("page fault entry\n");

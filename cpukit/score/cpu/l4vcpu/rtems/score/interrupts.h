@@ -45,20 +45,23 @@ extern l4vcpu_irq_state_t l4rtems_vcpu_irq_state;
 extern sharedvars_t *sharedVariableStruct;
 
 #define i386_disable_interrupts( _level ) \
-  { l4rtems_vcpu_irq_state = \
-      l4vcpu_irq_disable_save( sharedVariableStruct->vcpu ); \
+  { \
+    l4vcpu_irq_disable( sharedVariableStruct->vcpu ); \
   }
+    //printk( "irq state: %x\n", l4rtems_vcpu_irq_state ); \
 
 #define i386_enable_interrupts( _level )  \
-  { l4vcpu_irq_restore( \
-      sharedVariableStruct->vcpu, l4rtems_vcpu_irq_state, l4_utcb(), \
+  { l4vcpu_irq_enable( \
+      sharedVariableStruct->vcpu, l4_utcb(), \
       l4rtems_irq_handler, l4rtems_setup_ipc ); \
   }
+//    printk( "irq restored state: %x\n", l4rtems_vcpu_irq_state ); \
 
 #define i386_open_interrupts( ) \
   { l4vcpu_irq_enable( \
       sharedVariableStruct->vcpu, l4_utcb(), \
       l4rtems_irq_handler, l4rtems_setup_ipc ); \
+    printk( "irq open!\n" ); \
   }
 
 // RTEMSVCPU:

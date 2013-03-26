@@ -139,7 +139,13 @@ uint32_t bsp_clock_nanoseconds_since_last_tick_i8254(void)
 
 #endif //if 0
 
-extern void l4rtems_timerisr( void );
+void l4rtems_clockisr( void )
+{
+  static unsigned cnt = 0;
+  if( (cnt % 10) == 0 )
+    printk( "clock interrupt \n" );
+  cnt++;
+}
 
 void Clock_driver_support_initialize_hardware(void)
 { // just aquire the IRQ and use the 8254 behaviour. No TSC support for now!
@@ -148,21 +154,24 @@ void Clock_driver_support_initialize_hardware(void)
   rtems_status_code sc = rtems_interrupt_handler_install( BSP_PERIODIC_TIMER,
 							"l4rtems_timer",
 							RTEMS_INTERRUPT_UNIQUE,
-							l4rtems_timerisr, 
+							l4rtems_clockisr, 
 							0 );
   if( sc != RTEMS_SUCCESSFUL )
   {
     printk( "Unable to install l4rtems_timer interrupt handler\n" );
     rtems_fatal_error_occurred(1);
   }
-  printk( "Successfully installed l4rtems_timer interrupt handler\n" );
+  else
+  {
+    printk( "Successfully installed l4rtems_timer interrupt handler\n" );
+  }
 
 
 }
 
 #define Clock_driver_support_shutdown_hardware() \
   do { \
-    rtems_interrupt_handler_remove( BSP_PERIODIC_TIMER, l4rtems_timerisr, 0); \
+    rtems_interrupt_handler_remove( BSP_PERIODIC_TIMER, l4rtems_clockisr, 0); \
   } while (0)
 
 #include "../../../shared/clockdrv_shell.h"

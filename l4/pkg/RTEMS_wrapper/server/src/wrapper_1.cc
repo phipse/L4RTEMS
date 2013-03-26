@@ -307,8 +307,8 @@ main( int argc, char **argv )
   
   setup_user_state(reinterpret_cast<l4_vcpu_state_t*> (vcpu));
   vcpu->saved_state()->set( 
-       L4_VCPU_F_EXCEPTIONS
-//      | L4_VCPU_F_IRQ
+       L4_VCPU_F_EXCEPTIONS 
+       | L4_VCPU_F_IRQ
      /* | L4_VCPU_DEBUG_EXC*/ );
   
   
@@ -372,7 +372,7 @@ l4rtems_requestIrq( unsigned irqNbr )
 
   Cap<Irq> newIrq; 
   printf("requestedNbr: %i\n", irqNbr );
-  enter_kdebug("requestIRQ");
+//  enter_kdebug("requestIRQ");
   if( irqNbr == 0 )
   {
     Cap<Irq> timerIRQ = irqCaps.find(irqNbr)->second;
@@ -417,6 +417,7 @@ l4rtems_requestIrq( unsigned irqNbr )
 l4_fastcall void
 l4rtems_detachIrq( unsigned irqNbr )
 {
+  enter_kdebug("detatch irq" );
   // retrieve the irq capability
   // NOTE: shouldn't the [] operator do the same?
   Cap<Irq> oldCap = irqCaps.find(irqNbr)->second;
@@ -425,7 +426,7 @@ l4rtems_detachIrq( unsigned irqNbr )
   if( irqNbr == 0 )
   {
     l4rtems_timer_stop();
-    //oldCap->detach();
+    oldCap->detach();
   }
   else
   {

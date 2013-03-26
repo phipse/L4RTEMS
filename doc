@@ -862,3 +862,14 @@ TODO: - fix interrupt enable after startup
 The second TODO occurs, because the interrupt handler table gets cleaned up,
 before the interruts are enabled. So fix the first one and it should work.
 
+
+
+26/03/2013
+After enabling the interrupt in the vcpu save state at vcpu setup time in
+RTEMS_wrapper and after replacing l4vcpu_irq_disable_save with
+l4vcpu_irq_disable and restore with replace, respectivly, I have working
+interrupts. I haven't found out, why disable_save and restore didn't work in
+the intended fashion. Even when the current state shows IRQs as enabled and the
+saved value shows this too, after a restore the saved value is 4 again and
+stays that way.
+
