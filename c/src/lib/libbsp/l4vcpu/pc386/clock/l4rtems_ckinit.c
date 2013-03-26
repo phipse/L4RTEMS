@@ -139,17 +139,23 @@ uint32_t bsp_clock_nanoseconds_since_last_tick_i8254(void)
 
 #endif //if 0
 
+volatile uint32_t Clock_driver_ticks;
+
 void l4rtems_clockisr( void )
 {
-  static unsigned cnt = 0;
-  if( (cnt % 10) == 0 )
+  // Increment accurate counter
+  Clock_driver_ticks += 1;
+  rtems_clock_tick();
+
+  if( (Clock_driver_ticks % 10) == 0 )
     printk( "clock interrupt \n" );
-  cnt++;
 }
 
 void Clock_driver_support_initialize_hardware(void)
 { // just aquire the IRQ and use the 8254 behaviour. No TSC support for now!
   
+  // initialize clock tick counter
+  Clock_driver_ticks = 0;
   // use l4rtems_timer as clock device
   rtems_status_code sc = rtems_interrupt_handler_install( BSP_PERIODIC_TIMER,
 							"l4rtems_timer",

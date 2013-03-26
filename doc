@@ -622,7 +622,7 @@ This changes the compile process into three steps:
 
 These three steps are not so nice at the moment and that adds another
 ++++ TODO ++++
-  add libl4rtems.a to the buildprocess of RTEMS
+  add libl4rtems.a to the buildprocess of RTEMS --obsolete
 
 On the RTEMS side we got new files: 
 - stringify.h, 
@@ -856,8 +856,8 @@ interrupts on the vcpu should be enabled, and third you should serve all
 pending interrupts BEFORE your detach from the interrupt line.
 Finally the interrupt 0 is delivered to the vcpu and is recieved by RTEMS. 
 
-TODO: - fix interrupt enable after startup
-      - trace why RTEMS doesn't know about the vector number.
+TODO: - fix interrupt enable after startup -- done
+      - trace why RTEMS doesn't know about the vector number. --should be fixed
 
 The second TODO occurs, because the interrupt handler table gets cleaned up,
 before the interruts are enabled. So fix the first one and it should work.
@@ -873,3 +873,5 @@ the intended fashion. Even when the current state shows IRQs as enabled and the
 saved value shows this too, after a restore the saved value is 4 again and
 stays that way.
 
+Furthermore I adapted the Clock_isr from libbsp/shared/clockdrv_shell.h.
+I count the ticks and inform the system by invoking rtems_clock_tick().
