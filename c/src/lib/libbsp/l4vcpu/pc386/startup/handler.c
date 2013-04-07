@@ -3,6 +3,7 @@
 
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4thread.h>
+#include <rtems/l4vcpu/l4kdebug.h>
 #include <rtems/l4vcpu/l4util.h>
 #include <rtems/score/wrapper.h>
 #include <bsp/irq-generic.h>
@@ -59,6 +60,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   if( l4vcpu_is_page_fault_entry( vcpuh ) )
   { /* This shouldn't be happening */
     printk("page fault entry\n");
+    printk( "Faulting at address: %x \n", vcpuh->r.ip );
     l4_umword_t pfnum = vcpuh->r.pfa;
     printk("pfa: %lx\n",pfnum);
     /* where do I get the snd_base? */
@@ -69,6 +71,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
     /* copied out of vcpu example: why state add? */
     vcpuh->saved_state |= L4_VCPU_F_PAGE_FAULTS ;
     printk("Handler: saved_state added\n");
+    enter_kdebug("page fault entry");
   }
   else if( l4vcpu_is_irq_entry( vcpuh ) )
   {
@@ -78,7 +81,7 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
   {
     //l4vcpu_print_state( vcpuh, "Handler Unknown Entry:");
     printk( "unknown entry reason! \n" );
-#if DEBUG
+#if !DEBUG
     printk("vcpu->trapno: %i\n", vcpuh->r.trapno);
     printk( "label: %i \n", vcpuh->i.label );
 //    printk( "%s\n", l4sys_errtostr(vcpuh->r.flags));
@@ -115,6 +118,5 @@ void
 l4rtems_setup_ipc( l4_utcb_t* utcb )
 { /* dummy function. not yet used */
   (void*) utcb;
-  printk( "l4rtems_setup_ipc invoked\n" );
   return;  
 }

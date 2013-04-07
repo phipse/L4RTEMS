@@ -35,7 +35,6 @@
 #include <libcpu/cpuModel.h>
 #include <rtems/score/wrapper.h>
 #include <rtems/l4vcpu/handler.h>
-#include <rtems/l4vcpu/l4kdebug.h>
 /*
  *  External routines
  */
@@ -66,10 +65,8 @@ void bsp_start_default( void )
   sharedVariableStruct->vcpu->entry_ip = l4rtems_handler;
   l4re_global_env = sharedVariableStruct->l4re_env;
   __l4_external_resolver = sharedVariableStruct->external_resolver;
-  i386_open_interrupts();
-  enter_kdebug("interrupts?");
-  i386_disable_interrupts();
-  enter_kdebug("interrupts save?");
+//  i386_open_interrupts();
+//  i386_disable_interrupts();
 //  l4rtems_vcpu_irq_state = L4VCPU_IRQ_STATE_ENABLED;
 //  printk( "vcpu irq state %u\n", l4rtems_vcpu_irq_state );
   
