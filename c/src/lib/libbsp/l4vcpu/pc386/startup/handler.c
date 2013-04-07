@@ -113,7 +113,8 @@ l4rtems_irq_handler( l4_vcpu_state_t *vcpuh )
 
 void
 l4rtems_setup_ipc( l4_utcb_t* utcb )
-{
+{ /* dummy function. not yet used */
   (void*) utcb;
+  printk( "l4rtems_setup_ipc invoked\n" );
   return;  
 }
