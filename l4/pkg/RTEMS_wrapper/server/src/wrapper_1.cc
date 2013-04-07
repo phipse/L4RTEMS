@@ -308,7 +308,7 @@ main( int argc, char **argv )
   setup_user_state(reinterpret_cast<l4_vcpu_state_t*> (vcpu));
   vcpu->saved_state()->set( 
        L4_VCPU_F_EXCEPTIONS 
-       | L4_VCPU_F_IRQ
+       //| L4_VCPU_F_IRQ
      /* | L4_VCPU_DEBUG_EXC*/ );
   
   
