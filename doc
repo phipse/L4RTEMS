@@ -867,11 +867,11 @@ before the interruts are enabled. So fix the first one and it should work.
 26/03/2013
 After enabling the interrupt in the vcpu save state at vcpu setup time in
 RTEMS_wrapper and after replacing l4vcpu_irq_disable_save with
-l4vcpu_irq_disable and restore with replace, respectivly, I have working
-interrupts. I haven't found out, why disable_save and restore didn't work in
+l4vcpu_irq_disable and _restore with _replace, respectivly, I have working
+interrupts. I haven't found out, why disable_save and _restore didn't work in
 the intended fashion. Even when the current state shows IRQs as enabled and the
 saved value shows this too, after a restore the saved value is 4 again and
 stays that way.
 
-Furthermore I adapted the Clock_isr from libbsp/shared/clockdrv_shell.h.
+Furthermore I adapted the Clock_isr() from libbsp/shared/clockdrv_shell.h.
 I count the ticks and inform the system by invoking rtems_clock_tick().
