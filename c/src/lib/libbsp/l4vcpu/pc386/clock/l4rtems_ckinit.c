@@ -148,7 +148,7 @@ void l4rtems_clockisr( void )
   rtems_clock_tick();
 
   if( (Clock_driver_ticks % 10) == 0 )
-    printk( "clock interrupt \n" );
+    printk( "clock interrupt nb: %u\n", Clock_driver_ticks );
 }
 
 void Clock_driver_support_initialize_hardware(void)

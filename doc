@@ -875,3 +875,18 @@ stays that way.
 
 Furthermore I adapted the Clock_isr() from libbsp/shared/clockdrv_shell.h.
 I count the ticks and inform the system by invoking rtems_clock_tick().
+
+
+07/04/2013
+I get random page faults while executing the nsecs sample. Also new issues
+with the base_sp sample arose. But they seem to arise in a random manner. This
+might be related to a clock interrupt, as it was the last major change to the
+source.
+I followed it down the rabbit hole, to _Watchdog_Tickle_ticks() in
+rtems_clock_tick(). I guess something went wrong with the
+_Watchdog_Tickle_chain.
+I can't figure out what goes wrong in there, as the chain is empty. I commented
+it in rtems_clock_tick() so it's skipped now and everything seems to work. 
+However I have a problem with the cleanup of nsecs task. It runs through, but
+has trouble with sleep(1). It produces loads of GPFs...
+Shutdown looks fine, though, if you leave the sleep out.
