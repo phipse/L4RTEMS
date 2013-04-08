@@ -32,6 +32,10 @@ l4rtems_timer_start(  l4rtems_timer_t period,	  // between two interrupts
 l4_fastcall void 
 l4rtems_timer_stop( void );
 
+
+l4_fastcall unsigned int 
+l4rtems_timer_read( void );
+
 #ifdef __cplusplus
 }
 #endif //__cplusplus

@@ -904,6 +904,11 @@ But the dynamic approach covers the static one too, and I don't bloat the
 sharedVariableStruct.
 Now the IRQ vector is requested and if successfull a l4rtems_timer_start is
 issued with the configured microseconds per tick.
-One can also pass a timeout untill the first IRQ should fire, for all other
+One can also pass a timeout until the first IRQ should fire, for all other
 IRQs the period value is used.
-value is used 
+
+Now I implemented a function to get the nanoseconds sinc the last tick. It's a
+little bit hacky, as I just multiply the difference in microseconds with 1000.
+But as a start it isn't that bad.
+However, I still get the page faults from the _Watchdog_Tickle_ticks()
+function.

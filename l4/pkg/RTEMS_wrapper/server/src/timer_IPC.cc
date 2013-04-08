@@ -167,8 +167,8 @@ int L4rtems_timer::dispatch( unsigned long , L4::Ipc::Iostream &ios )
 	  // first IRQ fires after the specified time
 	  next_timeout += l4re_kip()->clock;
 
-	printf( "current time: %llu\n", l4re_kip()->clock );
-	printf( "next timeout: %llu\n", next_timeout );
+//	printf( "current time: %llu\n", l4re_kip()->clock );
+//	printf( "next timeout: %llu\n", next_timeout );
 	
 
 	_timeout = l4_timeout( L4_IPC_TIMEOUT_0,
@@ -231,6 +231,13 @@ l4rtems_timer_stop(  )//l4_cap_idx_t timer_cap )  // timer thread cap
   
   if( l4_ipc_error( msg, l4_utcb() ) )
     printf( "ERROR: while stopping the timer %li\n", l4_error(msg) );
+}
+
+
+l4_fastcall unsigned int
+l4rtems_timer_read( void )
+{
+  return l4re_kip()->clock;
 }
 
 #ifdef __cplusplus
