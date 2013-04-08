@@ -877,6 +877,7 @@ Furthermore I adapted the Clock_isr() from libbsp/shared/clockdrv_shell.h.
 I count the ticks and inform the system by invoking rtems_clock_tick().
 
 
+
 07/04/2013
 I get random page faults while executing the nsecs sample. Also new issues
 with the base_sp sample arose. But they seem to arise in a random manner. This
@@ -890,3 +891,19 @@ it in rtems_clock_tick() so it's skipped now and everything seems to work.
 However I have a problem with the cleanup of nsecs task. It runs through, but
 has trouble with sleep(1). It produces loads of GPFs...
 Shutdown looks fine, though, if you leave the sleep out.
+
+
+
+08/04/2013
+At the moment the clock period is hardcoded inside the L4Re-wrapper and is not
+obtained from RTEMS. But that's not the thing we want. So what options do we
+have? I introduce a new field in the sharedVariableStruct or the function call
+needs parameters. The latter might be the dynamic choice, but the clock period
+or microseconds per tick is defined in a static way in RTEMS applications.
+But the dynamic approach covers the static one too, and I don't bloat the
+sharedVariableStruct.
+Now the IRQ vector is requested and if successfull a l4rtems_timer_start is
+issued with the configured microseconds per tick.
+One can also pass a timeout untill the first IRQ should fire, for all other
+IRQs the period value is used.
+value is used 

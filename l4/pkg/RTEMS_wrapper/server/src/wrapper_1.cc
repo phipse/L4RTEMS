@@ -378,9 +378,9 @@ l4rtems_requestIrq( unsigned irqNbr )
     Cap<Irq> timerIRQ = irqCaps.find(irqNbr)->second;
     if( l4_msgtag_has_error( timerIRQ->attach( 0, vcpu_cap ) ) )
       printf( "error attaching timerIRQ\n");
-    l4rtems_timer_start( 1000, 0xF  );
-    printf( "timer start returned\n");
-    printf( "current time: %llu\n", l4re_kip()->clock );
+//    l4rtems_timer_start( 1000, 0xF  );
+//    printf( "timer start returned\n");
+//    printf( "current time: %llu\n", l4re_kip()->clock );
     return true;
   }
   else 

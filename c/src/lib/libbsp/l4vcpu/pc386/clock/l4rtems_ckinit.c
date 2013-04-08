@@ -140,6 +140,7 @@ uint32_t bsp_clock_nanoseconds_since_last_tick_i8254(void)
 #endif //if 0
 
 volatile uint32_t Clock_driver_ticks;
+extern rtems_configuration_table Configuration;
 
 void l4rtems_clockisr( void )
 {
@@ -170,6 +171,8 @@ void Clock_driver_support_initialize_hardware(void)
   else
   {
     printk( "Successfully installed l4rtems_timer interrupt handler\n" );
+    printk( "Starting the clock with period: %u ms \n", Configuration.microseconds_per_tick );
+    l4rtems_timer_start( Configuration.microseconds_per_tick, 0 );
   }
 
 

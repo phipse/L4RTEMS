@@ -71,8 +71,10 @@ enum Timer_ops
   L4RTEMS_TIMER_STOP = 120UL,
 };*/
 
-void l4rtems_timer_start( l4rtems_timer_t period, l4rtems_timer_t first );
-void l4rtems_timer_stop( void );
+l4_fastcall void 
+l4rtems_timer_start( l4rtems_timer_t period, l4rtems_timer_t first );
+l4_fastcall void 
+l4rtems_timer_stop( void );
 
 // magic size numbers: 0 -> byte, 1 -> word, 2 -> long
 unsigned int

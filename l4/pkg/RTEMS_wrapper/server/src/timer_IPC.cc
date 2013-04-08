@@ -159,10 +159,16 @@ int L4rtems_timer::dispatch( unsigned long , L4::Ipc::Iostream &ios )
 	printf( "msg_ops Timer Start\n");
 	ios >> next_timeout;
 	ios >> period_length;
-	next_timeout = l4re_kip()->clock + 10000; // micro sec
 
-//	printf( "current time: %llu\n", l4re_kip()->clock );
-//	printf( "next timeout: %llu\n", next_timeout );
+	if( next_timeout == 0 )
+	  // first interrupt fires after one period
+	  next_timeout = l4re_kip()->clock + period_length; // micro sec
+	else 
+	  // first IRQ fires after the specified time
+	  next_timeout += l4re_kip()->clock;
+
+	printf( "current time: %llu\n", l4re_kip()->clock );
+	printf( "next timeout: %llu\n", next_timeout );
 	
 
 	_timeout = l4_timeout( L4_IPC_TIMEOUT_0,
@@ -196,8 +202,7 @@ extern "C" {
 #endif
 
 l4_fastcall void 
-l4rtems_timer_start(  //l4_cap_idx_t timer_cap,   // timer thread cap
-		      l4rtems_timer_t period,   // between two interrupts
+l4rtems_timer_start(  l4rtems_timer_t period,   // between two interrupts
 		      l4rtems_timer_t first )   // first interrupt time
 {
   // build an IPC with the start op and the period length
