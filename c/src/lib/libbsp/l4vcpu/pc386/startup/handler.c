@@ -17,6 +17,7 @@ L4_EXTERNAL_FUNC(l4rtems_requestIrq);
 L4_EXTERNAL_FUNC(l4rtems_detachIrq);
 L4_EXTERNAL_FUNC(l4rtems_timer_start);
 L4_EXTERNAL_FUNC(l4rtems_timer_stop);
+L4_EXTERNAL_FUNC(l4rtems_timer_read);
 
 static unsigned long fs, ds;
 static l4_vcpu_state_t *vcpuh;

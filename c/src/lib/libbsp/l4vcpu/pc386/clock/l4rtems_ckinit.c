@@ -26,6 +26,9 @@
 #include <bspopts.h>
 #include <libcpu/cpuModel.h>
 
+#define DEBUG 0
+#define FIRST_TICK_OFFSET 0
+
 volatile uint32_t pc386_microseconds_per_isr;
 volatile uint32_t pc386_isrs_per_tick;
 uint32_t pc386_clock_click_count;
@@ -57,100 +60,39 @@ void Clock_driver_support_at_tick_empty(void)
   } while(0)
 
 extern volatile uint32_t Clock_driver_isrs;
-#if 0
-uint32_t bsp_clock_nanoseconds_since_last_tick_tsc(void)
-{
-  /******
-   * Get nanoseconds using Pentium-compatible TSC register
-   ******/
-
-  uint64_t                 diff_nsec;
-
-  diff_nsec = rdtsc() - pc586_tsc_at_tick;
-
-  /*
-   * At this point, with a hypothetical 10 GHz CPU clock and 100 Hz tick
-   * clock, diff_nsec <= 27 bits.
-   */
-  diff_nsec *= pc586_nanoseconds_per_tick; /* <= 54 bits */
-  diff_nsec /= pc586_tsc_per_tick;
-
-  if (diff_nsec > pc586_nanoseconds_per_tick)
-    /*
-     * Hmmm... Some drift or rounding. Pin the value to 1 nanosecond before
-     * the next tick.
-     */
-    /*    diff_nsec = pc586_nanoseconds_per_tick - 1; */
-    diff_nsec = 12345;
-
-  return (uint32_t)diff_nsec;
-}
-
-uint32_t bsp_clock_nanoseconds_since_last_tick_i8254(void)
-{
-  // RTEMSVCPU: use wrapper interface to get passed nanoseconds
-  // e.g. L4_EXTERNAL_FUNC(l4rtems_nanoseconds_since_last_tick)
-  // uint32_t nanosecs = l4rtems_nanoseconds_since_last_tick();
-  // return naosecs;
-
-  /******
-   * Get nanoseconds using 8254 timer chip
-   ******/
-
-  uint32_t                 usecs, clicks, isrs;
-  uint32_t                 usecs1, usecs2;
-  uint8_t                  lsb, msb;
-  rtems_interrupt_level    level;
-
-  /*
-   * Fetch all the data in an interrupt critical section.
-   */
-  rtems_interrupt_disable(level);
-    READ_8254(lsb, msb);
-    isrs = Clock_driver_isrs;
-  rtems_interrupt_enable(level);
-
-  /*
-   *  Now do the math
-   */
-  /* convert values read into counter clicks */
-  clicks = ((msb << 8) | lsb);
-
-  /* whole ISRs we have done since the last tick */
-  usecs1 = (pc386_isrs_per_tick - isrs - 1) * pc386_microseconds_per_isr;
-
-  /* the partial ISR we in the middle of now */
-  usecs2 = pc386_microseconds_per_isr - TICK_TO_US(clicks);
-
-  /* total microseconds */
-  usecs = usecs1 + usecs2;
-  #if 0
-    printk( "usecs1=%d usecs2=%d ", usecs1, usecs2 );
-    printk( "maxclicks=%d clicks=%d ISRs=%d ISRsper=%d usersPer=%d usecs=%d\n",
-    pc386_clock_click_count, clicks,
-    Clock_driver_isrs, pc386_isrs_per_tick,
-    pc386_microseconds_per_isr, usecs );
-  #endif
-
-  /* return it in nanoseconds */
-  return usecs * 1000;
-
-}
-
-#endif //if 0
-
 volatile uint32_t Clock_driver_ticks;
 extern rtems_configuration_table Configuration;
+
+
 
 void l4rtems_clockisr( void )
 {
   // Increment accurate counter
   Clock_driver_ticks += 1;
   rtems_clock_tick();
-
+#if DEBUG
   if( (Clock_driver_ticks % 10) == 0 )
     printk( "clock interrupt nb: %u\n", Clock_driver_ticks );
+#endif
 }
+
+
+
+unsigned int 
+l4rtems_clock_nanoseconds_since_last_tick( void )
+{
+  /* Reads the current clock and computes the difference since last tick.
+   * As it is possible to delay the first tick by not a full period, we have to
+   * take this into account.*/
+
+  printk( "nanoseconds invoked\n");
+  uint32_t currentTime = l4rtems_timer_read();
+  uint32_t tickPeriod = rtems_configuration_get_microseconds_per_tick();
+  uint32_t msSinceTick = (currentTime - FIRST_TICK_OFFSET) % tickPeriod;
+  return msSinceTick*1000; 
+}
+
+
 
 void Clock_driver_support_initialize_hardware(void)
 { // just aquire the IRQ and use the 8254 behaviour. No TSC support for now!
@@ -171,12 +113,17 @@ void Clock_driver_support_initialize_hardware(void)
   else
   {
     printk( "Successfully installed l4rtems_timer interrupt handler\n" );
-    printk( "Starting the clock with period: %u ms \n", Configuration.microseconds_per_tick );
-    l4rtems_timer_start( Configuration.microseconds_per_tick, 0 );
+    printk( "Starting the clock with period: %u ms \n", rtems_configuration_get_microseconds_per_tick() );
+    l4rtems_timer_start( rtems_configuration_get_microseconds_per_tick(), FIRST_TICK_OFFSET );
   }
 
+  Clock_driver_nanoseconds_since_last_tick = l4rtems_clock_nanoseconds_since_last_tick;
 
 }
+
+
+
+
 
 #define Clock_driver_support_shutdown_hardware() \
   do { \
