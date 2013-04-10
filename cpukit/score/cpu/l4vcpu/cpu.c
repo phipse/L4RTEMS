@@ -24,6 +24,15 @@
 #include <rtems/bspIo.h>
 #include <rtems/score/thread.h>
 
+/* L4 includes */
+#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/handler.h>
+#include <rtems/l4vcpu/l4vcpu.h>
+
+/* L4 global variables */
+extern sharedvars_t *sharedVariableStruct;
+
+
 /*  _CPU_Initialize
  *
  *  This routine performs processor dependent initialization.
@@ -110,7 +119,11 @@ uint32_t   _CPU_ISR_Get_level( void )
 void *_CPU_Thread_Idle_body( uintptr_t ignored )
 {
   while(1){
-    __asm__ volatile ("hlt");
+    l4vcpu_wait_for_event( sharedVariableStruct->vcpu,
+	l4_utcb(),
+	l4rtems_irq_handler,
+	l4rtems_setup_ipc
+	);
   }
   return NULL;
 }
