@@ -912,3 +912,31 @@ little bit hacky, as I just multiply the difference in microseconds with 1000.
 But as a start it isn't that bad.
 However, I still get the page faults from the _Watchdog_Tickle_ticks()
 function.
+
+
+
+10/04/2012
+I tried the ticker example. It produces a general protection fault, because the
+three tasks are blocking on purpose and the _CPU_Thread_Idle_body() function
+is called. This function executes the asm command "hlt", which is a priviledged
+instruction and produces the GPF. 
+I tried the ugly busy waiting, but then the tasks don't get resumed, at least I
+don't get any output. So I need a solution, which blocks execution, but doesn't 
+use the hlt instruction. I don't want to halt the vcpu.
+
+So there is a function called l4vcpu_wait_for_event, which blocks until an
+interrupt occurs. This works as expected. The busy waiting would work too, but
+I had this GPF issue mentioned earlier with _Watchdog_Tickle_ticks(), which I 
+couldn't track down. So I assumed it had the same cause and included it again,
+and it's shown, the GPF vanished as well.
+
+In the meeting with Adam today, I mentioned my problems with the interrupt
+handling (26/03/2013) and my fix is working, but far away from valid. So I am
+back at this problem. Now I use the passed _level variable, as it stores the
+old state, didn't get that before... . Additionally, I had to implement to
+functions which enable and disable IRQs, without writing to the _level variable, as
+_Modes_Set_interrupt_level() doesn't pass a variable, instead it passes a
+number. This leads to nasty compile time errors. That vanished with the usage
+of the two new functions in _ISR_Set_level.
+
+So what remains is the interrupt enable/disable issue. 

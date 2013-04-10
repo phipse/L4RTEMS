@@ -36,60 +36,59 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
 
 // RTEMSVCPU: 19/05/2012
 // lots of unused variable errors in other files, caused by unused _level
-// variable in the following
+// variable in the following -- used it as irq state container
 #include <rtems/score/wrapper.h>
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4vcpu.h>
 
-extern l4vcpu_irq_state_t l4rtems_vcpu_irq_state;
 extern sharedvars_t *sharedVariableStruct;
+
 
 #define i386_disable_interrupts( _level ) \
   { \
-    l4vcpu_irq_disable( sharedVariableStruct->vcpu ); \
+    _level = l4vcpu_irq_disable_save( sharedVariableStruct->vcpu ); \
+    printk( "irq state: %x\n", _level ); \
   }
-    //printk( "irq state: %x\n", l4rtems_vcpu_irq_state ); \
+
 
 #define i386_enable_interrupts( _level )  \
-  { l4vcpu_irq_enable( \
-      sharedVariableStruct->vcpu, l4_utcb(), \
-      l4rtems_irq_handler, l4rtems_setup_ipc ); \
+  { \
+    l4vcpu_irq_state_t s = _level; \
+    l4vcpu_irq_restore( \
+      sharedVariableStruct->vcpu, \
+      s, \
+      l4_utcb(), \
+      l4rtems_irq_handler, \
+      l4rtems_setup_ipc ); \
+    printk( "irq restored state: %x\n", _level ); \
   }
-//    printk( "irq restored state: %x\n", l4rtems_vcpu_irq_state ); \
 
 #define i386_open_interrupts( ) \
   { l4vcpu_irq_enable( \
       sharedVariableStruct->vcpu, l4_utcb(), \
       l4rtems_irq_handler, l4rtems_setup_ipc ); \
-    printk( "irq open!\n" ); \
   }
 
-// RTEMSVCPU:
-// is this really a flash? Because push level; popf; doesn't necessarily enable
-// interrupts
+#define i386_close_interrupts( ) \
+  { \
+    l4vcpu_irq_disable( sharedVariableStruct->vcpu ); \
+  }
+
+
 #define i386_flash_interrupts( _level ) \
   { \
     i386_enable_interrupts( _level ); \
     i386_disable_interrupts( _level ); \
   }
-/*    __asm__ volatile ( "push %0 ; \
-                    popf ; \
-                    cli" \
-                    : : "rm" ((_level)) : "cc" \
-    ); \ 
-  }*/
+
 
 #define i386_get_interrupt_level( _level ) \
-  do { \
-    register uint32_t   _eflags; \
-    \
-    __asm__ volatile ( "pushf ; \
-                    pop %0" \
-                    : "=rm" ((_eflags)) \
-    ); \
-    \
-    _level = (_eflags & EFLAGS_INTR_ENABLE) ? 0 : 1; \
-  } while (0)
+  { \
+    l4vcpu_state_t s = l4vcpu_state( sharedVariableStruct->vcpu ); \
+    if( s & L4_VCPU_F_IRQ ) _level = 1; \
+    else _level = 0; \
+  }
+
 
 #define _CPU_ISR_Disable( _level ) i386_disable_interrupts( _level )
 #define _CPU_ISR_Enable( _level ) i386_enable_interrupts( _level )

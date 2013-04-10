@@ -352,8 +352,8 @@ SCORE_EXTERN Context_Control_fp  _CPU_Null_fp_context;
 
 #define _CPU_ISR_Set_level( _new_level ) \
   { \
-    if ( _new_level ) { i386_disable_interrupts(); } \
-    else              { i386_enable_interrupts(); } \
+    if ( _new_level ) { i386_open_interrupts(); } \
+    else              { i386_close_interrupts(); }  \
   }
 
 uint32_t   _CPU_ISR_Get_level( void );
