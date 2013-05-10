@@ -185,15 +185,6 @@ void Wait_X_ms(unsigned int timeToWait); /* from 'timer.c'  */
 const char* bsp_cmdline(void);
 const char* bsp_cmdline_arg(const char* arg);
 
-/*
- * IDE command line parsing.
- */
-void bsp_ide_cmdline_init(void);
-
-/*
- * indicate, that BSP has IDE driver
- */
-#define RTEMS_BSP_HAS_IDE_DRIVER
 
 /* GDB stub stuff */
 void i386_stub_glue_init(int uart);
