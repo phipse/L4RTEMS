@@ -957,4 +957,10 @@ Finally, with the help of Adam the fault was found. I screwed up the
 _CPU_ISR_Set_level macro by swaping the cli and sti replacement code. 
 Fixed, timer sample works.
 
+Next up is the block device handling or filesystem handling. I can either pass
+a device through qemu to L4 and on to RTEMS or I can acquire a dataspace in L4
+and pass it on to RTEMS.
 
+The fileio sample revealed the missing console read. I used l4_vcon_read() but
+this is not blocking and waiting for keyboard input. I can't even get keyboard
+input through, by holding down a key.

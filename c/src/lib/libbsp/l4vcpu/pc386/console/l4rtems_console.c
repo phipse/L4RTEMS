@@ -240,7 +240,26 @@ console_read(rtems_device_major_number major,
              rtems_device_minor_number minor,
              void                      *arg)
 {
- return rtems_termios_read( arg );
+  // FIXME: l4_vcon_read is non blocking!
+  rtems_libio_rw_args_t *args = arg;
+  uint32_t count = args->count;
+  char *buffer = args->buffer;
+
+  uint32_t read = l4_vcon_read( sharedVariableStruct->logcap, buffer, count );
+  if( read < 0 )
+  {
+    printk( "ERORR: CAN'T read from console! ERROR CODE: %x\n", read );
+    return RTEMS_IO_ERROR;
+  }
+  else /* FIXME: read > size needs to be handled too. */
+  {
+    args->bytes_moved = read;
+    return RTEMS_SUCCESSFUL;
+  }
+  
+// L4RTEMS: termios not configured, use vcon
+// return rtems_termios_read( arg );
+
 } /* console_read */
 
 /*-------------------------------------------------------------------------+
