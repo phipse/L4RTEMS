@@ -279,8 +279,8 @@ SYM (zero_bss):
 	movl	$SYM(_boot_multiboot_cmdline), (esp)
 	call	SYM (boot_card)
 
-	cli	# stops interrupts from being processed after hlt!
-	hlt	# shutdown
+#	cli	# stops interrupts from being processed after hlt!
+#	hlt	# shutdown
 
 #ifdef __SSE__
 SYM(_sse_panic):

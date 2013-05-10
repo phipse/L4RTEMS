@@ -31,7 +31,7 @@ timerIsOn( const rtems_raw_irq_connect_data* unused )
 static void
 timerOn( const rtems_raw_irq_connect_data* used ) 
 {
-  l4rtems_timer_start( 10ULL, Ttimer_val );
+  l4rtems_timer_start( 0ULL, Ttimer_val );
 }
 
 static void

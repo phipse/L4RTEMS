@@ -65,12 +65,7 @@ void bsp_start_default( void )
   sharedVariableStruct->vcpu->entry_ip = l4rtems_handler;
   l4re_global_env = sharedVariableStruct->l4re_env;
   __l4_external_resolver = sharedVariableStruct->external_resolver;
-//  i386_open_interrupts();
-//  i386_disable_interrupts();
-//  l4rtems_vcpu_irq_state = L4VCPU_IRQ_STATE_ENABLED;
-//  printk( "vcpu irq state %u\n", l4rtems_vcpu_irq_state );
-  
-  
+
   /*
    *  We need to determine how much memory there is in the system.
    */

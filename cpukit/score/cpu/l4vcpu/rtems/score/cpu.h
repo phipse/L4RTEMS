@@ -352,8 +352,8 @@ SCORE_EXTERN Context_Control_fp  _CPU_Null_fp_context;
 
 #define _CPU_ISR_Set_level( _new_level ) \
   { \
-    if ( _new_level ) { i386_open_interrupts(); } \
-    else              { i386_close_interrupts(); }  \
+    if ( _new_level ) { i386_close_interrupts(); } \
+    else              { i386_open_interrupts(); }  \
   }
 
 uint32_t   _CPU_ISR_Get_level( void );
@@ -468,11 +468,7 @@ uint32_t   _CPU_ISR_Get_level( void );
 
 #define _CPU_Fatal_halt( _error ) \
   { \
-    __asm__ volatile ( "cli ; \
-                    movl %0,%%eax ; \
-                    hlt" \
-                    : "=r" ((_error)) : "0" ((_error)) \
-    ); \
+    printk( "!!FATAL HALT!! ERORR: %x\n\n\n", _error ); \
   }
 
 #endif /* ASM */

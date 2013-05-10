@@ -85,8 +85,9 @@ l4rtems_handler( l4_vcpu_state_t* vcpuh )
 #if !DEBUG
     printk("vcpu->trapno: %i\n", vcpuh->r.trapno);
     printk( "label: %i \n", vcpuh->i.label );
+    printk( "IP: %x \n", vcpuh->r.ip );
 //    printk( "%s\n", l4sys_errtostr(vcpuh->r.flags));
-//    enter_kdebug("handler entry");
+    enter_kdebug("handler entry");
 #endif
   }
 

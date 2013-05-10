@@ -42,32 +42,39 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
 #include <rtems/l4vcpu/l4vcpu.h>
 
 extern sharedvars_t *sharedVariableStruct;
+extern int disableCallCnt;
 
 
 #define i386_disable_interrupts( _level ) \
   { \
     _level = l4vcpu_irq_disable_save( sharedVariableStruct->vcpu ); \
-    printk( "irq state: %x\n", _level ); \
   }
 
+//    printk( "irq state saved: %i, disableCallCnt: %i\n", _level, disableCallCnt ); \
+    printk( "irq restored state: %x, disableCallCnt: %i\n", _level, disableCallCnt ); \
+    disableCallCnt++; \
+    disableCallCnt--; \
 
 #define i386_enable_interrupts( _level )  \
   { \
-    l4vcpu_irq_state_t s = _level; \
     l4vcpu_irq_restore( \
       sharedVariableStruct->vcpu, \
-      s, \
+      _level, \
       l4_utcb(), \
       l4rtems_irq_handler, \
       l4rtems_setup_ipc ); \
-    printk( "irq restored state: %x\n", _level ); \
   }
 
 #define i386_open_interrupts( ) \
-  { l4vcpu_irq_enable( \
+  { \
+    l4vcpu_irq_enable( \
       sharedVariableStruct->vcpu, l4_utcb(), \
       l4rtems_irq_handler, l4rtems_setup_ipc ); \
   }
+
+    //printk( ">>>> irq opened\n");  \
+    printk( ">>>> VCPU state: %x\n", (l4vcpu_irq_state_t) l4vcpu_state( sharedVariableStruct->vcpu ) ); \
+    printk( "<<<< irq closed\n"); \
 
 #define i386_close_interrupts( ) \
   { \
@@ -84,9 +91,9 @@ extern sharedvars_t *sharedVariableStruct;
 
 #define i386_get_interrupt_level( _level ) \
   { \
-    l4vcpu_state_t s = l4vcpu_state( sharedVariableStruct->vcpu ); \
-    if( s & L4_VCPU_F_IRQ ) _level = 1; \
-    else _level = 0; \
+    l4vcpu_irq_state_t s = (l4vcpu_irq_state_t) l4vcpu_state( sharedVariableStruct->vcpu ); \
+    if( s & L4_VCPU_F_IRQ ) _level = 0; \
+    else _level = 1; \
   }
 
 

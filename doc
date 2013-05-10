@@ -915,7 +915,7 @@ function.
 
 
 
-10/04/2012
+10/04/2013
 I tried the ticker example. It produces a general protection fault, because the
 three tasks are blocking on purpose and the _CPU_Thread_Idle_body() function
 is called. This function executes the asm command "hlt", which is a priviledged
@@ -940,3 +940,21 @@ number. This leads to nasty compile time errors. That vanished with the usage
 of the two new functions in _ISR_Set_level.
 
 So what remains is the interrupt enable/disable issue. 
+
+
+
+06/05/2013
+After some debugging, tracing, IRC questions I know, that every thread/task
+starts with interrupt disabled. It should however enable them later in the
+execution. However there might be a problem in the vcpu calls.
+I haven't found the problem yet. It's eating up a lot of time, but it's
+essential to the whole project.
+
+
+
+10/05/2013
+Finally, with the help of Adam the fault was found. I screwed up the
+_CPU_ISR_Set_level macro by swaping the cli and sti replacement code. 
+Fixed, timer sample works.
+
+

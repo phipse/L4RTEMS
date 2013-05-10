@@ -180,11 +180,15 @@ $(PROJECT_INCLUDE)/rtems/l4vcpu/l4syscall-invoke.h: rtems/l4vcpu/l4syscall-invok
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4syscall-invoke.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4syscall-invoke.h
 
-$(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h: rtems/l4vcpu/timer.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcon.h: rtems/l4vcpu/l4vcon.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcon.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4vcon.h
 
 $(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h: rtems/l4vcpu/handler.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h: rtems/l4vcpu/timer.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
 

@@ -95,7 +95,7 @@ l4rtems_clock_nanoseconds_since_last_tick( void )
 
 
 void Clock_driver_support_initialize_hardware(void)
-{ // just aquire the IRQ and use the 8254 behaviour. No TSC support for now!
+{ 
   
   // initialize clock tick counter
   Clock_driver_ticks = 0;

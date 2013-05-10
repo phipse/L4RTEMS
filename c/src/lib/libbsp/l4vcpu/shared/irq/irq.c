@@ -201,6 +201,7 @@ static rtems_irq_prio irqPrioTable[BSP_IRQ_LINES_NUMBER]={
 
 static void compute_i8259_masks_from_prio (void)
 {
+#if 0
   rtems_interrupt_level level;
   unsigned int i;
   unsigned int j;
@@ -223,6 +224,7 @@ static void compute_i8259_masks_from_prio (void)
   }
 
   rtems_interrupt_enable(level);
+#endif
 }
 
 //RTEMSVCPU: use this functions as interface to the L4Re wrapper
@@ -231,8 +233,17 @@ rtems_status_code bsp_interrupt_vector_enable(rtems_vector_number vector)
   // RTEMSVCPU: Add interrupt vector to L4Re, as we have a handler now.
   printk( "requestIrq %i \n", vector );
 //  enter_kdebug( "rtems_requestIrq" );
+  rtems_interrupt_level _level;
+  rtems_interrupt_disable( _level );
   if( !l4rtems_requestIrq( vector ) )
+  {
+    rtems_interrupt_enable( _level );
     return RTEMS_IO_ERROR;
+  }
+  else
+  {
+    rtems_interrupt_enable( _level );
+  }
 //  BSP_irq_enable_at_i8259s(vector);
   printk( "IRQ requested: %i\n", vector );
   return RTEMS_SUCCESSFUL;
@@ -242,7 +253,14 @@ rtems_status_code bsp_interrupt_vector_disable(rtems_vector_number vector)
 {
   //RTEMSVCPU: as the last interrupt handler was removed and the vector was
   //disabled, remove the interrupt vector from L4Re.
+  rtems_interrupt_level _level;
+
+  rtems_interrupt_disable( _level );
+
   l4rtems_detachIrq( vector );
+
+  rtems_interrupt_enable( _level );
+  
   printk( "IRQ detached: %i\n", vector );
 //  BSP_irq_disable_at_i8259s(vector);
 
