@@ -51,10 +51,6 @@ $(PROJECT_INCLUDE)/rtems/score/idtr.h: rtems/score/idtr.h $(PROJECT_INCLUDE)/rte
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/score/idtr.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/score/idtr.h
 
-$(PROJECT_INCLUDE)/rtems/score/wrapper.h: rtems/score/wrapper.h $(PROJECT_INCLUDE)/rtems/score/$(dirstamp)
-	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/score/wrapper.h
-PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/score/wrapper.h
-
 $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp):
 	@$(MKDIR_P) $(PROJECT_INCLUDE)/rtems/l4vcpu
 	@: > $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
@@ -191,4 +187,12 @@ PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/handler.h
 $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h: rtems/l4vcpu/timer.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
 	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
 PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/timer.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4rtems_wrapper.h: rtems/l4vcpu/l4rtems_wrapper.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4rtems_wrapper.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4rtems_wrapper.h
+
+$(PROJECT_INCLUDE)/rtems/l4vcpu/l4rtems_timer_IPC.h: rtems/l4vcpu/l4rtems_timer_IPC.h $(PROJECT_INCLUDE)/rtems/l4vcpu/$(dirstamp)
+	$(INSTALL_DATA) $< $(PROJECT_INCLUDE)/rtems/l4vcpu/l4rtems_timer_IPC.h
+PREINSTALL_FILES += $(PROJECT_INCLUDE)/rtems/l4vcpu/l4rtems_timer_IPC.h
 
