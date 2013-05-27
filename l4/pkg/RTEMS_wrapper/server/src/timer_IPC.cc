@@ -210,6 +210,7 @@ l4rtems_timer_start(  l4rtems_timer_t period,   // between two interrupts
   ios.put(Timer_ops::L4RTEMS_TIMER_START);
   ios << first;
   ios << period;
+//  printf("starting timer with first and period:\n %llu, %llu\n", first, period );
   l4_msgtag_t msg = ios.call( timer_thread_cap.cap(), static_cast<std::underlying_type<Protos>::type>(Protos::L4RTEMS_PROTO_TIMER) );
 
   if( l4_ipc_error( msg, l4_utcb() ) )

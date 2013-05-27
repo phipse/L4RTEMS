@@ -973,5 +973,7 @@ l4rtems_wrapper.h. The former is solely for L4 functions, the latter for the
 shared ones. Additionaly, I moved the wrapper.h file in RTEMS to
 score/cpu/l4vcpu/rtems/l4vcpu/ to keep all L4 related header files in one 
 directory.
-
-
+During this process I had to move the function definitions from timer_IPC.h to
+l4rtems_timer_IPC.h. This file, too, is shared between RTEMS and L4 and is
+located in score/cpu/l4vcpu/rtems/l4vcpu/ and included by the RTEMS version of
+l4rtems_wrapper.h.

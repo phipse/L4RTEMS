@@ -20,6 +20,7 @@ extern "C" {
   #include <l4/sys/vcpu.h>
   #include <l4/re/env.h>
 #endif
+#include <stdbool.h>
 
 typedef struct guestHostShare
 {
@@ -56,7 +57,6 @@ l4rtems_inport( unsigned int port, unsigned int size );
 // magic size numbers: 0 -> byte, 1 -> word, 2 -> long
 l4_fastcall void
 l4rtems_outport( unsigned int port, unsigned int value, unsigned int size );
-
 
 #ifdef __cplusplus
 }
