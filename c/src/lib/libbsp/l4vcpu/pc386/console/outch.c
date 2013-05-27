@@ -282,7 +282,7 @@ _IBMPC_outch(char c)
 |          Returns: Nothing.
 +--------------------------------------------------------------------------*/
 /* RTEMSVCPU:  We don't want to emulate the POST-BIOS state. */
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 
 extern sharedvars_t *sharedVariableStruct;
 

@@ -37,7 +37,7 @@ typedef int  (*rtems_raw_irq_is_enabled)	(const struct __rtems_raw_irq_connect_d
 // RTEMSVCPU: 19/05/2012
 // lots of unused variable errors in other files, caused by unused _level
 // variable in the following -- used it as irq state container
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4vcpu.h>
 

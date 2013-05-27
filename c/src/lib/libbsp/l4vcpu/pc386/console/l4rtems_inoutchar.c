@@ -2,7 +2,7 @@
 #include <string.h>
 #include <rtems/l4vcpu/l4vcon.h>
 /* L4RTEMS: include the wrapper.h to get the sharedVariableStruct */
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 
 
 extern sharedvars_t *sharedVariableStruct;

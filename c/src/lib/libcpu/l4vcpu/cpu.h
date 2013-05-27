@@ -151,7 +151,7 @@ do { register unsigned short __port  = _port; \
  *  RTEMSVCPU: adapted to work with the l4 vcpu interface
  */
  
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 /* MAGIC NUMBERS: 0 -> byte, 1 -> word, 2 -> long */
 
 #define i386_outport_byte( _port, _value ) \

@@ -25,7 +25,7 @@
 #include <rtems/score/thread.h>
 
 /* L4 includes */
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 #include <rtems/l4vcpu/handler.h>
 #include <rtems/l4vcpu/l4vcpu.h>
 

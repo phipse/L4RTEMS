@@ -14,7 +14,7 @@
 #include <bsp.h>
 #include <bsp/irq.h>
 #include <libcpu/cpuModel.h>
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 
 
 

@@ -17,7 +17,7 @@
 #include <bsp.h>
 #include <bsp/bootcard.h>
 /* L4RTEMS: include the wrapper.h to get the sharedVariableStruct */
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 #define L4RTEMS 1
 
 #ifdef BSP_GET_WORK_AREA_DEBUG

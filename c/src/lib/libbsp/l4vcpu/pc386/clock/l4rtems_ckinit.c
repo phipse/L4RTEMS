@@ -113,7 +113,7 @@ void Clock_driver_support_initialize_hardware(void)
   else
   {
     printk( "Successfully installed l4rtems_timer interrupt handler\n" );
-    printk( "Starting the clock with period: %u ms \n", rtems_configuration_get_microseconds_per_tick() );
+    printk( "Starting the clock with period: %u µs \n", rtems_configuration_get_microseconds_per_tick() );
     l4rtems_timer_start( rtems_configuration_get_microseconds_per_tick(), FIRST_TICK_OFFSET );
   }
 

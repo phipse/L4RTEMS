@@ -5,7 +5,7 @@
 #include <rtems/l4vcpu/l4thread.h>
 #include <rtems/l4vcpu/l4kdebug.h>
 #include <rtems/l4vcpu/l4util.h>
-#include <rtems/score/wrapper.h>
+#include <rtems/l4vcpu/l4rtems_wrapper.h>
 #include <bsp/irq-generic.h>
 #include "l4lib.h"
 
