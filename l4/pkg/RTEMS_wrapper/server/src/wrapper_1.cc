@@ -45,7 +45,8 @@
 #include <l4/util/port_io.h>
 #include <l4/libloader/elf>
 #include <uclibc/fcntl.h>
-#include <l4/RTEMS_wrapper/wrapper_1.h>
+#include <l4/RTEMS_wrapper/wrapper.h>
+#include <l4/RTEMS_wrapper/l4rtems_wrapper.h>
 #include <l4/RTEMS_wrapper/shared.h>
 #include <contrib/libio-io/l4/io/io.h>
 
@@ -62,6 +63,7 @@ static L4::Cap<L4::Task> vcpu_task;
 static L4vcpu::Vcpu *vcpu;
 static L4::Cap<L4::Thread> vcpu_cap;
 static l4_vcpu_state_t *vcpuh;
+static l4_cap_idx_t _vcpu_cap;
 
 static char thread_stack[8 << 10];
 static char hdl_stack[8 << 10];

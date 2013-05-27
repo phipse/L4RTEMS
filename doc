@@ -964,3 +964,14 @@ and pass it on to RTEMS.
 The fileio sample revealed the missing console read. I used l4_vcon_read() but
 this is not blocking and waiting for keyboard input. I can't even get keyboard
 input through, by holding down a key.
+
+
+
+27/05/2013
+:Cleanup: I split the header file in RTEMS_wrapper into wrapper.h and
+l4rtems_wrapper.h. The former is solely for L4 functions, the latter for the
+shared ones. Additionaly, I moved the wrapper.h file in RTEMS to
+score/cpu/l4vcpu/rtems/l4vcpu/ to keep all L4 related header files in one 
+directory.
+
+
